@@ -56,6 +56,7 @@ def generate_assembly(model_path, output_file):
                 tensor_buffer_map[input_name] = 0
                 size = tensor_size(shape_map.get(input_name, []))
                 asm_instructions.append(f"LOAD_V {0}, {hex(dram_addresses['inputs'])}, {size}")
+                print("The length of the input tensor is", size)
                 tensor_buffer_map[output_name] = 0
             continue
         
@@ -146,8 +147,8 @@ def generate_assembly(model_path, output_file):
         if node.output[0] in [o.name for o in graph.output]:
             size = tensor_size(shape_map.get(node.output[0], []))
             out_buf = tensor_buffer_map.get(node.output[0], "?")
-            asm_instructions.append(f"STORE {hex(dram_addresses['outputs'])}, {out_buf}, {size}")
-    
+            asm_instructions.append(f"STORE {out_buf}, {hex(dram_addresses['outputs'])}, {size}")
+
     # Write assembly to file
     with open(output_file, "w") as f:
         f.write("; Custom Architecture Assembly Code\n")
