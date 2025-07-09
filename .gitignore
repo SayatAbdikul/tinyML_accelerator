@@ -1,3 +1,4 @@
 compiler/__pycache__
 compiler/model_assembly.asm
 compiler/mlp_model.onnx
+compiler/dram.hex
