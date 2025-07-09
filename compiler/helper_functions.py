@@ -1,6 +1,8 @@
 import onnx
 from onnx import numpy_helper
 from top_sort import topological_sort
+import numpy as np
+
 def load_initializers(graph):
     init_map = {}
     for initializer in graph.initializer:
@@ -37,12 +39,14 @@ def build_initializer_map(graph): # Builds a map of initializer names to their d
     init_map = {}
     for init in graph.initializer:
         arr = numpy_helper.to_array(init)
+        quantized_array = quantize_tensor(arr, scale=0.02, zero_point=128)
         init_map[init.name] = {
-            "data": arr,
-            "shape": arr.shape,
-            "dtype": str(arr.dtype),
-            "type": "weight" if len(arr.shape) > 1 else "bias"
+            "data": quantized_array,
+            "shape": quantized_array.shape,
+            "dtype": str(quantized_array.dtype),
+            "type": "weight" if len(quantized_array.shape) > 1 else "bias"
         }
+        
     return init_map
 
 # Helper to calculate tensor size
@@ -56,6 +60,8 @@ def tensor_size(shape):
         elif dim == "?":
             size = 0  # Unknown size
     return size
+def quantize_tensor(tensor, scale, zero_point):
+    return np.clip(np.round(tensor / scale + zero_point), 0, 255).astype(np.uint8)
 
 def print_weights_in_order(model_path):
     model = onnx.load(model_path)
