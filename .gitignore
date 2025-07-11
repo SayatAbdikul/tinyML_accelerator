@@ -6,3 +6,5 @@ compiler/dram.hex
 compiler/model.py
 compiler/disassembled.asm
 compiler/program.hex
+obj_dir
+.vscode
