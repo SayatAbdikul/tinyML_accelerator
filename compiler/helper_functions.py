@@ -39,7 +39,7 @@ def build_initializer_map(graph): # Builds a map of initializer names to their d
     init_map = {}
     for init in graph.initializer:
         arr = numpy_helper.to_array(init)
-        quantized_array = quantize_tensor(arr, scale=0.02, zero_point=128)
+        quantized_array = quantize_tensor_f32_int8(arr, scale=0.1, zero_point=0)
         init_map[init.name] = {
             "data": quantized_array,
             "shape": quantized_array.shape,
@@ -60,8 +60,16 @@ def tensor_size(shape):
         elif dim == "?":
             size = 0  # Unknown size
     return size
-def quantize_tensor(tensor, scale, zero_point):
-    return np.clip(np.round(tensor / scale + zero_point), 0, 255).astype(np.uint8)
+
+def quantize_tensor_f32_int8(tensor, scale, zero_point = 0):
+    return np.clip(np.round(tensor / scale + zero_point), -128, 127).astype(np.int8)
+
+def quantize_int32_to_int8(x_int32, scale, zero_point):
+    x_fp32 = x_int32.astype(np.float32) * scale
+    x_rounded = np.round(x_fp32)
+    x_quantized = x_rounded + zero_point
+    x_clamped = np.clip(x_quantized, -128, 127)
+    return x_clamped.astype(np.int8)
 
 def print_weights_in_order(model_path):
     model = onnx.load(model_path)
