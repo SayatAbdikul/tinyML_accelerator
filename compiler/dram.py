@@ -1,10 +1,10 @@
 import numpy as np
 import onnx
 from onnx import numpy_helper
-from helper_functions import quantize_tensor
+from helper_functions import quantize_tensor_f32_int8
 
 MEM_SIZE = 0x50000  # Total memory size
-dram = np.zeros(MEM_SIZE, dtype=np.uint8)
+dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
     end_addr = start_addr + len(array)
@@ -15,11 +15,30 @@ def write_to_dram(array, start_addr):
         print(f"DRAM overflow: trying to write {len(array)} bytes at address {hex(start_addr)}")
         raise ValueError("DRAM overflow")
     dram[start_addr:end_addr] = array
-    print(f"Written {len(array)} bytes to DRAM at address {hex(start_addr)}")
+    # print(f"Written {len(array)} bytes to DRAM at address {hex(start_addr)}")
+    # if len(array) == 100:
+    #     print(f"Data: {array}... (total {len(array)} bytes)")
     # print(f"DRAM state: {dram[start_addr:end_addr]}")
     return end_addr  # Return next free address
 
+def read_from_dram(start_addr, length):
+    end_addr = start_addr + length
+    if end_addr > len(dram):
+        print(f"DRAM overflow: trying to read {length} bytes from address {hex(start_addr)}")
+        raise ValueError("DRAM overflow")
+    data = dram[start_addr:end_addr]
+    # print(f"Read {length} bytes from DRAM at address {hex(start_addr)}")
+    return np.array(dram[start_addr:end_addr], dtype=np.int8)
+
+def get_dram():
+    """
+    Returns the current state of DRAM as a numpy array.
+    """
+    return dram.copy()  # Return a copy to avoid external modifications
+
 def save_initializers_to_dram(model_path, dram_offsets):
+    global dram
+    dram = np.zeros(MEM_SIZE, dtype=np.int8)
     model = onnx.load(model_path)
     graph = model.graph
 
@@ -34,12 +53,13 @@ def save_initializers_to_dram(model_path, dram_offsets):
         array = numpy_helper.to_array(init)
 
         # Choose scale/zero_point per tensor or globally
-        scale = np.max(np.abs(array)) / 127.0 if np.max(np.abs(array)) > 0 else 1.0
-        zero_point = 128  # for symmetric quantization
+        scale = np.max(np.abs(array)) / 127 if np.max(np.abs(array)) > 0 else 1.0
 
-        quant_array = quantize_tensor(array, scale, zero_point).flatten()
-
+        quant_array = quantize_tensor_f32_int8(array, scale).flatten()
+        # print("quant_array is: ", quant_array)
+        # print("original array is: ", array)
         if len(array.shape) > 1:  # weight
+            
             weight_map[name] = weight_ptr
             weight_ptr = write_to_dram(quant_array, weight_ptr)
         else:  # bias
@@ -49,10 +69,12 @@ def save_initializers_to_dram(model_path, dram_offsets):
     return weight_map, bias_map
 
 def save_input_to_dram(input_tensor, addr):
-    quant_input = quantize_tensor(input_tensor, scale=0.02, zero_point=128)
-    write_to_dram(quant_input.flatten(), addr)
+    # print(f"Saving input tensor to DRAM at address {hex(addr)} with shape {quant_input.shape}")
+    write_to_dram(input_tensor.flatten(), addr)
 
 def save_dram_to_file(filename="dram.hex"):
     with open(filename, "w") as f:
         for byte in dram:
-            f.write(f"{byte:02X}\n")
+            # Convert signed int8 to unsigned for hex
+            val = np.uint8(byte)
+            f.write(f"{val:02X}\n")
