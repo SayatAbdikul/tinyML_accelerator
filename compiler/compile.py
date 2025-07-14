@@ -1,7 +1,6 @@
 import onnx
-from onnx import numpy_helper, shape_inference
+from onnx import shape_inference
 import numpy as np
-from collections import defaultdict, deque
 from helper_functions import build_tensor_shape_map, build_initializer_map, topological_sort, tensor_size
 
 
@@ -19,6 +18,7 @@ def generate_assembly(model_path, output_file):
     bias_vector_buf = 3 # can be 3 or 4
     gemv_buf = 5 # can be 5 or 6
     relu_buf = 7 # can be 7 or 8
+    input_buf = 9 # always 9 for input tensor
     tensor_buffer_map = {}
     asm_instructions = []
     weight_counter = 0
@@ -27,10 +27,10 @@ def generate_assembly(model_path, output_file):
     
     # Memory address simulation
     dram_addresses = {
-        "inputs": 0x1000,
-        "weights": 0x2000,
-        "biases": 0x3000,
-        "outputs": 0x4000
+        "inputs": 0x10000,
+        "weights": 0x20000,
+        "biases": 0x30000,
+        "outputs": 0x40000
     }
     
     
@@ -55,8 +55,8 @@ def generate_assembly(model_path, output_file):
                 # We have only 1 input, and we put it in buffer 0
                 tensor_buffer_map[input_name] = 0
                 size = tensor_size(shape_map.get(input_name, []))
-                asm_instructions.append(f"LOAD_V {0}, {hex(dram_addresses['inputs'])}, {size}")
-                print("The length of the input tensor is", size)
+                asm_instructions.append(f"LOAD_V {input_buf}, {hex(dram_addresses['inputs'])}, {size}")
+                # print("The length of the input tensor is", size)
                 tensor_buffer_map[output_name] = 0
             continue
         
@@ -98,19 +98,9 @@ def generate_assembly(model_path, output_file):
         if node.op_type in ["Gemm", "MatMul"]:
             # Find inputs - assume format: [input, weight, (optional bias)]
             input_buf = tensor_buffer_map.get(node.input[0], "?") # will be ? if not found
+            input_buf = 9 if input_buf == 0 else input_buf  # default to 0 if not found
             weight_buf = tensor_buffer_map.get(node.input[1], "?")
-            bias_buf = None
-            
-            # Check if next node is Add for bias
-            if i + 1 < len(ordered_nodes):
-                next_node = ordered_nodes[i+1]
-                if (next_node.op_type == "Add" and 
-                    next_node.input[0] == node.output[0] and # check if next node is Add and matches output
-                    next_node.input[1] in initializer_map): # check if bias is in initializers
-                    bias_buf = tensor_buffer_map.get(next_node.input[1], "?")
-                    # Add next node to skip list by name
-                    next_node_name = next_node.name if next_node.name else f"node_{i+1}"
-                    skip_nodes.add(next_node_name)
+            bias_buf = 4 if bias_vector_buf == 3 else 3  # ping-pong bias buffer
             
             # Get matrix dimensions
             if node.input[1] in initializer_map:
@@ -125,10 +115,7 @@ def generate_assembly(model_path, output_file):
                 shape = shape_map.get(node.input[1], ["?", "?"])
                 rows, cols = shape[0], shape[1]
             
-            if bias_buf is not None:
-                asm_instructions.append(f"GEMV {gemv_buf}, {weight_buf}, {input_buf}, {bias_buf}, {rows}, {cols}")
-            else:
-                asm_instructions.append(f"GEMV {gemv_buf}, {weight_buf}, {input_buf}, 0, {rows}, {cols}")
+            asm_instructions.append(f"GEMV {gemv_buf}, {weight_buf}, {input_buf}, {bias_buf}, {rows}, {cols}")
             
             tensor_buffer_map[node.output[0]] = gemv_buf
             gemv_buf = 6 if gemv_buf == 5 else 5  # ping-pong GEMV buffer
@@ -155,7 +142,7 @@ def generate_assembly(model_path, output_file):
         f.write("; Generated from ONNX model\n\n")
         f.write("\n".join(asm_instructions))
     
-    print(f"Generated assembly saved to {output_file}")
+    # print(f"Generated assembly saved to {output_file}")
 
 if __name__ == "__main__":
     # Example usage
