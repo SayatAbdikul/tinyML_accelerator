@@ -58,7 +58,7 @@ def assemble_file(asm_file, out_file="program.hex"):
     machine_code = []
     for line in lines:
         encoded = assemble_line(line)
-        print(f"Encoding line: '{line.strip()}' -> '{encoded}'")
+        # print(f"Encoding line: '{line.strip()}' -> '{encoded}'")
         if encoded:
             machine_code.extend(encoded.strip().split("\n"))
 
@@ -66,7 +66,10 @@ def assemble_file(asm_file, out_file="program.hex"):
         for code in machine_code:
             f.write(code + "\n")
 
-    print(f"✅ Assembled {len(machine_code)} instructions to '{out_file}'")
+    # print(f"✅ Assembled {len(machine_code)} instructions to '{out_file}'")
 
-# Example usage:
-assemble_file("model_assembly.asm")
+if __name__ == "__main__":
+    # Example usage
+    asm_file = "model_assembly.asm"
+    out_file = "program.hex"
+    assemble_file(asm_file, out_file)
