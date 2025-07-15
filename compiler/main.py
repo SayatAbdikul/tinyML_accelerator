@@ -76,6 +76,6 @@ if __name__ == "__main__":
         sum += np.sum(calculate_difference(output_design, quantized_output_model))
         print("The design output: ", output_design)
         print("The model output: ", quantized_output_model)
-    sum /= 1
+    sum /= 100
     print("Average difference over 100 runs:", sum)
     # You can add more checks or validations here if needed
