@@ -8,3 +8,4 @@ compiler/disassembled.asm
 compiler/program.hex
 obj_dir
 .vscode
+compiler/data
