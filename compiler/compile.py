@@ -27,10 +27,10 @@ def generate_assembly(model_path, output_file):
     
     # Memory address simulation
     dram_addresses = {
-        "inputs": 0x10000,
-        "weights": 0x20000,
-        "biases": 0x30000,
-        "outputs": 0x40000
+        "inputs": 0x100000,
+        "weights": 0x200000,
+        "biases": 0x300000,
+        "outputs": 0x400000
     }
     
     
