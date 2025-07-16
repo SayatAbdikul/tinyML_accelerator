@@ -1,3 +1,4 @@
+""" loads, evaluates and runs the pretrained model"""
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms

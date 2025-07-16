@@ -1,4 +1,4 @@
-# disassembler.py
+""" Disassembler for a custom architecture based on a simplified instruction set. """
 def decode_instruction(word):
     instr = int(word, 16)
     opcode = instr & 0x1F  # last 5 bits

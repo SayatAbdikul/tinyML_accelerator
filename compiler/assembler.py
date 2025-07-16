@@ -1,3 +1,4 @@
+""" Assembler for a custom architecture based on a simplified instruction set. """
 import re
 
 # === Define opcode mapping ===
@@ -11,9 +12,9 @@ OPCODES = {
 }
 
 def assemble_line(line):
-    parts = re.split(r'[,\s]+', line.strip())
-    if not parts or parts[0].startswith(";") or parts[0] == "":
-        return None  # comment or empty line
+    parts = re.split(r'[,\s]+', line.strip()) # Split by commas or whitespace
+    if not parts or parts[0].startswith(";") or parts[0] == "": # Ignore empty lines or comments
+        return None
 
     instr = parts[0]
     opcode = OPCODES.get(instr)
@@ -33,13 +34,11 @@ def assemble_line(line):
 
     elif instr == "LOAD_M":
         dest, addr, rows, cols = args
-        # Simplified: rows << 8 | cols (use carefully!)
         word = (addr << 40) | (rows << 20) | (cols << 10) | (dest << 5) | opcode
         return f"{word:016X}"
 
     elif instr == "GEMV":
         dest, w, x, b, rows, cols = args
-        # Example encoding: upper half = op/dest/w/x, lower = rows/cols
         word = (w << 40) | (x << 35) | (b << 30) | (rows << 20) | (cols << 10) | (dest << 5) | opcode
         return f"{word:016X}"
 

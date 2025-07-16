@@ -1,9 +1,12 @@
+""" helper_functions.py - A collection of helper functions for ONNX model processing."""
+
 import onnx
 from onnx import numpy_helper
 from top_sort import topological_sort
 import numpy as np
 
 def load_initializers(graph):
+    """Loads initializers from the ONNX graph and returns a map of their names to data, shape, and dtype."""
     init_map = {}
     for initializer in graph.initializer:
         array = numpy_helper.to_array(initializer)
@@ -51,6 +54,8 @@ def build_initializer_map(graph): # Builds a map of initializer names to their d
 
 # Helper to calculate tensor size
 def tensor_size(shape):
+    """Calculates the size of a tensor given its shape.
+    Handles both integer and string dimensions, treating '?' as unknown size."""
     size = 1
     for dim in shape:
         if isinstance(dim, int):

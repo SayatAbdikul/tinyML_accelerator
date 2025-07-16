@@ -1,3 +1,9 @@
+""" dram.py - A module for managing DRAM in a custom architecture.
+This module provides functions to read and write data to a simulated DRAM,
+save initializers from an ONNX model, and manage memory operations.
+It includes functions to handle quantization of tensors, write to DRAM,
+and read from DRAM."""
+
 import numpy as np
 import onnx
 from onnx import numpy_helper
@@ -31,12 +37,11 @@ def read_from_dram(start_addr, length):
     return np.array(dram[start_addr:end_addr], dtype=np.int8)
 
 def get_dram():
-    """
-    Returns the current state of DRAM as a numpy array.
-    """
     return dram.copy()  # Return a copy to avoid external modifications
 
 def save_initializers_to_dram(model_path, dram_offsets):
+    """Saves the initializers (weights and biases) from an ONNX model to DRAM.
+    Quantizes the tensors to int8 format and writes them to specified DRAM addresses."""
     global dram
     dram = np.zeros(MEM_SIZE, dtype=np.int8)
     model = onnx.load(model_path)
@@ -74,6 +79,7 @@ def save_input_to_dram(input_tensor, addr):
 
 def save_dram_to_file(filename="dram.hex"):
     """Saves the current state of DRAM to a hex file."""
+    # Commented out to avoid overwriting to file in this example on each input
     # with open(filename, "w") as f:
     #     for byte in dram:
     #         # Convert signed int8 to unsigned for hex

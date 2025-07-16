@@ -1,3 +1,4 @@
+""" Creates an assembly code from ONNX file """
 import onnx
 from onnx import shape_inference
 import numpy as np

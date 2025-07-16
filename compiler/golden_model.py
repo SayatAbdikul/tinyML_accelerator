@@ -1,3 +1,7 @@
+""" 
+Golden model of the accelerator.
+Emulates all the instructions.
+"""
 import os
 import numpy as np
 from dram import get_dram
@@ -9,6 +13,7 @@ quantized_output_zero_point = 0
 output_buffer = 0
 def load_memory(dram_file):
     """Load memory from a hex file."""
+    # In testing purposes, we don't use hex file here
     return get_dram()  # Use the global DRAM state
 
 
