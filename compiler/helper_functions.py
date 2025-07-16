@@ -64,12 +64,17 @@ def tensor_size(shape):
 def quantize_tensor_f32_int8(tensor, scale, zero_point = 0):
     return np.clip(np.round(tensor / scale + zero_point), -128, 127).astype(np.int8)
 
+
 def quantize_int32_to_int8(x_int32, scale, zero_point):
-    x_fp32 = x_int32.astype(np.float32) * scale
-    x_rounded = np.round(x_fp32)
-    x_quantized = x_rounded + zero_point
-    x_clamped = np.clip(x_quantized, -128, 127)
-    return x_clamped.astype(np.int8)
+    # Scale down to the quantization grid
+    x_scaled = x_int32.astype(np.float32) / scale
+    # Apply zero-point offset (convert to quantized space)
+    x_quantized = x_scaled + zero_point
+    # Round to nearest integer
+    x_rounded = np.round(x_quantized)
+    # Clip to int8 range
+    x_clipped = np.clip(x_rounded, -128, 127)
+    return x_clipped.astype(np.int8)
 
 def print_weights_in_order(model_path):
     model = onnx.load(model_path)

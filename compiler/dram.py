@@ -3,7 +3,7 @@ import onnx
 from onnx import numpy_helper
 from helper_functions import quantize_tensor_f32_int8
 
-MEM_SIZE = 0x50000  # Total memory size
+MEM_SIZE = 0x500000  # Total memory size
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
@@ -69,8 +69,8 @@ def save_initializers_to_dram(model_path, dram_offsets):
     return weight_map, bias_map
 
 def save_input_to_dram(input_tensor, addr):
-    # print(f"Saving input tensor to DRAM at address {hex(addr)} with shape {quant_input.shape}")
-    write_to_dram(input_tensor.flatten(), addr)
+    # print(f"Saving input tensor to DRAM at address {hex(addr)} with shape {input_tensor.shape}")
+    write_to_dram(input_tensor, addr)
 
 def save_dram_to_file(filename="dram.hex"):
     with open(filename, "w") as f:

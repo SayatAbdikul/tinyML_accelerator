@@ -1,34 +1,32 @@
 import torch
 import torch.nn as nn
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
 model = None
 def create_mlp_model():
         # 1. Define the MLP model
-    class MLP(nn.Module):
-        def __init__(self, input_size, hidden_size, output_size):
-            super(MLP, self).__init__()
-            self.fc1 = nn.Linear(input_size, hidden_size)
+    class Digit_Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.fc1 = nn.Linear(28*28, 128)
             self.relu = nn.ReLU()
-            self.fc2 = nn.Linear(hidden_size, output_size)
+            self.fc2 = nn.Linear(128, 64)
+            self.fc3 = nn.Linear(64, 10)
 
         def forward(self, x):
-            x = x.view(x.size(0), -1)  # Flatten input
-            x = self.fc1(x)
-            x = self.relu(x)
-            x = self.fc2(x)
-            return x
+            x = x.view(x.size(0), -1)  # Flatten
+            x = self.relu(self.fc1(x))
+            x = self.relu(self.fc2(x))
+            return self.fc3(x)
 
     # 2. Set model parameters
-    input_size = 10 * 10       # smaller to have a manageable model
-    hidden_size = 128
-    output_size = 10           # number of classes
-
+    input_size = 28 * 28
     # 3. Initialize model and set to eval mode
     global model
-    model = MLP(input_size, hidden_size, output_size)
-    model.eval()
-
-    # 4. Create dummy input for ONNX export
-    dummy_input = torch.randn(1, 1, 10, 10)  # shape: [batch_size, channels, height, width]
+    model = Digit_Model()
+    model.load_state_dict(torch.load("digit_model_weights.pth", map_location=torch.device('cpu'))) # Load pre-trained weights        
+    # 4. Create a dummy input tensor for ONNX export
+    dummy_input = torch.randn(1, 1, 28, 28)
 
     # 5. Export the model to ONNX format
     onnx_filename = "mlp_model.onnx"
@@ -40,18 +38,49 @@ def create_mlp_model():
     )
 
     # print(f"MLP model successfully exported to '{onnx_filename}'")
+def evaluate_model(model, test_loader, device='cpu'):
+    model.eval()  # Set to evaluation mode
+    correct = 0
+    total = 0
+
+    with torch.no_grad():  # Disable gradient computation
+        for images, labels in test_loader:
+            images = images.view(images.size(0), -1).to(device)
+            labels = labels.to(device)
+
+            outputs = model(images)  # Forward pass
+            _, predicted = torch.max(outputs, 1)  # Get index of max log-probability
+
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = 100 * correct / total
+    print(f"Test Accuracy: {accuracy:.2f}%")
+    return accuracy
 
 
-def run_model(input_tensor):
-    """Run the MLP model with the given input tensor."""
+def run_model():
+    global model
     if model is None:
         raise ValueError("Model has not been created. Call create_mlp_model() first.")
-    
-    # Ensure input tensor is in the correct shape
-    if input_tensor.dim() == 2:
-        input_tensor = input_tensor.unsqueeze(0)  # Add batch dimension if missing
+        
+    # 1. Define transformations (e.g., convert to tensor and normalize)
+    transform = transforms.Compose([
+        transforms.ToTensor(),  # Converts PIL image to Tensor [0,1]
+        transforms.Normalize((0.1307,), (0.3081,))  # Mean and std from MNIST dataset
+    ])
 
-    with torch.no_grad():
-        output = model(input_tensor)
-    
-    return output
+    # 2. Load the training and test datasets
+    test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+
+    # 3. Wrap them in DataLoader for batching and shuffling
+    test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
+
+    return evaluate_model(model, test_loader=test_loader, device='cpu')
+
+if __name__ == "__main__":
+    # 1. Create and save the model
+    create_mlp_model()
+
+    # 2. Run the model
+    run_model()
