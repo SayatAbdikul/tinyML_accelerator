@@ -1,16 +1,15 @@
 import os
 import numpy as np
-from dram import read_from_dram
+from dram import get_dram
 from helper_functions import quantize_int32_to_int8
 buffers = {}
-
+output_length = 10
+quantized_output_scale = 0.1
+quantized_output_zero_point = 0
+output_buffer = 0
 def load_memory(dram_file):
     """Load memory from a hex file."""
-    with open(dram_file, 'r') as file:
-        memory = [np.int8(int(line.strip(), 16)) for line in file]
-    if not np.array_equal(memory, read_from_dram(0, len(memory))):
-        raise ValueError("Warning: Memory loaded from file does not match DRAM content.")
-    return memory
+    return get_dram()  # Use the global DRAM state
 
 
 def i_decoder(instruction):
@@ -53,8 +52,8 @@ def i_decoder(instruction):
 
 def load_v(dest, addr, length):
     """Load vector from memory to buffer."""
-    # if addr == 0x10000:  # Print the input
-    #     print(f"LOAD_V on buffer {dest}: the array is {memory[addr:addr + length]} at address {addr:#010x} with length {length}")
+    # if addr == 0x100000:  # Print the input
+    #   print(f"INPUT: LOAD_V on buffer {dest}: the array is {memory[addr:addr + length]} at address {addr:#010x} with length {length}")
     buffers[dest] = memory[addr:addr + length]  # Load vector from memory to buffer
 
 def load_m(dest, addr, rows, cols):
@@ -67,11 +66,14 @@ def load_m(dest, addr, rows, cols):
 
 def store(buf_id, addr, length):
     """Store buffer to memory."""
-    quantized_output_scale = 0.1
-    quantized_output_zero_point = 0
+    output_length = length
+    quantized_output_scale = np.max(np.abs(buffers[buf_id])) / 127
     buffers[buf_id] = quantize_int32_to_int8(np.array(buffers[buf_id], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
+    # print(f"STORE: buf_id={buf_id}, addr={addr:#010x}, length={length}, output_length={output_length}")
     for i in range(length):
         memory[addr + i] = buffers[buf_id][i]  # Extract byte from buffer
+    global output_buffer
+    output_buffer = buf_id  # Update the output buffer
 
 flag = 0
 def gemv(dest, w, x, b, rows, cols):
@@ -80,17 +82,20 @@ def gemv(dest, w, x, b, rows, cols):
     buffers[dest] = [0] * rows  # Initialize destination buffer with zeros
     # print(f"GEMV: dest={dest}, w={w}, x={x}, b={b}, rows={rows}, cols={cols}")
     for i in range(rows):
-        sum = 0
+        sum = np.int32(0)  # Initialize sum as int32 to avoid overflow
         for j in range(cols):
-            sum += buffers[w][i * cols + j] * buffers[x][j] # Matrix-vector multiplication
-            # if flag == 0:  # Print only once
-                # print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
+            sum += np.int32(buffers[w][i * cols + j]) * np.int32(buffers[x][j])
+            # Matrix-vector multiplication
+            if flag == 2:  # Print only once
+                print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
 
         sum += buffers[b][i]
         buffers[dest][i] = np.int32(sum)  # Store the result in the destination buffer
     # print("The number of unique values in the output buffer is:", np.unique(buffers[dest]).size)
     # print("The output buffer is:", buffers[dest])
-    flag = 1  # Set flag to indicate GEMV has been executed
+    flag += 1  # Set flag to indicate GEMV has been executed
+    quantized_output_scale = np.max(np.abs(buffers[dest])) / 127
+    buffers[dest] = quantize_int32_to_int8(np.array(buffers[dest], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
 
 def relu(dest, x):
     """Apply ReLU activation."""
@@ -105,5 +110,5 @@ def execute_program(hex_file):
     for instruction in instructions:
         i_decoder(instruction)
 
-    return buffers[6]  # Return the final output buffer (assuming it's always buffer 6)
+    return buffers[output_buffer][0:output_length]  # Return the final output buffer (assuming it's always buffer 6)
     
