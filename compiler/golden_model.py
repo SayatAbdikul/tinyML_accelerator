@@ -62,7 +62,7 @@ def load_v(dest, addr, length):
     buffers[dest] = memory[addr:addr + length]  # Load vector from memory to buffer
 
 def load_m(dest, addr, rows, cols):
-    buffers[dest] = buffers[dest] = memory[addr:addr + rows * cols]  
+    buffers[dest] = memory[addr:addr + rows * cols]  
     # if addr == 0x20000:  # Print the weights
     #     print(f"LOAD_M on buffer {dest}: the matrix is {buffers[dest]} at address {addr:#010x} with rows={rows}, cols={cols}")
     # print
