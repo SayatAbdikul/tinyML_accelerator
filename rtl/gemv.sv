@@ -51,8 +51,8 @@ module gemv #(parameter DATA_WIDTH = 8, parameter ROWS = 128, parameter COLUMNS 
     // Sum PE outputs
     always_comb begin
         temp_sum = '0;
-        for (int i = 0; i < TILE_SIZE; i++) begin
-            temp_sum = temp_sum + pe_out[i];
+        for (int j = 0; j < TILE_SIZE; j++) begin
+            temp_sum = temp_sum + pe_out[j];
         end
     end
 

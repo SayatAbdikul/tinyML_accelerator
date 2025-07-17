@@ -8,7 +8,7 @@ module pe #(
     output logic [DATA_WIDTH-1:0] y    // Output (w * x)
 );
 
-    logic [2*DATA_WIDTH-1:0] mult_result;
+    logic [DATA_WIDTH-1:0] mult_result;
 
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
