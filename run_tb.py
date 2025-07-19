@@ -4,9 +4,10 @@ print("Hello, pick the test you want to run:")
 print("1. Instruction Decoder Test")
 print("2. GEMV Test")
 print("3. Scale Calculator Test")
+print("4. Quantizer Pipeline Test")
 
-choice = input("Enter your choice (1-3): ")
-if choice not in {'1', '2', '3'}:
+choice = input("Enter your choice (1-4): ")
+if choice not in {'1', '2', '3', '4'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -19,7 +20,10 @@ commands = {
           "./obj_dir/Vgemv"],
     '3': ["verilator -Wall --cc rtl/scale_calculator.sv --exe test/scale_calculator_tb.cpp",
           "make -C obj_dir -f Vscale_calculator.mk Vscale_calculator",
-          "./obj_dir/Vscale_calculator"]
+          "./obj_dir/Vscale_calculator"],
+    '4': ["verilator -Wall --cc rtl/quantizer_pipeline.sv --exe test/quantizer_pipeline_tb.cpp",
+          "make -C obj_dir -f Vquantizer_pipeline.mk Vquantizer_pipeline",
+          "./obj_dir/Vquantizer_pipeline"]
 }
 
 for cmd in commands[choice]:
