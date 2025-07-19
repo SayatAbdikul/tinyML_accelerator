@@ -3,9 +3,10 @@ import subprocess
 print("Hello, pick the test you want to run:")
 print("1. Instruction Decoder Test")
 print("2. GEMV Test")
+print("3. Scale Calculator Test")
 
-choice = input("Enter your choice (1-2): ")
-if choice not in {'1', '2'}:
+choice = input("Enter your choice (1-3): ")
+if choice not in {'1', '2', '3'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -15,7 +16,10 @@ commands = {
           "./obj_dir/Vi_decoder"],
     '2': ["verilator -Wall --trace -cc rtl/gemv.sv rtl/pe.sv --top gemv --exe test/gemv_tb.cpp",
           "make -C obj_dir -f Vgemv.mk Vgemv",
-          "./obj_dir/Vgemv"]
+          "./obj_dir/Vgemv"],
+    '3': ["verilator -Wall --cc rtl/scale_calculator.sv --exe test/scale_calculator_tb.cpp",
+          "make -C obj_dir -f Vscale_calculator.mk Vscale_calculator",
+          "./obj_dir/Vscale_calculator"]
 }
 
 for cmd in commands[choice]:
