@@ -10,3 +10,4 @@ obj_dir
 .vscode
 compiler/data
 compiler/digit_model_weights.pth
+dump.vcd
