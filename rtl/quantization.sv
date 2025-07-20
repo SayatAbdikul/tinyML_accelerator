@@ -50,7 +50,7 @@ always @(posedge clk or negedge reset_n) begin
                 // Wait for calibration completion
                 if (div_calib_ready) begin
                     scale_reg <= reciprocal_scale;
-                    $display("Calibration complete: scale = %0d", reciprocal_scale);
+                    //$display("Calibration complete: scale = %0d", reciprocal_scale);
                     state <= STATE_READY;
                     calib_ready_reg <= 1;
                 end
