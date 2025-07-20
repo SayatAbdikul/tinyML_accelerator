@@ -12,9 +12,7 @@ module quantization (
     // Status signals
     output calib_busy, 
     output calib_ready,
-    output data_ready,       // System ready for new data
-    // For debug
-    output [31:0] scale
+    output data_ready       // System ready for new data
 );
 
 // ===========================================================================
@@ -105,5 +103,4 @@ quantizer_pipeline u_quantizer (
 assign calib_busy = (state == STATE_CALIB);
 assign calib_ready = calib_ready_reg;
 assign data_ready = (state == STATE_READY);
-assign scale = scale_reg;
 endmodule

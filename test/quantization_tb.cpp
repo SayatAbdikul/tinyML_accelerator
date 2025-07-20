@@ -77,8 +77,6 @@ int main(int argc, char** argv) {
             std::cerr << "Calibration timeout!\n";
             break;
         }
-        float scale_f = static_cast<float>(dut->scale) / (1 << 24);
-        std::cout << "Calibration complete. Scale = " << scale_f << "\n";
 
         // Send test vectors
         std::vector<int8_t> expected;
