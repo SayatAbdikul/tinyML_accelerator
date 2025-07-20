@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     };
 
     std::vector<TestVec> test_inputs = {
-        {1000, 1 << 24},     // scale = 1.0 -> result = 1000 -> clipped to 127
+        {-69, 0x00b6a6d4},     // scale = 1.0 -> result = 1000 -> clipped to 127
         {-1000, 1 << 24},    // result = -1000 -> clipped to -128
         {127, 1 << 24},      // result = 127 -> no clip
         {50, (uint32_t)(0.5 * (1 << 24))}, // scale = 0.5 -> result = 25

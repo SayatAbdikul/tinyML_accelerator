@@ -35,11 +35,9 @@ always @(posedge clk or negedge reset_n) begin
         stage1_value <= int32_value;
         stage1_scale <= reciprocal_scale;  // Now used in stage 2
         stage1_valid <= valid_in;
-        
         // Stage 2: Signed multiplication using REGISTERED scale
         stage2_product <= $signed(stage1_value) * $signed(stage1_scale);
         stage2_valid <= stage1_valid;
-        
         // Stage 3: Rounding (add 0.5 in Q24)
         stage3_rounded <= (stage2_product + (1 << 23)) >>> 24;
         stage3_valid <= stage2_valid;
@@ -50,10 +48,11 @@ always @(posedge clk or negedge reset_n) begin
             // Proper clamping to [-128, 127]
             if (stage3_rounded > 127) begin
                 int8_value <= 127;
-            end else if (stage3_rounded < -128) begin
+            end else if (stage3_rounded <= -128) begin
                 int8_value <= -128;
             end else begin
-                int8_value <= stage3_rounded[7:0];
+                int8_value <= $signed(stage3_rounded[7:0]);
+                //$display("Quantization result: %d", int8_value);
             end
         end
     end
