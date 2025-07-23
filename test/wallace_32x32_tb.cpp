@@ -1,53 +1,76 @@
 #include "Vwallace_32x32.h"
 #include "verilated.h"
 #include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
+#include <random>
+#include <cassert>
 
 vluint64_t main_time = 0;
+
 double sc_time_stamp() { return main_time; }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv, char **env) {
     Verilated::commandArgs(argc, argv);
-    Vwallace_32x32* dut = new Vwallace_32x32;
 
-    // Reset (if needed)
-    // dut->reset = 1;
-    // for (int i = 0; i < 2; ++i) {
-    //     dut->clk = !dut->clk;
-    //     dut->eval();
-    //     main_time++;
-    // }
-    // dut->reset = 0;
+    Vwallace_32x32* top = new Vwallace_32x32;
 
-    std::srand(42);
-    int errors = 0;
-    for (int i = 0; i < 20; ++i) {
-        uint32_t a = std::rand();
-        uint32_t b = std::rand();
-        uint64_t expected = static_cast<uint64_t>(a) * static_cast<uint64_t>(b);
+    // Clocking and control
+    const int cycles = 100;
+    top->clk = 0;
+    top->rst_n = 0;
 
-        dut->a = a;
-        dut->b = b;
-        dut->eval();
-        uint64_t actual = ((uint64_t)dut->prod);
+    // Reset the design
+    for (int i = 0; i < 5; ++i) {
+        top->clk = !top->clk;
+        top->eval();
+        main_time++;
+    }
+    top->rst_n = 1;
 
-        std::cout << "a: " << std::setw(10) << a
-                  << " b: " << std::setw(10) << b
-                  << " | Expected: " << std::setw(20) << expected
-                  << " | Actual: " << std::setw(20) << actual;
+    std::mt19937 rng(12345);  // Fixed seed for reproducibility
+    std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
 
-        if (actual == expected) {
-            std::cout << " [PASS]\n";
-        } else {
-            std::cout << " [FAIL]\n";
-            errors++;
+    uint32_t a_vals[cycles] = {0};
+    uint32_t b_vals[cycles] = {0};
+    uint64_t expected[cycles] = {0};
+
+    // Drive inputs & simulate
+    for (int i = 0; i < cycles; ++i) {
+        top->clk = 0;
+
+        // Apply inputs every cycle (pipelined)
+        a_vals[i] = dist(rng);
+        b_vals[i] = dist(rng);
+        top->a = a_vals[i];
+        top->b = b_vals[i];
+
+        top->eval();
+        top->clk = 1;
+        top->eval();
+
+        expected[i] = (uint64_t)a_vals[i] * b_vals[i];
+
+        if (top->valid_out) {
+            static int out_cycle = 0;
+            std::cout << "[Cycle " << i << "] ";
+            std::cout << "a = " << a_vals[out_cycle] << ", ";
+            std::cout << "b = " << b_vals[out_cycle] << ", ";
+            std::cout << "Expected = " << expected[out_cycle] << ", ";
+            std::cout << "Got = " << top->prod;
+            if (top->prod == expected[out_cycle]) {
+                std::cout << " [PASS]\n";
+            } else {
+                std::cout << " [FAIL]\n";
+                assert(false && "Mismatch in product!");
+            }
+            out_cycle++;
         }
+
+        main_time++;
     }
 
-    delete dut;
-    std::cout << "Test completed. Errors: " << errors << std::endl;
-    return errors ? 1 : 0;
+    std::cout << "Testbench completed successfully.\n";
+
+    top->final();
+    delete top;
+    return 0;
 }
