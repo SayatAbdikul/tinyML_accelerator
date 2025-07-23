@@ -6,9 +6,10 @@ print("2. GEMV Test")
 print("3. Scale Calculator Test")
 print("4. Quantizer Pipeline Test")
 print("5. Quantizer Overall Test")
+print("6. Wallace Multiplier Test")
 
-choice = input("Enter your choice (1-5): ")
-if choice not in {'1', '2', '3', '4', '5'}:
+choice = input("Enter your choice (1-6): ")
+if choice not in {'1', '2', '3', '4', '5', '6'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -27,7 +28,10 @@ commands = {
           "./obj_dir/Vquantizer_pipeline"],
     '5': ["verilator -Wall --cc rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/quantization.sv --top quantization --exe test/quantization_tb.cpp",
           "make -C obj_dir -f Vquantization.mk Vquantization",
-          "./obj_dir/Vquantization"]
+          "./obj_dir/Vquantization"],
+      '6': ["verilator -Wall --cc rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top wallace_32x32 --exe test/wallace_32x32_tb.cpp",
+          "make -C obj_dir -f Vwallace_32x32.mk Vwallace_32x32",
+          "./obj_dir/Vwallace_32x32"]
 }
 
 for cmd in commands[choice]:
