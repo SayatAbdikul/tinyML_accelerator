@@ -32,22 +32,29 @@ int main(int argc, char **argv, char **env) {
     uint32_t a_vals[cycles] = {0};
     uint32_t b_vals[cycles] = {0};
     uint64_t expected[cycles] = {0};
+    top->valid_in = 1;  // Initially valid
 
     // Drive inputs & simulate
-    for (int i = 0; i < cycles; ++i) {
+    for (int i = 0; i < cycles + 3; ++i) {
         top->clk = 0;
 
-        // Apply inputs every cycle (pipelined)
-        a_vals[i] = dist(rng);
-        b_vals[i] = dist(rng);
-        top->a = a_vals[i];
-        top->b = b_vals[i];
+
+        if(i < cycles) {
+            a_vals[i] = dist(rng);
+            b_vals[i] = dist(rng);
+            top->a = a_vals[i];
+            top->b = b_vals[i];
+            expected[i] = (uint64_t)a_vals[i] * b_vals[i];
+        } else {
+            top->a = 0;
+            top->b = 0;
+            top->valid_in = 0;  // No more valid inputs
+        }
 
         top->eval();
         top->clk = 1;
         top->eval();
 
-        expected[i] = (uint64_t)a_vals[i] * b_vals[i];
 
         if (top->valid_out) {
             static int out_cycle = 0;
@@ -67,6 +74,7 @@ int main(int argc, char **argv, char **env) {
 
         main_time++;
     }
+    
 
     std::cout << "Testbench completed successfully.\n";
 

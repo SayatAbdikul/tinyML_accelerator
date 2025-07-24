@@ -1,6 +1,7 @@
 module wallace_32x32 (
     input clk,
     input rst_n,
+    input valid_in,
     input [31:0] a,
     input [31:0] b,
     output reg [63:0] prod,
@@ -89,7 +90,7 @@ always @(posedge clk or negedge rst_n) begin
         for (int j = 0; j < 10; j++) stage3_reg[j] <= 64'b0;
     end
     else begin
-        valid_stage1 <= 1;  // Mark stage 1 as valid
+        valid_stage1 <= valid_in;  // Mark stage 1 as valid
         for (int j = 0; j < 10; j++) stage3_reg[j] <= stage3[j];
     end
 end
