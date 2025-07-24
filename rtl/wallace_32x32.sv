@@ -2,9 +2,9 @@ module wallace_32x32 (
     input clk,
     input rst_n,
     input valid_in,
-    input [31:0] a,
-    input [31:0] b,
-    output reg [63:0] prod,
+    input signed [31:0] a,
+    input signed [31:0] b,
+    output reg signed [63:0] prod,
     output reg valid_out
 );
 
@@ -28,11 +28,12 @@ reg valid_stage3;
 // ------------------------------------------------------------------------
 
 // Partial products
-wire [63:0] pp [0:31];
+wire signed [63:0] pp [0:31];
+wire signed [63:0] a_ext = {{32{a[31]}}, a};
 generate
     genvar i;
     for (i = 0; i < 32; i = i + 1) begin : pp_gen
-        assign pp[i] = b[i] ? ({{32{1'b0}}, a} << i) : 64'b0;
+        assign pp[i] = b[i] ? ($signed(a_ext) <<< i) : 64'sb0;
     end
 endgenerate
 
