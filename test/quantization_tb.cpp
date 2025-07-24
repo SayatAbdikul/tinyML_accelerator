@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
     // Randomized test data
     std::vector<std::pair<uint32_t, std::vector<std::pair<int32_t, int8_t>>>> tests;
-    for (int t = 0; t < 30; ++t) {
+    for (int t = 0; t < 100; ++t) {
         uint32_t max_abs = std::rand() % 100000; // Random max_abs in [0, 99999]
         std::vector<std::pair<int32_t, int8_t>> vecs;
         for (int i = 0; i < 8; ++i) {
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         // Send test vectors
         std::vector<int8_t> expected;
         int out_idx = 0;
-        for(int i = 0; i < vectors.size() + 10; i++){
+        for(int i = 0; i < vectors.size() + 10 + vectors.size() * 3; i++){
             if(i < vectors.size()){
                 dut->data_in = vectors[i].first;
                 dut->data_valid = 1;

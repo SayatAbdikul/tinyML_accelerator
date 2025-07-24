@@ -1,6 +1,3 @@
-// ===========================================================================
-//  Pipelined Quantizer
-// ===========================================================================
 module quantizer_pipeline (
     input clk,
     input reset_n,
@@ -11,51 +8,63 @@ module quantizer_pipeline (
     output reg valid_out
 );
 
-// Pipeline stages
-reg signed [31:0] stage1_value;
-reg [31:0] stage1_scale;  // Now used in stage 2
-reg stage1_valid;
+    // Stage 1: Register inputs
+    reg signed [31:0] stage1_value;
+    reg [31:0] stage1_scale;
+    reg stage1_valid;
 
-reg signed [63:0] stage2_product;  // Full 64-bit product
-reg stage2_valid;
+    always_ff @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            stage1_valid <= 0;
+        end else begin
+            stage1_value <= int32_value;
+            stage1_scale <= reciprocal_scale;
+            stage1_valid <= valid_in;
+        end
+    end
 
-reg signed [63:0] stage3_rounded;  // 64-bit rounded value
-reg stage3_valid;
+    // Stage 2: 32x32 multiplier
+    logic signed [63:0] stage2_product;
+    logic stage2_valid;
 
-always @(posedge clk or negedge reset_n) begin
-    if (!reset_n) begin
-        // Clear pipeline
-        stage1_valid <= 0;
-        stage2_valid <= 0;
-        stage3_valid <= 0;
-        valid_out <= 0;
-        int8_value <= 0;
-    end else begin
-        // Stage 1: Input registration
-        stage1_value <= int32_value;
-        stage1_scale <= reciprocal_scale;  // Now used in stage 2
-        stage1_valid <= valid_in;
-        // Stage 2: Signed multiplication using REGISTERED scale
-        stage2_product <= $signed(stage1_value) * $signed(stage1_scale);
-        stage2_valid <= stage1_valid;
-        // Stage 3: Rounding (add 0.5 in Q24)
-        stage3_rounded <= (stage2_product + (1 << 23)) >>> 24;
-        stage3_valid <= stage2_valid;
-        
-        // Stage 4: Clamping and output
-        valid_out <= stage3_valid;
-        if (stage3_valid) begin
-            // Proper clamping to [-128, 127]
-            if (stage3_rounded > 127) begin
-                int8_value <= 127;
-            end else if (stage3_rounded <= -128) begin
-                int8_value <= -128;
-            end else begin
-                int8_value <= $signed(stage3_rounded[7:0]);
-                //$display("Quantization result: %d", int8_value);
+    wallace_32x32 u_mult (
+        .clk(clk),
+        .rst_n(reset_n),
+        .valid_in(stage1_valid),
+        .a(stage1_value),
+        .b(stage1_scale),
+        .valid_out(stage2_valid), // need to wait 3 cycles to be valid
+        .prod(stage2_product)
+    );
+
+    // Stage 3: Rounding
+    reg signed [63:0] stage3_rounded;
+    reg stage3_valid;
+
+    always_ff @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            stage3_valid <= 0;
+        end else begin
+            stage3_rounded <= (stage2_product + (1 << 23)) >>> 24;
+            stage3_valid <= stage2_valid;
+        end
+    end
+
+    // Stage 4: Clamp to int8
+    always_ff @(posedge clk or negedge reset_n) begin
+        if (!reset_n) begin
+            int8_value <= 0;
+            valid_out <= 0;
+        end else begin
+            valid_out <= stage3_valid;
+            if (stage3_valid) begin
+                if (stage3_rounded > 127)
+                    int8_value <= 127;
+                else if (stage3_rounded <= -128)
+                    int8_value <= -128;
+                else
+                    int8_value <= $signed(stage3_rounded[7:0]);
             end
         end
     end
-end
-
 endmodule

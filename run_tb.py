@@ -26,7 +26,7 @@ commands = {
     '4': ["verilator -Wall --cc rtl/quantizer_pipeline.sv --exe test/quantizer_pipeline_tb.cpp",
           "make -C obj_dir -f Vquantizer_pipeline.mk Vquantizer_pipeline",
           "./obj_dir/Vquantizer_pipeline"],
-    '5': ["verilator -Wall --cc rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/quantization.sv --top quantization --exe test/quantization_tb.cpp",
+    '5': ["verilator -Wall --cc rtl/scale_calculator.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/quantizer_pipeline.sv rtl/quantization.sv --top quantization --exe test/quantization_tb.cpp",
           "make -C obj_dir -f Vquantization.mk Vquantization",
           "./obj_dir/Vquantization"],
       '6': ["verilator -Wall --cc rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top wallace_32x32 --exe test/wallace_32x32_tb.cpp",
