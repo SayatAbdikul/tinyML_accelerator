@@ -3,6 +3,11 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
+#include <algorithm>
+#include <cstdint>
+#include <cmath>
+
 
 #define ROWS 128
 #define COLS 128
@@ -18,6 +23,28 @@ void tick() {
     dut->clk = 0; dut->eval(); main_time++;
     dut->clk = 1; dut->eval(); main_time++;
 }
+std::vector<int8_t> quantize_int32_to_int8(const std::vector<int32_t>& x_int32, float scale, int32_t zero_point) {
+    std::vector<int8_t> result;
+    result.reserve(x_int32.size());
+
+    for (int32_t x : x_int32) {
+        // 1. Scale down to quantization grid
+        float x_scaled = static_cast<float>(x) / scale;
+
+        // 2. Apply zero-point
+        float x_quantized = x_scaled + static_cast<float>(zero_point);
+
+        // 3. Round to nearest
+        int32_t x_rounded = static_cast<int32_t>(std::round(x_quantized));
+
+        // 4. Clip to int8 range [-128, 127]
+        int8_t x_clipped = static_cast<int8_t>(std::min(std::max(x_rounded, -128), 127));
+
+        result.push_back(x_clipped);
+    }
+
+    return result;
+}
 
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
@@ -25,7 +52,6 @@ int main(int argc, char **argv) {
 
     std::srand(std::time(0));
 
-    // Prepare inputs BEFORE reset
     int w[ROWS][COLS], x[COLS], bias[ROWS], y_expected[ROWS] = {0};
 
     // Random weights and input vector
@@ -41,15 +67,28 @@ int main(int argc, char **argv) {
     }
 
     // Compute expected result in software
+    std::vector<int32_t> y_int32;
+    int32_t max_abs = 0;
+
     for (int i = 0; i < ROWS; i++) {
         int sum = 0;
         for (int j = 0; j < COLS; j++) {
             sum += w[i][j] * x[j];
         }
-        y_expected[i] = sum + bias[i];
+        int y = sum + bias[i];
+        y_expected[i] = y;
+        y_int32.push_back(y);
+        max_abs = std::max(max_abs, std::abs(y));
     }
 
-    // Assign values to DUT BEFORE starting simulation
+    // Compute scale
+    float scale = static_cast<float>(max_abs) / 127.0f;
+    int32_t zero_point = 0; // symmetric
+
+    // Quantize software results
+    std::vector<int8_t> y_quantized = quantize_int32_to_int8(y_int32, scale, zero_point);
+
+    // Assign inputs to DUT
     for (int i = 0; i < ROWS; i++) {
         dut->bias[i] = bias[i];
         for (int j = 0; j < COLS; j++) {
@@ -61,22 +100,18 @@ int main(int argc, char **argv) {
         dut->x[j] = x[j];
     }
 
-    // Apply reset with inputs stable
+    // Apply reset
     dut->rst = 1;
-    tick();  // Apply reset
+    tick();
     dut->rst = 0;
-    tick();  // Release reset
+    tick();
 
     // Run simulation
     std::cout << "Running GEMV..." << std::endl;
     bool done = false;
     for (int t = 0; t < 10000; t++) {
         tick();
-        // std::cout << "The results of the GEMV operation at time " << t << ":\n";
-        // for (int i = 0; i < ROWS; i++) {
-        //     std::cout << "y[" << i << "] = " << static_cast<int>(dut->y[i]) << std::endl;
-        // }
-        if (dut->done) {  // DONE state = 4
+        if (dut->done) {
             done = true;
             tick();
             break;
@@ -88,15 +123,16 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Verify output
+    // Verify quantized output
     int errors = 0;
     for (int i = 0; i < ROWS; i++) {
-        int y_hw = dut->y[i];
-        int y_sw = y_expected[i];
-        if (y_hw != (y_sw & ((1 << DWIDTH) - 1))) {
+        int y_hw = static_cast<int8_t>(dut->y[i]); // assume y is int8_t
+        int y_sw = y_quantized[i];
+
+        if (y_hw != y_sw) {
             std::cerr << "Mismatch at row " << i
-                      << ": expected=" << y_sw
-                      << ", got=" << y_hw << std::endl;
+                      << ": expected=" << static_cast<int>(y_sw)
+                      << ", got=" << static_cast<int>(y_hw) << std::endl;
             errors++;
         }
     }

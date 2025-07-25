@@ -17,7 +17,8 @@ commands = {
     '1': ["verilator -Wall --cc rtl/i_decoder.sv --exe test/i_decoder_tb.cpp", 
           "make -C obj_dir -f Vi_decoder.mk Vi_decoder",
           "./obj_dir/Vi_decoder"],
-    '2': ["verilator -Wall --trace -cc rtl/gemv.sv rtl/pe.sv --top gemv --exe test/gemv_tb.cpp",
+    '2': ["verilator -Wall --trace -cc rtl/gemv.sv rtl/pe.sv rtl/scale_calculator.sv "
+      "rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top gemv --exe test/gemv_tb.cpp",
           "make -C obj_dir -f Vgemv.mk Vgemv",
           "./obj_dir/Vgemv"],
     '3': ["verilator -Wall --cc rtl/scale_calculator.sv --exe test/scale_calculator_tb.cpp",
