@@ -19,10 +19,10 @@ int main(int argc, char **argv) {
     int w, x;
     top->clk = 1;  // Initialize weight input
     // Simulate for 10 cycles
-    for (int cycle = 0; cycle < 10; cycle++) {
+    for (int cycle = 0; cycle < 100; cycle++) {
         // Apply reset for the first 2 cycles
-        w = rand() % 100 - 50;
-        x = rand() % 100 - 50;
+        w = rand() % 256 - 128;
+        x = rand() % 256 - 128;
         top->w = w;  // Example weight input
         top->x = x; // Example activation input
         // Toggle the clock
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
         top->eval();
         int actual = static_cast<int16_t>(top->y);
         // Print the outputs at each clock cycle
-        if (w*x == actual) {
+        if (w*x != actual) {
             std::cout << "Cycle " << cycle << ": " 
                       << "w = " << std::setw(4) << w
                       << ", x = " << std::setw(4) << x 
