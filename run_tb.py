@@ -7,9 +7,11 @@ print("3. Scale Calculator Test")
 print("4. Quantizer Pipeline Test")
 print("5. Quantizer Overall Test")
 print("6. Wallace Multiplier Test")
+print("7. GEMV Buffer File Test")
+print("8. PE Test")
 
-choice = input("Enter your choice (1-6): ")
-if choice not in {'1', '2', '3', '4', '5', '6'}:
+choice = input("Enter your choice (1-8): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -30,9 +32,15 @@ commands = {
     '5': ["verilator -Wall --cc rtl/scale_calculator.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/quantizer_pipeline.sv rtl/quantization.sv --top quantization --exe test/quantization_tb.cpp",
           "make -C obj_dir -f Vquantization.mk Vquantization",
           "./obj_dir/Vquantization"],
-      '6': ["verilator -Wall --cc rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top wallace_32x32 --exe test/wallace_32x32_tb.cpp",
+      '6': ["verilator -Wall --cc rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top wallace_32x32 --exe test/wallace_32x32_tb.cpp --trace",
           "make -C obj_dir -f Vwallace_32x32.mk Vwallace_32x32",
-          "./obj_dir/Vwallace_32x32"]
+          "./obj_dir/Vwallace_32x32"],
+      '7': ["verilator -Wall --cc rtl/gemv_buffer_file.sv --exe test/gemv_buffer_file_tb.cpp",
+          "make -C obj_dir -f Vgemv_buffer_file.mk Vgemv_buffer_file",
+          "./obj_dir/Vgemv_buffer_file"],
+      '8': ["verilator -Wall --cc rtl/pe.sv --exe test/pe_tb.cpp",
+          "make -C obj_dir -f Vpe.mk Vpe",
+          "./obj_dir/Vpe"]
 }
 
 for cmd in commands[choice]:
