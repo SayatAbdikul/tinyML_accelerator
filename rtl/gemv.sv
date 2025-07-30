@@ -2,10 +2,10 @@ module gemv #(parameter DATA_WIDTH = 8, parameter ROWS = 128, parameter COLUMNS 
 (
   input logic clk,
   input logic rst,
-  input logic [DATA_WIDTH-1:0] w [0:ROWS-1][0:COLUMNS-1],
-  input logic [DATA_WIDTH-1:0] x [0:COLUMNS-1],
-  input logic [DATA_WIDTH-1:0] bias [0:ROWS-1],
-  output logic [DATA_WIDTH-1:0] y [0:ROWS-1],
+  input logic signed [DATA_WIDTH-1:0] w [0:ROWS-1][0:COLUMNS-1],
+  input logic signed [DATA_WIDTH-1:0] x [0:COLUMNS-1],
+  input logic signed [DATA_WIDTH-1:0] bias [0:ROWS-1],
+  output logic signed [DATA_WIDTH-1:0] y [0:ROWS-1],
   output logic done
 );
     typedef enum logic [2:0] {
@@ -21,9 +21,9 @@ module gemv #(parameter DATA_WIDTH = 8, parameter ROWS = 128, parameter COLUMNS 
     logic [ROW_IDX_WIDTH-1:0] row_idx;
     logic [TILE_IDX_WIDTH-1:0] tile_idx;
     
-    logic [DATA_WIDTH-1:0] w_in [0:TILE_SIZE-1];
-    logic [DATA_WIDTH-1:0] x_in [0:TILE_SIZE-1];
-    logic [DATA_WIDTH-1:0] pe_out [0:TILE_SIZE-1];
+    logic signed [DATA_WIDTH-1:0] w_in [0:TILE_SIZE-1];
+    logic signed [DATA_WIDTH-1:0] x_in [0:TILE_SIZE-1];
+    logic signed [DATA_WIDTH-1:0] pe_out [0:TILE_SIZE-1];
     logic [DATA_WIDTH-1:0] temp_sum;
 
     // Input selection
