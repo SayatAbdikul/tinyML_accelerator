@@ -64,6 +64,7 @@ module quantizer_pipeline (
                     int8_value <= -128;
                 else
                     int8_value <= $signed(stage3_rounded[7:0]);
+                    // $display("Quantized value: %d", int8_value);
             end
         end
     end
