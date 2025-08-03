@@ -79,9 +79,9 @@ def save_input_to_dram(input_tensor, addr):
 
 def save_dram_to_file(filename="dram.hex"):
     """Saves the current state of DRAM to a hex file."""
-    # Commented out to avoid overwriting to file in this example on each input
-    # with open(filename, "w") as f:
-    #     for byte in dram:
-    #         # Convert signed int8 to unsigned for hex
-    #         val = np.uint8(byte)
-    #         f.write(f"{val:02X}\n")
+    # May be commented out to avoid overwriting to file in this example on each input
+    with open(filename, "w") as f:
+        for byte in dram:
+            # Convert signed int8 to unsigned for hex
+            val = np.uint8(byte)
+            f.write(f"{val:02X}\n")

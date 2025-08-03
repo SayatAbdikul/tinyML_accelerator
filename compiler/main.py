@@ -27,7 +27,7 @@ def evaluate_design(seed, torch_input, label):
 
     # 2. Save DRAM to hex file
     save_dram_to_file("dram.hex")
-
+    print("DRAM saved to dram.hex")
     
 
     # # 3. Optional: print the ordered weights and biases
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # 4. Generate assembly using same model
     generate_assembly(model_path, "model_assembly.asm")
     from assembler import assemble_file
-    assemble_file("model_assembly.asm", "program.hex")
+    assemble_file("model_assembly.asm")
 
     sum = 0
     total_elements = 0
