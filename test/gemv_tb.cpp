@@ -1,6 +1,6 @@
-
 #include "Vgemv.h"
 #include "verilated.h"
+#include "verilated_vcd_c.h"
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -20,14 +20,19 @@ Vgemv *dut;
 vluint64_t main_time = 0;
 double sc_time_stamp() { return main_time; }
 
-void tick() {
-    dut->clk = 0; dut->eval(); main_time++;
-    dut->clk = 1; dut->eval(); main_time++;
+void tick(VerilatedVcdC* tfp) {
+    dut->clk = 0; dut->eval(); tfp->dump(main_time++);
+    dut->clk = 1; dut->eval(); tfp->dump(main_time++);
 }
+
 
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
     dut = new Vgemv;
+    VerilatedVcdC* tfp = new VerilatedVcdC;
+    Verilated::traceEverOn(true);
+    dut->trace(tfp, 99);
+    tfp->open("dump.vcd");
 
     std::srand(std::time(0));
 
@@ -104,18 +109,18 @@ int main(int argc, char **argv) {
 
     // Apply reset
     dut->rst = 1;
-    tick();
+    tick(tfp);
     dut->rst = 0;
-    tick();
+    tick(tfp);
 
     // Run simulation
     std::cout << "Running GEMV..." << std::endl;
     bool done = false;
     for (int t = 0; t < 10000; t++) {
-        tick();
+        tick(tfp);
         if (dut->done) {
             done = true;
-            tick();
+            tick(tfp);
             break;
         }
     }
@@ -138,7 +143,7 @@ int main(int argc, char **argv) {
             errors++;
         }
     }
-
+    std::cout<<"The clock cycles passed: "<<main_time/2<<"\n";
     if (errors == 0) {
         std::cout << "✅ GEMV passed successfully!" << std::endl;
     } else {
@@ -146,6 +151,8 @@ int main(int argc, char **argv) {
     }
 
     dut->final();
+    tfp->close();
+    delete tfp;
     delete dut;
     return 0;
 }
