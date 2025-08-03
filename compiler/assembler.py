@@ -50,18 +50,22 @@ def assemble_line(line):
     else:
         raise NotImplementedError(f"Unsupported instruction: {instr}")
 
-def assemble_file(asm_file):
+def assemble_file(asm_file, out_file="program.hex"):
     with open(asm_file) as f:
         lines = f.readlines()
 
     machine_code = []
     for line in lines:
         encoded = assemble_line(line)
-        print(f"Encoding line: '{line.strip()}' -> '{encoded}'")
+        # print(f"Encoding line: '{line.strip()}' -> '{encoded}'")
         if encoded:
-            machine_code.extend(int(encoded[i:i+2], 16) for i in range(0, len(encoded), 2))  # Split into 8-char chunks
+            machine_code.extend(encoded.strip().split("\n"))
 
-    write_to_dram(machine_code, 0) # Write at the starting point 0
+    with open(out_file, "w") as f:
+        for code in machine_code:
+            f.write(code + "\n")
+
+    # write_to_dram(machine_code, 0) # Write at the starting point 0
 
     # print(f"✅ Assembled {len(machine_code)} instructions to DRAM")
 
