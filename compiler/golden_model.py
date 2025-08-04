@@ -91,8 +91,8 @@ def gemv(dest, w, x, b, rows, cols):
         for j in range(cols):
             sum += np.int32(buffers[w][i * cols + j]) * np.int32(buffers[x][j])
             # Matrix-vector multiplication
-            if flag == 2:  # Print only once
-                print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
+            # if flag == 2:  # Print only once
+            #     print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
 
         sum += buffers[b][i]
         buffers[dest][i] = np.int32(sum)  # Store the result in the destination buffer
@@ -109,7 +109,11 @@ def relu(dest, x):
 def execute_program(hex_file):
     """Execute the program from a hex file."""
     with open(hex_file, 'r') as file:
-        instructions = [int(line.strip(), 16) for line in file if line.strip()]
+        lines = [line.strip() for _, line in zip(range(0x700), file)]
+        instructions = [''.join(lines[i:i+8]) for i in range(0, len(lines), 8)]
+        # print(f"Instructions are: {instructions[0:13]}")
+        instructions = [int(instruction, 16) for instruction in instructions if instruction]  # Convert hex to int
+        # print(f"Instructions are: {instructions[0:13]}")
     global memory
     memory = load_memory('dram.hex')
     for instruction in instructions:

@@ -27,18 +27,18 @@ def evaluate_design(seed, torch_input, label):
 
     # 2. Save DRAM to hex file
     save_dram_to_file("dram.hex")
-    print("DRAM saved to dram.hex")
+    # print("DRAM saved to dram.hex")
     
 
     # # 3. Optional: print the ordered weights and biases
     # print_weights_in_order(model_path)
 
     # 4. Get the output of the design
-    output_design = execute_program("program.hex")
+    output_design = execute_program("dram.hex")
     max_index = np.argmax(output_design)
-    print("Output from the design:", output_design)
-    print("Expected label:", label)
-    print("Max index from the design:", max_index)
+    # print("Output from the design:", output_design)
+    # print("Expected label:", label)
+    # print("Max index from the design:", max_index)
     return max_index == label.item()
 
 
