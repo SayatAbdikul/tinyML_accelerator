@@ -10,9 +10,10 @@ print("6. Wallace Multiplier Test")
 print("7. GEMV Buffer File Test")
 print("8. PE Test")
 print("9. Memory Test")
+print("10. Weight Buffer File Test")
 
-choice = input("Enter your choice (1-9): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9'}:
+choice = input("Enter your choice (1-10): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -44,7 +45,11 @@ commands = {
           "./obj_dir/Vpe"],
       '9': ["verilator -Wall --cc rtl/simple_memory.sv --exe test/simple_memory_tb.cpp",
           "make -C obj_dir -f Vsimple_memory.mk Vsimple_memory",
-          "./obj_dir/Vsimple_memory"]
+          "./obj_dir/Vsimple_memory"],
+    '10': ["verilator -Wall --trace --cc rtl/weight_buffer_file.sv --exe test/weight_buffer_file_tb.cpp",
+            "make -C obj_dir -f Vweight_buffer_file.mk Vweight_buffer_file",
+            "./obj_dir/Vweight_buffer_file"],
+    
 }
 
 for cmd in commands[choice]:
