@@ -39,8 +39,8 @@ int main(int argc, char** argv) {
 
     // Randomized test data
     std::vector<std::pair<uint32_t, std::vector<std::pair<int32_t, int8_t>>>> tests;
-    for (int t = 0; t < 100; ++t) {
-        uint32_t max_abs = std::rand() % 100000; // Random max_abs in [0, 99999]
+    for (int t = 0; t < 1000; ++t) {
+        uint32_t max_abs = std::rand() % 1000000; // Random max_abs in [0, 999999]
         std::vector<std::pair<int32_t, int8_t>> vecs;
         for (int i = 0; i < 8; ++i) {
             int32_t input = (std::rand() % (2 * max_abs + 1)) - static_cast<int32_t>(max_abs); // [-max_abs, max_abs]
