@@ -69,7 +69,8 @@ module load_m #(
 
                 NEXT_TILE: begin
                     $display("Tile data: %0h", tile);
-                    $display("Address: %0h", mem_addr); // Shows next address
+                    $display("Address in decimal: %0d", mem_addr); // Shows next address
+                    mem_addr <= mem_addr - 1;  // Prepare for next tile
                     tile_out <= 1;
                     if (length_cnt + TILE_WIDTH <= length) begin
                         length_cnt <= length_cnt + TILE_WIDTH;
