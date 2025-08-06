@@ -26,6 +26,7 @@ end
 always_ff @(posedge clk) begin
     // Read-before-write behavior
     dout <= memory[addr];
+    //$display("Memory read at address %0h: %0h", addr, dout);
     // Write operation
     if (we) begin
         memory[addr] <= din;
