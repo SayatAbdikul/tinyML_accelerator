@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0');
         // Read in natural order (LSB first)
-        for (int i = 0; i < WORDS_PER_TILE; i++) {
+        for (int i = 0; i < WORDS_PER_TILE; i++) { // verilator flattens it anyway
             oss << std::setw(8) << dut->read_data[i];
         }
         return oss.str();

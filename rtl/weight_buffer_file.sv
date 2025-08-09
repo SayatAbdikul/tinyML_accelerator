@@ -1,7 +1,9 @@
 module weight_buffer_file #(
     parameter BUFFER_WIDTH = 1024, // in testing purposes, should be 100352
     parameter BUFFER_COUNT = 2,
-    parameter TILE_WIDTH = 256
+    parameter TILE_WIDTH = 256,
+    parameter DATA_WIDTH = 8,
+    parameter TILE_SIZE = 32
 )(
     input clk,
     input reset_n,
@@ -10,7 +12,7 @@ module weight_buffer_file #(
     input [TILE_WIDTH-1:0] write_data,
     input [$clog2(BUFFER_COUNT)-1:0] write_buffer,
     input [$clog2(BUFFER_COUNT)-1:0] read_buffer,
-    output reg [TILE_WIDTH-1:0] read_data,
+    output reg [TILE_SIZE-1:0][DATA_WIDTH-1:0] read_data,
     output reg writing_done,
     output reg reading_done
 );
@@ -62,12 +64,14 @@ always @(posedge clk or negedge reset_n) begin
         end 
         // Read operation
         else if (read_enable) begin
-            read_data <= buffers[read_buffer][r_bit_index +: TILE_WIDTH];
-            
+            for (i = 0; i < TILE_SIZE; i++) begin
+                read_data[i] <= buffers[read_buffer][{ {(32-INDEX_WIDTH){1'b0}}, r_bit_index }+i*8 +: DATA_WIDTH];
+                //$display("Read data[%0d]: %0h", i, buffers[read_buffer][r_bit_index+i*8 +: DATA_WIDTH]);
+            end
             if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, r_tile_index } == TILE_COUNT - 1) begin
                 r_tile_index <= 0;
                 reading_done <= 1;
-                //$display("Reading done, the value is %0h", read_data);
+                //$display("Reading done here, the value is %0h", read_data);
             end else begin
                 r_tile_index <= r_tile_index + 1;
             end
