@@ -54,8 +54,8 @@ commands = {
     '11': ["verilator -Wall --cc rtl/load_m.sv rtl/simple_memory.sv --top load_m --exe test/load_m_tb.cpp",
             "make -C obj_dir -f Vload_m.mk Vload_m",
             "./obj_dir/Vload_m"],
-    '12': ["verilator -Wall --trace --cc /top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv "
-            "rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top top_gemv --exe test/top_gemv_tb.cpp",
+    '12': ["verilator -Wall --trace --cc rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv "
+            "rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top top_gemv --exe test/top_gemv_tb.cpp",
             "make -C obj_dir -f Vtop_gemv.mk Vtop_gemv",
             "./obj_dir/Vtop_gemv"]
     
