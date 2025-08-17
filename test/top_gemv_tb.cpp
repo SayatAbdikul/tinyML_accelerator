@@ -63,8 +63,8 @@ int main(int argc, char **argv) {
             sum += w[i][j] * x[j];
         }
         int y = sum + bias[i];
-        std::cout << "Row " << i << ": sum = " << sum << ", bias = " << static_cast<int>(bias[i])
-                  << ", y = " << y << "\n";
+        //std::cout << "Row " << i << ": sum = " << sum << ", bias = " << static_cast<int>(bias[i])
+        //          << ", y = " << y << "\n";
         y_expected[i] = y;
         y_int32.push_back(y);
     }

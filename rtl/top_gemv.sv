@@ -1,7 +1,7 @@
 module top_gemv #(
     parameter DATA_WIDTH = 8,
-    parameter MAX_ROWS = 128,
-    parameter MAX_COLUMNS = 128,
+    parameter MAX_ROWS = 1024,
+    parameter MAX_COLUMNS = 1024,
     parameter TILE_SIZE = 32
 ) (
     input logic clk,
@@ -48,7 +48,7 @@ module top_gemv #(
     logic last_in_row;
     logic row_overflow;
     logic [COL_IDX_WIDTH-1:0] col_start;
-    logic [$clog2(TILE_SIZE):0] num_current_row;
+    logic [COL_IDX_WIDTH-1:0] num_current_row;
     
     // Split accumulations
     logic signed [4*DATA_WIDTH-1:0] sum_current_row;
@@ -70,8 +70,8 @@ module top_gemv #(
     
     // Calculate starting column and valid elements
     assign col_start = tile_idx * TILE_SIZE;
-    assign num_current_row = (col_start < cols) ? 
-                           ((col_start + TILE_SIZE <= cols) ? TILE_SIZE : cols - col_start) : 
+    assign num_current_row = (col_start < cols[COL_IDX_WIDTH-1:0]) ? 
+                           ((col_start + TILE_SIZE <= cols[COL_IDX_WIDTH-1:0]) ? TILE_SIZE : cols[COL_IDX_WIDTH-1:0] - col_start) : 
                            0;
     
     // x input selection with zero-padding
@@ -79,11 +79,11 @@ module top_gemv #(
         for (int i = 0; i < TILE_SIZE; i++) begin
             // Current row elements
             if (i < num_current_row) begin
-                x_in[i] = x[col_start + i];
+                x_in[i] = x[int'(col_start) + i];
             end 
             // Next row elements (if spanning)
             else if (row_overflow) begin
-                x_in[i] = x[i - num_current_row];
+                x_in[i] = x[i - int'(num_current_row)];
             end 
             // Beyond matrix columns
             else begin
@@ -111,8 +111,8 @@ module top_gemv #(
     end
 
     // Tile boundary conditions
-    assign last_in_row = (col_start + TILE_SIZE >= cols);
-    assign row_overflow = (col_start < cols) && (col_start + TILE_SIZE > cols);
+    assign last_in_row = (col_start + TILE_SIZE >= cols[COL_IDX_WIDTH-1:0]);
+    assign row_overflow = (col_start < cols[COL_IDX_WIDTH-1:0]) && (col_start + TILE_SIZE > cols[COL_IDX_WIDTH-1:0]);
 
     // Absolute value for max calculation
     assign current_abs = (res[max_idx] >= 0) ? res[max_idx] : -res[max_idx];
@@ -127,7 +127,7 @@ module top_gemv #(
             ACCUMULATE: next_state = WAIT_NEXT;
             WAIT_NEXT: begin
                 if (last_in_row) begin
-                    if (row_idx < rows - 1) begin
+                    if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1) begin
                         next_state = WAIT_TILE;
                     end else begin
                         next_state = BIAS;
@@ -137,9 +137,9 @@ module top_gemv #(
                 end
             end
             BIAS: next_state = FIND_MAX;
-            FIND_MAX: next_state = max_idx < MAX_ROWS - 1 ? FIND_MAX : COMPUTE_SCALE;
+            FIND_MAX: next_state = int'(max_idx) < MAX_ROWS - 1 ? FIND_MAX : COMPUTE_SCALE;
             COMPUTE_SCALE: next_state = scale_ready ? QUANTIZE : COMPUTE_SCALE;
-            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows - 1 ? QUANTIZE : DONE) : QUANTIZE;
+            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows[ROW_IDX_WIDTH-1:0] - 1 ? QUANTIZE : DONE) : QUANTIZE;
             DONE: next_state = IDLE;
             default: next_state = IDLE; // Handle unexpected states
         endcase
@@ -173,7 +173,7 @@ module top_gemv #(
                             res[j] <= '0;
                         end
                         
-                        $display("Starting GEMV operation with %0d rows and %0d columns", rows, cols);
+                        //$display("Starting GEMV operation with %0d rows and %0d columns", rows, cols);
                     end
                 end
 
@@ -200,17 +200,17 @@ module top_gemv #(
                     res[row_idx] <= res[row_idx] + sum_current_row;
                     if (row_overflow) begin
                         res[row_idx+1] <= res[row_idx+1] + sum_next_row;
-                        $display("Row overflow: accumulated tile %0d for row %0d and next row %0d", tile_idx, row_idx, row_idx+1);
+                        //$display("Row overflow: accumulated tile %0d for row %0d and next row %0d", tile_idx, row_idx, row_idx+1);
                     end
                     tile_done <= 1;
-                    $display("Row %0d, Tile %0d: Accumulated result = %0d", row_idx, tile_idx, res[row_idx]);            
+                    //$display("Row %0d, Tile %0d: Accumulated result = %0d", row_idx, tile_idx, res[row_idx]);            
                 end
                 WAIT_NEXT: begin
                     tile_done <= 0;
                     if (last_in_row) begin
                         tile_idx <= '0;
-                        $display("Last tile in row: tile_idx = %d, cols = %d", tile_idx, cols);
-                        if (row_idx < rows - 1) begin
+                        //$display("Last tile in row: tile_idx = %d, cols = %d", tile_idx, cols);
+                        if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1) begin
                             // Move to next row (skip next if already accumulated)
                             row_idx <= row_idx + 1;
                         end
@@ -224,7 +224,7 @@ module top_gemv #(
                     for (int j = 0; j < MAX_ROWS; j++) begin
                         if (j < rows) begin
                             res[j] <= res[j] + {{(3*DATA_WIDTH){bias[j][DATA_WIDTH-1]}}, bias[j]};
-                            $display("Bias applied to row %0d: %0d", j, res[j]);
+                            //$display("Bias applied to row %0d: %0d", j, res[j]);
                         end
                         else begin
                             res[j] <= '0; // Zero padding for unused rows
@@ -241,7 +241,7 @@ module top_gemv #(
                         max_abs_reg <= current_abs;
                     end
 
-                    if (max_idx < MAX_ROWS-1) begin
+                    if (int'(max_idx) < MAX_ROWS-1) begin
                         max_idx <= max_idx + 1;
                     end else begin
                         // Avoid division by zero
@@ -262,14 +262,14 @@ module top_gemv #(
                     tile_done <= 0;
                     // Pipeline quantization process
                     quant_valid_in <= 0;
-                    if (quant_in_idx < MAX_ROWS) begin
+                    if (int'(quant_in_idx) < MAX_ROWS) begin
                         int32_value <= res[quant_in_idx];
                         quant_in_idx <= quant_in_idx + 1;
-                        quant_valid_in <= (quant_in_idx < rows);
+                        quant_valid_in <= (quant_in_idx < rows[ROW_IDX_WIDTH-1:0]);
                     end
 
                     if (quant_valid_out) begin
-                        if (quant_out_idx < MAX_ROWS) begin
+                        if (int'(quant_out_idx) < MAX_ROWS) begin
                             res[quant_out_idx] <= {{(3*DATA_WIDTH){int8_value[DATA_WIDTH-1]}}, int8_value};
                             quant_out_idx <= quant_out_idx + 1;
                         end
@@ -280,13 +280,13 @@ module top_gemv #(
                 DONE: begin
                     tile_done <= 0;
                     done <= 1;
-                    $display("GEMV operation completed. Results ready.");
+                    //$display("GEMV operation completed. Results ready.");
                 end
 
                 default: begin
                     tile_done <= 0;
                     done <= 0;
-                    $display("Unexpected state: %0d", state);
+                    //$display("Unexpected state: %0d", state);
                 end
         endcase
     end
