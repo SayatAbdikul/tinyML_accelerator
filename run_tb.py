@@ -12,9 +12,10 @@ print("8. PE Test")
 print("9. Memory Test")
 print("10. Weight Buffer File Test")
 print("11. Load Matrix Test")
+print("12. Top GEMV Test")
 
-choice = input("Enter your choice (1-11): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'}:
+choice = input("Enter your choice (1-12): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -52,7 +53,11 @@ commands = {
             "./obj_dir/Vweight_buffer_file"],
     '11': ["verilator -Wall --cc rtl/load_m.sv rtl/simple_memory.sv --top load_m --exe test/load_m_tb.cpp",
             "make -C obj_dir -f Vload_m.mk Vload_m",
-            "./obj_dir/Vload_m"]
+            "./obj_dir/Vload_m"],
+    '12': ["verilator -Wall --trace --cc /top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv "
+            "rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv --top top_gemv --exe test/top_gemv_tb.cpp",
+            "make -C obj_dir -f Vtop_gemv.mk Vtop_gemv",
+            "./obj_dir/Vtop_gemv"]
     
 }
 
