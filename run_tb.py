@@ -10,7 +10,7 @@ print("6. Wallace Multiplier Test")
 print("7. GEMV Buffer File Test")
 print("8. PE Test")
 print("9. Memory Test")
-print("10. Weight Buffer File Test")
+print("10. Buffer File Test")
 print("11. Load Matrix Test")
 print("12. Top GEMV Test")
 print("13. ReLU Test")
@@ -49,9 +49,9 @@ commands = {
       '9': ["verilator -Wall --cc rtl/simple_memory.sv --exe test/simple_memory_tb.cpp",
           "make -C obj_dir -f Vsimple_memory.mk Vsimple_memory",
           "./obj_dir/Vsimple_memory"],
-    '10': ["verilator -Wall --trace --cc rtl/weight_buffer_file.sv --exe test/weight_buffer_file_tb.cpp",
-            "make -C obj_dir -f Vweight_buffer_file.mk Vweight_buffer_file",
-            "./obj_dir/Vweight_buffer_file"],
+    '10': ["verilator -Wall --trace --cc rtl/buffer_file.sv --exe test/buffer_file_tb.cpp",
+            "make -C obj_dir -f Vbuffer_file.mk Vbuffer_file",
+            "./obj_dir/Vbuffer_file"],
     '11': ["verilator -Wall --cc rtl/load_m.sv rtl/simple_memory.sv --top load_m --exe test/load_m_tb.cpp",
             "make -C obj_dir -f Vload_m.mk Vload_m",
             "./obj_dir/Vload_m"],

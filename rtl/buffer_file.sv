@@ -1,4 +1,4 @@
-module weight_buffer_file #(
+module buffer_file #(
     parameter BUFFER_WIDTH = 1024, // in testing purposes, should be 100352
     parameter BUFFER_COUNT = 2,
     parameter TILE_WIDTH = 256,
