@@ -58,11 +58,11 @@ module load_m #(
                 end
 
                 READING: begin
-                    tile[((NUM_BYTES) - byte_cnt)*8 +: 8] <= mem_data_out;// Store current byte
+                    tile[((NUM_BYTES) - int'(byte_cnt))*8 +: 8] <= mem_data_out;// Store current byte
                     byte_cnt <= byte_cnt + 1;
                     mem_addr <= mem_addr + 1;  // Increment to next byte address
 
-                    if (byte_cnt == NUM_BYTES) begin
+                    if (int'(byte_cnt) == NUM_BYTES) begin
                         state <= NEXT_TILE;
                     end
                 end
