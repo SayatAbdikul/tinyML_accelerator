@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
     int tiles_seen = 0;
 
-    while (tiles_seen < 3 && !Verilated::gotFinish()) {
+    while (tiles_seen < 10 && !Verilated::gotFinish()) {
         tick(top);
 
         if (top->tile_out) {

@@ -14,35 +14,33 @@ module load_m #(
 
     localparam NUM_BYTES = TILE_WIDTH / 8;
     logic [19:0] length_cnt;
-    // Single shared memory instance
     logic [7:0] mem_data_out;
     logic [23:0] mem_addr;
-    logic mem_we = 0;
 
     simple_memory #(
         .ADDR_WIDTH(24),
         .DATA_WIDTH(8)
     ) memory_inst (
         .clk(clk),
-        .we(mem_we),
+        .we(0),
         .addr(mem_addr),
         .din(8'b0),
         .dout(mem_data_out)
     );
 
-    // Internal state
-    logic [$clog2(NUM_BYTES+1):0] byte_cnt;
+    logic [$clog2(NUM_BYTES)-1:0] byte_cnt;
     logic [TILE_WIDTH-1:0] tile;
 
-    enum logic [1:0] {IDLE, READING, NEXT_TILE, DONE} state;
+    enum logic [2:0] {IDLE, INIT_READING, READING, NEXT_TILE, DONE} state;
 
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             state <= IDLE;
-            byte_cnt <= 0;
-            mem_addr <= 0;
-            tile <= 0;
+            byte_cnt <= '0;
+            mem_addr <= '0;
+            tile <= '0;
             valid_out <= 0;
+            tile_out <= 0;
             length_cnt <= 0;
             $display("Resetting load_m module");
         end else begin
@@ -50,32 +48,55 @@ module load_m #(
             tile_out <= 0;
             case (state)
                 IDLE: begin
-                    byte_cnt <= 0;
+                    byte_cnt <= '0;
                     if (valid_in) begin
-                        mem_addr <= dram_addr;  // Initialize address
-                        state <= READING;
+                        mem_addr   <= dram_addr;  // Present first address
+                        length_cnt <= 0;          // Start of transfer
+                        state      <= INIT_READING; // Prime 1 cycle for sync read
                     end
                 end
 
-                READING: begin
-                    tile[((NUM_BYTES) - int'(byte_cnt))*8 +: 8] <= mem_data_out;// Store current byte
-                    byte_cnt <= byte_cnt + 1;
-                    mem_addr <= mem_addr + 1;  // Increment to next byte address
+                // New priming state to account for 1-cycle read latency
+                INIT_READING: begin
+                    // After this cycle, mem_data_out matches current mem_addr
+                    state <= READING;
+                    mem_addr <= mem_addr + 1;
+                end
 
-                    if (int'(byte_cnt) == NUM_BYTES) begin
+                READING: begin
+                    // Capture the data for the address presented in the previous cycle
+                    if(length_cnt + byte_cnt*8 < length) begin
+                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= mem_data_out;
+                        //$display("length_cnt + byte_cnt*8 = %0d, length = %0d", length_cnt + byte_cnt*8, length);
+                        //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
+                    end
+                    else begin
+                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= '0; // Fill with zeros if out of range
+                        //$display("Out of range read at addr = %h, filling with zeros", mem_addr - 1);
+                    end
+                    //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
+
+
+                    // End-of-tile check (NUM_BYTES captures: 0..NUM_BYTES-1)
+                    if (byte_cnt == NUM_BYTES-1) begin
                         state <= NEXT_TILE;
+                    end else begin
+                        byte_cnt <= byte_cnt + 1;
+                        mem_addr <= mem_addr + 1;
                     end
                 end
 
                 NEXT_TILE: begin
                     $display("Tile data: %0h", tile);
-                    $display("Address in decimal: %0d", mem_addr); // Shows next address
-                    mem_addr <= mem_addr - 1;  // Prepare for next tile
+                    $display("Last address read (decimal): %0d", mem_addr - 1);
                     tile_out <= 1;
-                    if (length_cnt + TILE_WIDTH <= length) begin
-                        length_cnt <= length_cnt + TILE_WIDTH;
-                        state <= READING;
-                        byte_cnt <= 0; // Reset for new tile
+                    length_cnt <= length_cnt + TILE_WIDTH;
+
+                    // If more full tiles remain, re-prime before next capture
+                    if (length_cnt + TILE_WIDTH < length) begin
+                        state    <= INIT_READING; // prime for the next tile
+                        byte_cnt <= '0;           // reset for new tile
+                        // mem_addr already points to the next byte to read
                     end else begin
                         state <= DONE;
                         valid_out <= 1;
@@ -85,8 +106,10 @@ module load_m #(
                 DONE: begin
                     state <= IDLE;
                 end
+                default: state <= IDLE;
             endcase
         end
     end
+
     assign data_out = tile;
 endmodule

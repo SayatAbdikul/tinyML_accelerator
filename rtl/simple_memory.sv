@@ -13,7 +13,7 @@ module simple_memory #(
 // Calculate memory depth
 localparam MEM_DEPTH = 2**ADDR_WIDTH;
 
-// Declare memory array
+// Declare memory array 
 logic [DATA_WIDTH-1:0] memory [0:MEM_DEPTH-1];
 
 // Initialize memory from hex file
@@ -26,10 +26,11 @@ end
 always_ff @(posedge clk) begin
     // Read-before-write behavior
     dout <= memory[addr];
-    //$display("Memory read at address %0h: %0h", addr, dout);
+    //$display("Memory read at address %0h: %0h", addr, memory[addr]);
     // Write operation
     if (we) begin
         memory[addr] <= din;
+        //$display("Memory write at address %0h: %0h", addr, memory[addr]);
     end
 end
 
