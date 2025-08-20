@@ -14,9 +14,10 @@ print("10. Buffer File Test")
 print("11. Load Matrix Test")
 print("12. Top GEMV Test")
 print("13. ReLU Test")
+print("14. Load Vector Test")
 
-choice = input("Enter your choice (1-13): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'}:
+choice = input("Enter your choice (1-14): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -61,7 +62,10 @@ commands = {
             "./obj_dir/Vtop_gemv"],
     '13': ["verilator -Wall --cc rtl/relu.sv --exe test/relu_tb.cpp",
             "make -C obj_dir -f Vrelu.mk Vrelu",
-            "./obj_dir/Vrelu"]
+            "./obj_dir/Vrelu"],
+    '14': ["verilator -Wall --cc rtl/load_v.sv rtl/simple_memory.sv --top load_v --exe test/load_v_tb.cpp",
+            "make -C obj_dir -f Vload_v.mk Vload_v",
+            "./obj_dir/Vload_v"]
     
 }
 
