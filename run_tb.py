@@ -15,9 +15,10 @@ print("11. Load Matrix Test")
 print("12. Top GEMV Test")
 print("13. ReLU Test")
 print("14. Load Vector Test")
+print("15. Fetch Unit Test")
 
-choice = input("Enter your choice (1-14): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'}:
+choice = input("Enter your choice (1-15): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -65,10 +66,11 @@ commands = {
             "./obj_dir/Vrelu"],
     '14': ["verilator -Wall --cc rtl/load_v.sv rtl/simple_memory.sv --top load_v --exe test/load_v_tb.cpp",
             "make -C obj_dir -f Vload_v.mk Vload_v",
-            "./obj_dir/Vload_v"]
-    
+            "./obj_dir/Vload_v"],
+    '15': ["verilator -Wall --cc rtl/fetch_unit.sv rtl/simple_memory.sv --top fetch_unit --exe test/fetch_unit_tb.cpp",
+            "make -C obj_dir -f Vfetch_unit.mk Vfetch_unit",
+            "./obj_dir/Vfetch_unit"],
 }
-
 for cmd in commands[choice]:
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     print(f"Command: {cmd}")
