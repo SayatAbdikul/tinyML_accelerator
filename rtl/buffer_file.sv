@@ -12,7 +12,7 @@ module buffer_file #(
     input [TILE_WIDTH-1:0] write_data,
     input [$clog2(BUFFER_COUNT)-1:0] write_buffer,
     input [$clog2(BUFFER_COUNT)-1:0] read_buffer,
-    output reg [TILE_SIZE-1:0][DATA_WIDTH-1:0] read_data,
+    output reg [DATA_WIDTH-1:0] read_data [0:TILE_SIZE-1],
     output reg writing_done,
     output reg reading_done
 );
@@ -42,7 +42,9 @@ always @(posedge clk or negedge reset_n) begin
         end
         w_tile_index <= 0;
         r_tile_index <= 0;
-        read_data <= 0;
+        for (i = 0; i < TILE_SIZE; i++) begin
+            read_data[i] <= 0;
+        end
         writing_done <= 0;
         reading_done <= 0;
     end else begin
