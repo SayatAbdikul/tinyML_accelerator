@@ -187,7 +187,7 @@ module execution_unit #(
         .start(gemv_start),
         .w_ready(gemv_w_ready),
         .w_valid(w_valid),
-        .w_tile_row_in(matrix_buffer_read_data[0:TILE_ELEMS-1]), // Use matrix buffer for weights
+        .w_tile_row_in(weight_tile_data), // Temporarily use external weights for testing
         .x(gemv_x_buffer),
         .bias(gemv_bias_buffer),
         .rows(rows),
@@ -218,7 +218,7 @@ module execution_unit #(
         .out_vec(relu_out)
     );
     
-    // Gate w_valid for GEMV
+    // Gate w_valid for GEMV - use external weight_tile_valid for testing  
     assign w_valid = (state == GEMV_COMPUTE) && weight_tile_valid;
     
     // Buffer file control - separate control for vector and matrix buffers

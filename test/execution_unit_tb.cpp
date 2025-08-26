@@ -169,7 +169,7 @@ public:
         printf("\n--- Test LOAD_M Operation (0x02) ---\n");
         start_operation(0x02, 2, 8, 8, 0x3000);  // Load 8x8 matrix to buffer 2
         
-        if (wait_for_done(50)) {
+        if (wait_for_done(80)) {  // Increased timeout for 8x8 matrix (4 tiles)
             printf("✅ LOAD_M completed successfully\n");
         }
     }
@@ -185,8 +185,14 @@ public:
     
     void test_gemv() {
         printf("\n--- Test GEMV Operation (0x04) ---\n");
-        start_operation(0x04, 0, 10, 8, 0x5000);  // 8x10 matrix * 10x1 vector
         
+        // Set up some test input data in x_buffer for computation
+        for (int i = 0; i < 10; i++) {
+            dut->x_buffer[i] = (i + 1);  // Simple test pattern: 1, 2, 3, ...
+        }
+        
+        start_operation(0x04, 0, 10, 8, 0x5000);  // 8x10 matrix * 10x1 vector
+
         // Simulate weight tile availability immediately
         dut->weight_tile_valid = 1;
         for (int i = 0; i < TILE_ELEMS; i++) {
