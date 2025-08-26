@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     const uint32_t BUFFER_COUNT = 2;
     const uint32_t TILE_COUNT = BUFFER_WIDTH / TILE_WIDTH;
     const uint32_t WORDS_PER_TILE = TILE_WIDTH / 32;
+    const uint32_t TILE_SIZE = 32; // Number of bytes per tile
     
     Vbuffer_file* dut = new Vbuffer_file;
 
@@ -60,13 +61,18 @@ int main(int argc, char** argv) {
         }
     };
 
-    // CORRECTED: Read data in natural order (LSB to MSB)
+    // Updated: Read data from unpacked array (32 bytes, each 8 bits)
     auto read_data_to_hex = [&]() -> std::string {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0');
-        // Read in natural order (LSB first)
-        for (int i = 0; i < WORDS_PER_TILE; i++) { // verilator flattens it anyway
-            oss << std::setw(8) << dut->read_data[i];
+        // Combine bytes to form 32-bit words for comparison
+        for (int word = 0; word < WORDS_PER_TILE; word++) {
+            uint32_t combined_word = 0;
+            for (int byte_in_word = 0; byte_in_word < 4; byte_in_word++) {
+                int byte_index = word * 4 + byte_in_word;
+                combined_word |= (static_cast<uint32_t>(dut->read_data[byte_index]) << (byte_in_word * 8));
+            }
+            oss << std::setw(8) << combined_word;
         }
         return oss.str();
     };
@@ -215,9 +221,9 @@ int main(int argc, char** argv) {
     dut->eval();
     main_time++;
     
-    // Should reset to all zeros
+    // Should reset to all zeros - check unpacked array
     bool all_zero = true;
-    for (int i = 0; i < WORDS_PER_TILE; i++) {
+    for (int i = 0; i < TILE_SIZE; i++) {
         if (dut->read_data[i] != 0) {
             all_zero = false;
             break;

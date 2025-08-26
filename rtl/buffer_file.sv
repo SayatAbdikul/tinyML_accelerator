@@ -59,7 +59,7 @@ always @(posedge clk or negedge reset_n) begin
             if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index } == TILE_COUNT - 1) begin
                 w_tile_index <= 0;
                 writing_done <= 1;
-                $display("Writing done, the value is %0h", buffers[write_buffer]);
+                // $display("Writing done, the value is %0h", buffers[write_buffer]);
             end else begin
                 w_tile_index <= w_tile_index + 1;
             end
