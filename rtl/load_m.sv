@@ -44,8 +44,8 @@ module load_m #(
             length_cnt <= 0;
             $display("Resetting load_m module");
         end else begin
-            valid_out <= 0;
             tile_out <= 0;
+            // Only clear valid_out when starting a new operation
             case (state)
                 IDLE: begin
                     byte_cnt <= '0;
@@ -53,6 +53,7 @@ module load_m #(
                         mem_addr   <= dram_addr;  // Present first address
                         length_cnt <= 0;          // Start of transfer
                         state      <= INIT_READING; // Prime 1 cycle for sync read
+                        valid_out <= 0; // Clear valid_out when starting new operation
                     end
                 end
 
@@ -99,11 +100,13 @@ module load_m #(
                         // mem_addr already points to the next byte to read
                     end else begin
                         state <= DONE;
-                        valid_out <= 1;
+                        valid_out <= 1; // Assert completion signal
                     end
                 end
 
                 DONE: begin
+                    // Keep valid_out high until acknowledged
+                    // This ensures the execution unit can see the completion
                     state <= IDLE;
                 end
                 default: state <= IDLE;
