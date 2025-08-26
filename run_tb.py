@@ -16,9 +16,12 @@ print("12. Top GEMV Test")
 print("13. ReLU Test")
 print("14. Load Vector Test")
 print("15. Fetch Unit Test")
+print("16. tinyML Accelerator Top Test")
+print("17. Integrated Top Module Test")
+print("18. Execution Unit Test")
 
-choice = input("Enter your choice (1-15): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15'}:
+choice = input("Enter your choice (1-18): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -70,6 +73,16 @@ commands = {
     '15': ["verilator -Wall --cc rtl/fetch_unit.sv rtl/simple_memory.sv --top fetch_unit --exe test/fetch_unit_tb.cpp",
             "make -C obj_dir -f Vfetch_unit.mk Vfetch_unit",
             "./obj_dir/Vfetch_unit"],
+    '16': ["verilator -Wall --trace --cc rtl/tinyml_accelerator_top.sv rtl/execution_unit.sv rtl/buffer_file.sv rtl/fetch_unit.sv rtl/i_decoder.sv rtl/load_m.sv rtl/load_v.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/relu.sv rtl/simple_memory.sv --top tinyml_accelerator_top --exe test/tinyml_accelerator_top_tb.cpp",
+            "make -C obj_dir -f Vtinyml_accelerator_top.mk Vtinyml_accelerator_top",
+            "./obj_dir/Vtinyml_accelerator_top"],
+    '17': ["verilator -Wall --trace --cc rtl/top.sv rtl/tinyml_accelerator_top.sv rtl/execution_unit.sv rtl/buffer_file.sv rtl/fetch_unit.sv rtl/i_decoder.sv rtl/load_m.sv rtl/load_v.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/relu.sv rtl/simple_memory.sv --top top --exe test/top_integrated_tb.cpp",
+            "make -C obj_dir -f Vtop.mk Vtop",
+            "./obj_dir/Vtop"],
+    '18': ["verilator -Wall --trace --cc rtl/execution_unit.sv rtl/simple_memory.sv rtl/buffer_file.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv "
+        "rtl/wallace_32x32.sv rtl/load_v.sv rtl/load_m.sv rtl/compressor_3to2.sv rtl/relu.sv --top execution_unit --exe test/execution_unit_tb.cpp",
+            "make -C obj_dir -f Vexecution_unit.mk Vexecution_unit",
+            "./obj_dir/Vexecution_unit"],
 }
 for cmd in commands[choice]:
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
