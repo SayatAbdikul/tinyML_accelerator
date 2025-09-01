@@ -55,11 +55,13 @@ always @(posedge clk or negedge reset_n) begin
         // Write operation
         if (write_enable) begin
             buffers[write_buffer][w_bit_index +: TILE_WIDTH] <= write_data;
-            
+            // if(BUFFER_COUNT == 16)
+            //     $display("Wrote to buffer %0d at tile index %0d: %0h", write_buffer, w_tile_index, write_data);
             if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index } == TILE_COUNT - 1) begin
                 w_tile_index <= 0;
                 writing_done <= 1;
-                // $display("Writing done, the value is %0h", buffers[write_buffer]);
+                if(write_buffer == 9)
+                    $display("Writing input is done, the value is %0h", buffers[write_buffer][5:0]);
             end else begin
                 w_tile_index <= w_tile_index + 1;
             end

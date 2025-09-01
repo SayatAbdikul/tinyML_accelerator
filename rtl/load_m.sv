@@ -54,6 +54,7 @@ module load_m #(
                         length_cnt <= 0;          // Start of transfer
                         state      <= INIT_READING; // Prime 1 cycle for sync read
                         valid_out <= 0; // Clear valid_out when starting new operation
+                        // $display(" length is %0d bits", length);
                     end
                 end
 
@@ -88,8 +89,8 @@ module load_m #(
                 end
 
                 NEXT_TILE: begin
-                    $display("Tile data: %0h", tile);
-                    $display("Last address read (decimal): %0d", mem_addr - 1);
+                    //$display("Tile data: %0h", tile);
+                    //$display("Last address read (decimal): %0d", mem_addr - 1);
                     tile_out <= 1;
                     length_cnt <= length_cnt + TILE_WIDTH;
 

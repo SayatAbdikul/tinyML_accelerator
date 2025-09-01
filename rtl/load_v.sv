@@ -83,10 +83,12 @@ module load_v #(
 
                 READING: begin
                     // Capture data for the address presented in the previous cycle
-                    if(length_cnt + byte_cnt*8 < length) begin
+                    if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
                         tile[byte_cnt] <= mem_data_out;
+                        $display(" load_v reading addr %0h: %0h", mem_addr - 1, mem_data_out);
                     end else begin
                         tile[byte_cnt] <= '0; // Fill with zeros if out of range
+                        $display(" load_v reading addr %0h, length_cnt is %0h, byte_cnt is %0h, length is %0h: out of range, filling with 0", mem_addr - 1, length_cnt, byte_cnt, length);
                     end
 
                     // End-of-tile after ELEM_COUNT captures (0..ELEM_COUNT-1)
@@ -100,13 +102,16 @@ module load_v #(
                 end
 
                 NEXT_TILE: begin
-                    $display("Tile loaded. Last address: %0d", mem_addr - 1);
+                    $display("Tile loaded. Last address: %0h", mem_addr - 1);
+                    for (int i = 0; i < ELEM_COUNT; i++) begin
+                        $display(" load_v data_out[%0d] = %0h", i, tile[i]);
+                    end
                     tile_out <= 1;
                     // Account for this tile worth of bits
                     length_cnt <= length_cnt + TILE_WIDTH;
 
                     // If more full tiles remain, re-prime before next capture
-                    if (length_cnt + TILE_WIDTH < length) begin
+                    if (length_cnt + TILE_WIDTH < length * DATA_WIDTH) begin
                         state    <= INIT_READING; // prime for next tile
                         byte_cnt <= '0;           // reset for new tile
                         // mem_addr already points to the next byte to read

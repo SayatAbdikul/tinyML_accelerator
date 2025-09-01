@@ -80,6 +80,8 @@ module top_gemv #(
             // Current row elements
             if (i < num_current_row) begin
                 x_in[i] = x[int'(col_start) + i];
+                // if(x[int'(col_start) + i]!= 0)
+                //     $display("Using nonzero x[%0d] = %0d for row %0d", int'(col_start) + i, x[int'(col_start) + i], row_idx);
             end 
             // Next row elements (if spanning)
             else if (row_overflow) begin
@@ -100,7 +102,8 @@ module top_gemv #(
         for (int j = 0; j < TILE_SIZE; j++) begin
             logic signed [4*DATA_WIDTH-1:0] extended_out;
             extended_out = {{(2*DATA_WIDTH){pe_out[j][2*DATA_WIDTH-1]}}, pe_out[j]};
-            
+            if(extended_out != 0)
+                $display("PE output[%0d] = %0d for row %0d", j, extended_out, row_idx);
             if (j < num_current_row) begin
                 sum_current_row += extended_out;
             end
@@ -185,6 +188,8 @@ module top_gemv #(
                         // Latch incoming weights (unpacked array)
                         for (int i = 0; i < TILE_SIZE; i++) begin
                             w_latched[i] <= w_tile_row_in[i];
+                            // if(w_tile_row_in[i] != 0) 
+                            //     $display("Received nonzero weight[%0d] = %0d for row %0d", i, w_tile_row_in[i], row_idx);
                         end
                         w_ready <= 0;
                         //$display("Received tile %0d for row %0d", tile_idx, row_idx);
@@ -198,6 +203,8 @@ module top_gemv #(
 
                 ACCUMULATE: begin
                     res[row_idx] <= res[row_idx] + sum_current_row;
+                    // if(sum_current_row != 0)
+                    //     $display("Row %0d, Tile %0d: Accumulated tile %0d for row %0d, sum_current_row = %0d", row_idx, tile_idx, tile_idx, row_idx, sum_current_row);
                     if (row_overflow) begin
                         res[row_idx+1] <= res[row_idx+1] + sum_next_row;
                         //$display("Row overflow: accumulated tile %0d for row %0d and next row %0d", tile_idx, row_idx, row_idx+1);
@@ -280,6 +287,10 @@ module top_gemv #(
                 DONE: begin
                     tile_done <= 0;
                     done <= 1;
+                    $display("hardware results are: ");
+                    // for (int j = 0; j < rows; j++) begin
+                    //     $display("y[%0d] = %0d", j, res[j]);
+                    // end
                     //$display("GEMV operation completed. Results ready.");
                 end
 

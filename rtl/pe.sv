@@ -15,6 +15,8 @@ module pe #(
             mult_result <= '0;
         end else begin
             mult_result <= w * x;
+            // if(w != 0)
+            //     $display("PE multiplying w = %0d and x = %0d to produce %0d", w, x, mult_result);
         end
     end
 

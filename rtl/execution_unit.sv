@@ -2,10 +2,10 @@
 // This module isolates execution logic from instruction fetch and decode
 module execution_unit #(
     parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 128,
+    parameter TILE_WIDTH = 256,
     parameter ADDR_WIDTH = 24,
-    parameter MAX_ROWS = 128,
-    parameter MAX_COLS = 128
+    parameter MAX_ROWS = 784,
+    parameter MAX_COLS = 784
 )(
     input logic clk,
     input logic rst,
@@ -14,7 +14,7 @@ module execution_unit #(
     input logic start,
     input logic [4:0] opcode,
     input logic [4:0] dest,
-    input logic [9:0] length_or_cols,
+    input logic [6:0] length_or_cols,
     input logic [9:0] rows,
     input logic [23:0] addr,
     input logic [4:0] b_id, x_id, w_id,
@@ -23,17 +23,8 @@ module execution_unit #(
     // Vector buffers (for x, bias, etc.)
     input logic signed [DATA_WIDTH-1:0] x_buffer [0:MAX_COLS-1],
     input logic signed [DATA_WIDTH-1:0] bias_buffer [0:MAX_ROWS-1],
-    
-    // Memory interface for load_v
-    output logic mem_req,
-    output logic [ADDR_WIDTH-1:0] mem_addr,
-    input logic mem_valid,
-    input logic signed [DATA_WIDTH-1:0] mem_data,
-    
+        
     // Weight loading interface
-    output logic weight_load_start,
-    output logic [23:0] weight_load_addr,
-    output logic [19:0] weight_load_length,
     input logic weight_tile_valid,
     input logic signed [DATA_WIDTH-1:0] weight_tile_data [0:TILE_ELEMS-1],
     
@@ -106,7 +97,7 @@ module execution_unit #(
         .rst(rst),
         .valid_in(load_v_start),
         .dram_addr(addr),
-        .length(length_or_cols * DATA_WIDTH), // Convert to bits
+        .length(length_or_cols), // Convert to bits
         .data_out(load_v_buffer),
         .tile_out(load_v_tile_ready),
         .valid_out(load_v_done)
@@ -147,7 +138,7 @@ module execution_unit #(
         .write_enable(vector_buffer_write_enable),
         .read_enable(1'b1),
         .write_data(vector_buffer_write_tile),
-        .write_buffer(vector_buffer_write_addr),
+        .write_buffer(dest),
         .read_buffer(vector_buffer_read_addr),
         .read_data(vector_buffer_read_data),
         .writing_done(vector_writing_done),
@@ -157,7 +148,7 @@ module execution_unit #(
     // Matrix Buffer file instantiation (for weight matrices)
     logic matrix_writing_done, matrix_reading_done;
     buffer_file #(
-        .BUFFER_WIDTH(16384),
+        .BUFFER_WIDTH(802820),
         .BUFFER_COUNT(128),  // Larger buffer for matrix tiles
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),
@@ -175,7 +166,7 @@ module execution_unit #(
         .reading_done(matrix_reading_done)
     );
     
-    // GEMV instance - connect to matrix buffer for weights via w_id
+    // GEMV instance - matrix buffer data is already properly formatted as array
     top_gemv #(
         .DATA_WIDTH(DATA_WIDTH),
         .MAX_ROWS(MAX_ROWS),
@@ -187,7 +178,7 @@ module execution_unit #(
         .start(gemv_start),
         .w_ready(gemv_w_ready),
         .w_valid(w_valid),
-        .w_tile_row_in(weight_tile_data), // Temporarily use external weights for testing
+        .w_tile_row_in(matrix_buffer_read_data), // Use matrix buffer data directly
         .x(gemv_x_buffer),
         .bias(gemv_bias_buffer),
         .rows(rows),
@@ -218,8 +209,8 @@ module execution_unit #(
         .out_vec(relu_out)
     );
     
-    // Gate w_valid for GEMV - use external weight_tile_valid for testing  
-    assign w_valid = (state == GEMV_COMPUTE) && weight_tile_valid;
+    // Gate w_valid for GEMV - simple logic: valid when in GEMV_COMPUTE state
+    assign w_valid = (state == GEMV_COMPUTE);
     
     // Buffer file control - separate control for vector and matrix buffers
     always_comb begin
@@ -243,10 +234,8 @@ module execution_unit #(
         // Vector buffer control (for load_v)
         if (load_v_tile_ready) begin
             vector_buffer_write_enable = 1;
-            vector_buffer_write_addr = dest + write_tile_count;
         end else begin
             vector_buffer_write_enable = 0;
-            vector_buffer_write_addr = dest;
         end
         
         // Matrix buffer control (for load_m)
@@ -267,9 +256,6 @@ module execution_unit #(
             gemv_start <= 0;
             load_v_start <= 0;
             load_m_start <= 0;
-            weight_load_start <= 0;
-            weight_load_addr <= 0;
-            weight_load_length <= 0;
             vector_buffer_read_addr <= 0;
             matrix_buffer_read_addr <= 0;
             tile_read_count <= 0;
@@ -285,11 +271,11 @@ module execution_unit #(
             gemv_start <= 0;
             load_v_start <= 0;
             load_m_start <= 0;
-            weight_load_start <= 0;
             
             case (state)
                 IDLE: begin
                     if (start) begin
+                        $display("length_or_cols is %0d and length_or_cols*DATA_WIDTH is %0d", length_or_cols, length_or_cols*DATA_WIDTH);
                         case (opcode)
                             5'h00: begin // NOP
                                 state <= COMPLETE;
@@ -310,7 +296,7 @@ module execution_unit #(
                             5'h04: begin // GEMV
                                 vector_buffer_read_addr <= x_id;
                                 matrix_buffer_read_addr <= w_id; // Initialize weight buffer read
-                                tile_read_count <= 0;
+                                tile_read_count <= 0; // Reset tile counter for weight tiles
                                 total_tiles_needed <= (length_or_cols + TILE_ELEMS - 1) / TILE_ELEMS;
                                 current_element_offset <= 0;
                                 state <= GEMV_READ_X;
@@ -328,6 +314,7 @@ module execution_unit #(
                 
                 LOAD_VECTOR: begin
                     // Increment tile count when a tile is written
+                    //$display("In LOAD_VECTOR state");
                     if (load_v_tile_ready) begin
                         write_tile_count <= write_tile_count + 1;
                     end
@@ -352,10 +339,12 @@ module execution_unit #(
                 end
                 
                 GEMV_READ_X_TILES: begin
-                    // Copy tile data to appropriate position in gemv_x_buffer
+                    // Wait one cycle for buffer read, then copy tile data to appropriate position
                     for (int i = 0; i < TILE_ELEMS; i++) begin
                         if (current_element_offset + i < MAX_COLS && current_element_offset + i < length_or_cols) begin
                             gemv_x_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
+                            if(vector_buffer_read_data[i] != 0)
+                                $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
                         end
                     end
                     
@@ -382,7 +371,7 @@ module execution_unit #(
                 end
                 
                 GEMV_READ_BIAS_TILES: begin
-                    // Copy tile data to appropriate position in gemv_bias_buffer
+                    // Wait one cycle for buffer read, then copy tile data to appropriate position 
                     for (int i = 0; i < TILE_ELEMS; i++) begin
                         if (current_element_offset + i < MAX_ROWS && current_element_offset + i < rows) begin
                             gemv_bias_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
@@ -399,15 +388,17 @@ module execution_unit #(
                     end else begin
                         // Done reading bias vector, start computation
                         gemv_start <= 1;
+                        tile_read_count <= 0; // Reset for weight tile counting
                         state <= GEMV_COMPUTE;
                     end
                 end
                 
                 GEMV_COMPUTE: begin
-                    // Handle weight tile loading from matrix buffer instead of external interface
-                    if (gemv_w_ready) begin
-                        // Read next weight tile from matrix buffer
+                    // Properly manage weight tile reading from matrix buffer
+                    if (gemv_w_ready && !gemv_done) begin
+                        // GEMV is ready for next weight tile, provide next tile address
                         matrix_buffer_read_addr <= w_id + (tile_read_count % ((rows * length_or_cols + TILE_ELEMS - 1) / TILE_ELEMS));
+                        tile_read_count <= tile_read_count + 1;
                     end
                     
                     if (gemv_done) begin
