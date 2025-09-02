@@ -9,10 +9,10 @@ def create_mlp_model():
     class Digit_Model(nn.Module):
         def __init__(self):
             super().__init__()
-            self.fc1 = nn.Linear(28*28, 128)
+            self.fc1 = nn.Linear(28*28, 12)
             self.relu = nn.ReLU()
-            self.fc2 = nn.Linear(128, 64)
-            self.fc3 = nn.Linear(64, 10)
+            self.fc2 = nn.Linear(12, 32)
+            self.fc3 = nn.Linear(32, 10)
 
         def forward(self, x):
             x = x.view(x.size(0), -1)  # Flatten

@@ -9,7 +9,7 @@ import onnx
 from onnx import numpy_helper
 from helper_functions import quantize_tensor_f32_int8
 
-MEM_SIZE = 0x100BB8  # Total memory size
+MEM_SIZE = 0x20200  # Total memory size
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
@@ -79,9 +79,11 @@ def save_input_to_dram(input_tensor, addr):
 
 def save_dram_to_file(filename="dram.hex"):
     """Saves the current state of DRAM to a hex file."""
+    counter = 0
     # May be commented out to avoid overwriting to file in this example on each input
     with open(filename, "w") as f:
         for byte in dram:
             # Convert signed int8 to unsigned for hex
             val = np.uint8(byte)
             f.write(f"{val:02X}\n")
+            counter = counter + 1
