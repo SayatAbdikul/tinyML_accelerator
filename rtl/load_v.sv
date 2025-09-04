@@ -7,7 +7,7 @@ module load_v #(
     input logic rst,
     input logic valid_in,
     input logic [23:0] dram_addr,
-    input logic [9:0] length,  // in bits
+    input logic [9:0] length,  // in elements - increased width to ensure no truncation
     output logic [DATA_WIDTH-1:0] data_out [0:TILE_WIDTH/DATA_WIDTH-1],
     output logic tile_out,
     output logic valid_out
@@ -23,7 +23,7 @@ module load_v #(
         end
     end
 
-    logic [9:0] length_cnt;
+    logic [15:0] length_cnt;
     // Single shared memory instance
     logic [7:0] mem_data_out;
     // Expose for Verilator TB backdoor writes
@@ -85,10 +85,10 @@ module load_v #(
                     // Capture data for the address presented in the previous cycle
                     if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
                         tile[byte_cnt] <= mem_data_out;
-                        $display(" load_v reading addr %0h: %0h", mem_addr - 1, mem_data_out);
+                        //$display(" load_v reading addr %0h: %0h", mem_addr - 1, mem_data_out);
                     end else begin
                         tile[byte_cnt] <= '0; // Fill with zeros if out of range
-                        $display(" load_v reading addr %0h, length_cnt is %0h, byte_cnt is %0h, length is %0h: out of range, filling with 0", mem_addr - 1, length_cnt, byte_cnt, length);
+                        //$display(" load_v reading addr %0h, length_cnt is %0h, byte_cnt is %0h, length is %0h: out of range, filling with 0", mem_addr - 1, length_cnt, byte_cnt, length);
                     end
 
                     // End-of-tile after ELEM_COUNT captures (0..ELEM_COUNT-1)
@@ -102,10 +102,10 @@ module load_v #(
                 end
 
                 NEXT_TILE: begin
-                    $display("Tile loaded. Last address: %0h", mem_addr - 1);
-                    for (int i = 0; i < ELEM_COUNT; i++) begin
-                        $display(" load_v data_out[%0d] = %0h", i, tile[i]);
-                    end
+                    $display("Tile loaded. Last address: %0h. Length is %0h elements. Remaining: %0h bits", mem_addr - 1, length, (length * DATA_WIDTH) - (length_cnt + TILE_WIDTH));
+                    // for (int i = 0; i < ELEM_COUNT; i++) begin
+                    //     $display(" load_v data_out[%0d] = %0h", i, tile[i]);
+                    // end
                     tile_out <= 1;
                     // Account for this tile worth of bits
                     length_cnt <= length_cnt + TILE_WIDTH;

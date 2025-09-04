@@ -102,8 +102,8 @@ module top_gemv #(
         for (int j = 0; j < TILE_SIZE; j++) begin
             logic signed [4*DATA_WIDTH-1:0] extended_out;
             extended_out = {{(2*DATA_WIDTH){pe_out[j][2*DATA_WIDTH-1]}}, pe_out[j]};
-            if(extended_out != 0)
-                $display("PE output[%0d] = %0d for row %0d", j, extended_out, row_idx);
+            // if(extended_out != 0)
+            //     $display("PE output[%0d] = %0d for row %0d", j, extended_out, row_idx);
             if (j < num_current_row) begin
                 sum_current_row += extended_out;
             end

@@ -311,7 +311,7 @@ public:
         // LOAD_V 9, 0x700, 784 (Load input vector to buffer 9)
         printf("Step 1: LOAD_V 9, 0x700, 784 (Loading input vector - 784 elements)...\n");
         start_operation(0x01, 9, 784, 0, 0);  // LOAD_V: dest=9, cols=784, address=0x700
-        if (!wait_for_done(200)) {  // Larger timeout for 784 elements
+        if (!wait_for_done(2000)) {  // Larger timeout for 784 elements
             printf("❌ Failed to load input vector\n");
             return;
         }

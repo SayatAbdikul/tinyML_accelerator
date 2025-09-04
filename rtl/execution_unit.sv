@@ -14,7 +14,7 @@ module execution_unit #(
     input logic start,
     input logic [4:0] opcode,
     input logic [4:0] dest,
-    input logic [6:0] length_or_cols,
+    input logic [9:0] length_or_cols,  // increased width to handle larger values
     input logic [9:0] rows,
     input logic [23:0] addr,
     input logic [4:0] b_id, x_id, w_id,
@@ -82,7 +82,7 @@ module execution_unit #(
     
     // GEMV signals
     logic gemv_start, gemv_done, gemv_w_ready, gemv_tile_done;
-    logic w_valid;
+    logic w_valid, vector_read_enable, matrix_read_enable;
     logic signed [DATA_WIDTH-1:0] y_gemv [0:MAX_ROWS-1];
     
     // ReLU signals
@@ -97,7 +97,7 @@ module execution_unit #(
         .rst(rst),
         .valid_in(load_v_start),
         .dram_addr(addr),
-        .length(length_or_cols), // Convert to bits
+        .length(length_or_cols), 
         .data_out(load_v_buffer),
         .tile_out(load_v_tile_ready),
         .valid_out(load_v_done)
@@ -136,7 +136,7 @@ module execution_unit #(
         .clk(clk),
         .reset_n(~rst),
         .write_enable(vector_buffer_write_enable),
-        .read_enable(1'b1),
+        .read_enable(vector_read_enable),
         .write_data(vector_buffer_write_tile),
         .write_buffer(dest),
         .read_buffer(vector_buffer_read_addr),
@@ -157,9 +157,9 @@ module execution_unit #(
         .clk(clk),
         .reset_n(~rst),
         .write_enable(matrix_buffer_write_enable),
-        .read_enable(1'b1),
+        .read_enable(matrix_read_enable),
         .write_data(matrix_buffer_write_tile),
-        .write_buffer(matrix_buffer_write_addr),
+        .write_buffer(dest),
         .read_buffer(matrix_buffer_read_addr),
         .read_data(matrix_buffer_read_data),
         .writing_done(matrix_writing_done),
@@ -241,10 +241,8 @@ module execution_unit #(
         // Matrix buffer control (for load_m)
         if (load_m_tile_ready) begin
             matrix_buffer_write_enable = 1;
-            matrix_buffer_write_addr = dest + write_tile_count;
         end else begin
             matrix_buffer_write_enable = 0;
-            matrix_buffer_write_addr = dest;
         end
     end
     
@@ -294,6 +292,8 @@ module execution_unit #(
                                 state <= COMPLETE;
                             end
                             5'h04: begin // GEMV
+                                vector_read_enable <= 1;
+                                matrix_read_enable <= 1;
                                 vector_buffer_read_addr <= x_id;
                                 matrix_buffer_read_addr <= w_id; // Initialize weight buffer read
                                 tile_read_count <= 0; // Reset tile counter for weight tiles
@@ -335,6 +335,7 @@ module execution_unit #(
                 
                 GEMV_READ_X: begin
                     // Start reading first tile of x vector
+                    
                     state <= GEMV_READ_X_TILES;
                 end
                 
@@ -343,20 +344,14 @@ module execution_unit #(
                     for (int i = 0; i < TILE_ELEMS; i++) begin
                         if (current_element_offset + i < MAX_COLS && current_element_offset + i < length_or_cols) begin
                             gemv_x_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
-                            if(vector_buffer_read_data[i] != 0)
-                                $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                            // if(vector_buffer_read_data[i] != 0)
+                            //     $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
                         end
                     end
                     
                     tile_read_count <= tile_read_count + 1;
                     current_element_offset <= current_element_offset + TILE_ELEMS;
-                    
-                    // Check if we need more tiles
-                    if (tile_read_count + 1 < total_tiles_needed) begin
-                        vector_buffer_read_addr <= x_id + tile_read_count + 1; // Next tile address
-                        // Stay in GEMV_READ_X_TILES for next tile
-                    end else begin
-                        // Done reading x vector, now read bias
+                    if(tile_read_count + 1 >= total_tiles_needed) begin
                         vector_buffer_read_addr <= b_id;
                         tile_read_count <= 0;
                         total_tiles_needed <= (rows + TILE_ELEMS - 1) / TILE_ELEMS; // Bias vector tiles
@@ -380,16 +375,11 @@ module execution_unit #(
                     
                     tile_read_count <= tile_read_count + 1;
                     current_element_offset <= current_element_offset + TILE_ELEMS;
-                    
-                    // Check if we need more tiles
-                    if (tile_read_count + 1 < total_tiles_needed) begin
-                        vector_buffer_read_addr <= b_id + tile_read_count + 1; // Next tile address
-                        // Stay in GEMV_READ_BIAS_TILES for next tile
-                    end else begin
-                        // Done reading bias vector, start computation
+                    if (tile_read_count + 1 >= total_tiles_needed) begin
                         gemv_start <= 1;
                         tile_read_count <= 0; // Reset for weight tile counting
                         state <= GEMV_COMPUTE;
+                        matrix_buffer_read_addr <= w_id;
                     end
                 end
                 
@@ -397,7 +387,6 @@ module execution_unit #(
                     // Properly manage weight tile reading from matrix buffer
                     if (gemv_w_ready && !gemv_done) begin
                         // GEMV is ready for next weight tile, provide next tile address
-                        matrix_buffer_read_addr <= w_id + (tile_read_count % ((rows * length_or_cols + TILE_ELEMS - 1) / TILE_ELEMS));
                         tile_read_count <= tile_read_count + 1;
                     end
                     
@@ -414,7 +403,7 @@ module execution_unit #(
                     // Copy the input data for ReLU directly from x_buffer for this test
                     for (int i = 0; i < MAX_COLS; i++) begin
                         if (i < TILE_ELEMS && i < 10) begin
-                            result[i] <= (x_buffer[i] < 0) ? 0 : x_buffer[i];
+                            result[i] <= relu_out[i];
                         end else if (i >= 10) begin
                             result[i] <= 0;
                         end
