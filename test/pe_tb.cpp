@@ -42,6 +42,7 @@ int main(int argc, char **argv) {
                       << std::endl;
         }
     }
+    std::cout << "Simulation completed." << std::endl;
 
     // Clean up and exit
     delete top;
