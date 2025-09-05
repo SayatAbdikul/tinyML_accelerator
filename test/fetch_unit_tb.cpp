@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
                 std::cout << "Instruction " << idx      // Report which fetch
                           << " @cycle " << main_time     // Current sim time
                           << " PC(after fetch)=" << top->pc_o // PC after bytes consumed
-                          << " instr=0x" << std::setw(16) << std::setfill('0') << instr // Hex format
+                          << " instr=0x" << std::setw(16) << std::setfill('0') << std::hex << instr // Hex format
                           << std::dec << std::endl;      // Restore decimal formatting
                 got = true;                // Mark success
                 break;                     // Exit wait loop
