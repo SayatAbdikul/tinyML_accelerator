@@ -127,7 +127,7 @@ module execution_unit #(
     // Vector Buffer file instantiation (for vectors like x, bias)
     logic vector_writing_done, vector_reading_done;
     buffer_file #(
-        .BUFFER_WIDTH(1024),
+        .BUFFER_WIDTH(8192),
         .BUFFER_COUNT(16),  // Smaller buffer for vectors
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),

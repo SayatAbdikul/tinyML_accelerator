@@ -69,12 +69,12 @@ module load_m #(
                 READING: begin
                     // Capture the data for the address presented in the previous cycle
                     if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
-                        tile[byte_cnt] <= mem_data_out;
+                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= mem_data_out;
                         //$display("length_cnt + byte_cnt*8 = %0d, length = %0d", length_cnt + byte_cnt*8, length);
                         //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
                     end
                     else begin
-                        tile[byte_cnt] <= '0; // Fill with zeros if out of range
+                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= '0; // Fill with zeros if out of range
                         //$display("Out of range read at addr = %h, filling with zeros", mem_addr - 1);
                     end
                     //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
