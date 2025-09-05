@@ -124,6 +124,7 @@ module load_v #(
                 DONE: begin
                     state <= IDLE;
                 end
+                default: state <= IDLE;
             endcase
         end
     end
