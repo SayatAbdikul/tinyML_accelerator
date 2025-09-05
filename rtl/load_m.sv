@@ -1,19 +1,20 @@
 module load_m #(
-    parameter TILE_WIDTH = 256  // Must be multiple of 8
+    parameter TILE_WIDTH = 256,  // Must be multiple of 8
+    parameter DATA_WIDTH = 8
 )
 (
     input logic clk,
     input logic rst,
     input logic valid_in,
     input logic [23:0] dram_addr,
-    input logic [19:0] length,  // in bits
+    input logic [19:0] length,  // number of values
     output logic [TILE_WIDTH-1:0] data_out,
     output logic tile_out,
     output logic valid_out
 );
 
     localparam NUM_BYTES = TILE_WIDTH / 8;
-    logic [19:0] length_cnt;
+    logic [25:0] length_cnt;
     logic [7:0] mem_data_out;
     logic [23:0] mem_addr;
 
@@ -67,13 +68,13 @@ module load_m #(
 
                 READING: begin
                     // Capture the data for the address presented in the previous cycle
-                    if(length_cnt + byte_cnt*8 < length) begin
-                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= mem_data_out;
+                    if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
+                        tile[byte_cnt] <= mem_data_out;
                         //$display("length_cnt + byte_cnt*8 = %0d, length = %0d", length_cnt + byte_cnt*8, length);
                         //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
                     end
                     else begin
-                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= '0; // Fill with zeros if out of range
+                        tile[byte_cnt] <= '0; // Fill with zeros if out of range
                         //$display("Out of range read at addr = %h, filling with zeros", mem_addr - 1);
                     end
                     //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
@@ -95,7 +96,7 @@ module load_m #(
                     length_cnt <= length_cnt + TILE_WIDTH;
 
                     // If more full tiles remain, re-prime before next capture
-                    if (length_cnt + TILE_WIDTH < length) begin
+                    if (length_cnt + TILE_WIDTH < length * DATA_WIDTH) begin
                         state    <= INIT_READING; // prime for the next tile
                         byte_cnt <= '0;           // reset for new tile
                         // mem_addr already points to the next byte to read

@@ -111,7 +111,7 @@ module execution_unit #(
         .rst(rst),
         .valid_in(load_m_start),
         .dram_addr(addr),
-        .length((rows * length_or_cols) * DATA_WIDTH),
+        .length(rows * length_or_cols),
         .data_out(load_m_buffer),
         .tile_out(load_m_tile_ready),
         .valid_out(load_m_done)
