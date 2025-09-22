@@ -19,10 +19,6 @@ module execution_unit #(
     input logic [23:0] addr,
     input logic [4:0] b_id, x_id, w_id,
     
-    // Data interfaces - buffers for vectors and matrices
-    // Vector buffers (for x, bias, etc.)
-    input logic signed [DATA_WIDTH-1:0] x_buffer [0:MAX_COLS-1],
-    input logic signed [DATA_WIDTH-1:0] bias_buffer [0:MAX_ROWS-1],
     
     // Results
     output logic signed [DATA_WIDTH-1:0] result [0:MAX_ROWS-1],
