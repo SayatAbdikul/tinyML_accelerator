@@ -72,12 +72,6 @@ public:
         dut->b_id = 0;
         dut->x_id = 0;
         dut->w_id = 0;
-        dut->weight_tile_valid = 0;
-        
-        // Initialize weight tile data (16 elements of 8 bits each)
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = i + 1;  // 1, 2, 3, ..., 16
-        }
         
         // Initialize x_buffer with test data
         for (int i = 0; i < MAX_COLS; i++) {
@@ -196,12 +190,6 @@ public:
         }
         
         start_operation(0x04, 0, 10, 8, 0x5000);  // 8x10 matrix * 10x1 vector
-
-        // Simulate weight tile availability immediately
-        dut->weight_tile_valid = 1;
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = (i % 2 == 0) ? (i + 1) : -(i + 1);  // Mix of positive/negative weights
-        }
         
         if (wait_for_done(6000)) {  // Reduced timeout
             printf("✅ GEMV completed successfully\n");
@@ -227,8 +215,6 @@ public:
         } else {
             printf("⚠️  GEMV timed out - this may be due to complex GEMV unit handshaking\n");
         }
-        
-        dut->weight_tile_valid = 0;  // Clean up
     }
     
     void test_relu() {
@@ -340,19 +326,8 @@ public:
         printf("⚠️  Note: Large GEMV (128×784) - will take significant time\n");
         start_operation(0x04, 5, 784, 128, 0x0, 3, 1, 9);  // GEMV: result=5, cols=784, rows=128, b_id=3, w_id=1, x_id=9
         
-        // Provide weight tiles during GEMV computation
-        dut->weight_tile_valid = 1;
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = (i % 3 == 0) ? (i + 2) : (i + 1);  // Varied weights
-        }
-        
         bool gemv1_success = wait_for_done(300000);  // Very large timeout for 128×784 GEMV
-        dut->weight_tile_valid = 0;
-        if (gemv1_success) {
-            printf("✅ Layer 1 GEMV completed\n");
-        } else {
-            printf("⚠️  Layer 1 GEMV timed out (pipeline working, completion issue)\n");
-        }
+        
         
         // RELU 7, 5 (Apply ReLU activation)
         printf("Step 5: RELU 7, 5 (Applying ReLU activation)...\n");
@@ -391,13 +366,7 @@ public:
         printf("Step 8: GEMV 6, 2, 7, 4, 64, 128 (Computing W2 * h1 + b2)...\n");
         start_operation(0x04, 6, 128, 64, 0x0, 4, 2, 7);  // GEMV: result=6, cols=128, rows=64, b_id=4, w_id=2, x_id=7
         
-        dut->weight_tile_valid = 1;
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = (i % 2 == 0) ? (i + 3) : -(i + 1);
-        }
-        
         bool gemv2_success = wait_for_done(300000);  // Large timeout for 64×128 GEMV
-        dut->weight_tile_valid = 0;
         if (gemv2_success) {
             printf("✅ Layer 2 GEMV completed\n");
         } else {
@@ -439,13 +408,7 @@ public:
         printf("Step 12: GEMV 5, 1, 8, 3, 10, 64 (Computing final W3 * h2 + b3)...\n");
         start_operation(0x04, 5, 64, 10, 0x0, 3, 1, 8);  // GEMV: result=5, cols=64, rows=10, b_id=3, w_id=1, x_id=8
         
-        dut->weight_tile_valid = 1;
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = (i < 10) ? (i + 1) : 0;  // Output layer weights
-        }
-        
         bool gemv3_success = wait_for_done(300000);  // Timeout for 10×64 GEMV
-        dut->weight_tile_valid = 0;
         if (gemv3_success) {
             printf("✅ Final GEMV completed\n");
         } else {
@@ -541,17 +504,10 @@ public:
         printf("Step 4: Testing GEMV (8×16 matrix)...\n");
         start_operation(0x04, 5, 16, 8, 0x0, 3, 1, 9);  // Small GEMV
         
-        dut->weight_tile_valid = 1;
-        for (int i = 0; i < TILE_ELEMS; i++) {
-            dut->weight_tile_data[i] = (i % 2 == 0) ? (i + 1) : -(i + 1);
-        }
-        
         if (!wait_for_done(200)) {
             printf("❌ GEMV timed out\n");
-            dut->weight_tile_valid = 0;
             return;
         }
-        dut->weight_tile_valid = 0;
         
         printf("✅ GEMV completed successfully!\n");
         printf("GEMV Results (first 8 elements):\n");

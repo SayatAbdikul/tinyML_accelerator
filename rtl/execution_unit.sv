@@ -23,10 +23,6 @@ module execution_unit #(
     // Vector buffers (for x, bias, etc.)
     input logic signed [DATA_WIDTH-1:0] x_buffer [0:MAX_COLS-1],
     input logic signed [DATA_WIDTH-1:0] bias_buffer [0:MAX_ROWS-1],
-        
-    // Weight loading interface
-    input logic weight_tile_valid,
-    input logic signed [DATA_WIDTH-1:0] weight_tile_data [0:TILE_ELEMS-1],
     
     // Results
     output logic signed [DATA_WIDTH-1:0] result [0:MAX_ROWS-1],
@@ -59,15 +55,15 @@ module execution_unit #(
     // Load_m module signals and buffer
     logic load_m_start, load_m_done, load_m_tile_ready;
     logic [TILE_WIDTH-1:0] load_m_buffer;
-    logic signed [DATA_WIDTH-1:0] load_m_unpacked [0:TILE_ELEMS-1];
+    // logic signed [DATA_WIDTH-1:0] load_m_unpacked [0:TILE_ELEMS-1];
     
     // Tile counters for writing to buffer file
     logic [9:0] write_tile_count;
 
     // Buffer file signals - separate for vectors and matrices
     logic vector_buffer_write_enable, matrix_buffer_write_enable;
-    logic [4:0] vector_buffer_write_addr, vector_buffer_read_addr;
-    logic [4:0] matrix_buffer_write_addr, matrix_buffer_read_addr;
+    logic [3:0] vector_buffer_read_addr;
+    logic [3:0] matrix_buffer_read_addr;
     logic [TILE_WIDTH-1:0] vector_buffer_write_tile, matrix_buffer_write_tile;
     logic signed [DATA_WIDTH-1:0] vector_buffer_read_data [0:TILE_ELEMS-1];
     logic signed [DATA_WIDTH-1:0] matrix_buffer_read_data [0:TILE_ELEMS-1];
@@ -116,16 +112,9 @@ module execution_unit #(
         .tile_out(load_m_tile_ready),
         .valid_out(load_m_done)
     );
-    
-    // Unpack load_m tile data from packed format to array
-    always_comb begin
-        for (int i = 0; i < TILE_ELEMS; i++) begin
-            load_m_unpacked[i] = load_m_buffer[i*DATA_WIDTH +: DATA_WIDTH];
-        end
-    end
 
     // Vector Buffer file instantiation (for vectors like x, bias)
-    logic vector_writing_done, vector_reading_done;
+    logic vector_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(8192),
         .BUFFER_COUNT(16),  // Smaller buffer for vectors
@@ -141,12 +130,12 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(vector_buffer_read_addr),
         .read_data(vector_buffer_read_data),
-        .writing_done(vector_writing_done),
+        .writing_done(),
         .reading_done(vector_reading_done)
     );
     
     // Matrix Buffer file instantiation (for weight matrices)
-    logic matrix_writing_done, matrix_reading_done;
+    logic matrix_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(802820),
         .BUFFER_COUNT(128),  // Larger buffer for matrix tiles
@@ -162,7 +151,7 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(matrix_buffer_read_addr),
         .read_data(matrix_buffer_read_data),
-        .writing_done(matrix_writing_done),
+        .writing_done(),
         .reading_done(matrix_reading_done)
     );
     
@@ -342,7 +331,7 @@ module execution_unit #(
                 GEMV_READ_X_TILES: begin
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
                     for (int i = 0; i < TILE_ELEMS; i++) begin
-                        if (current_element_offset + i < MAX_COLS && current_element_offset + i < length_or_cols) begin
+                        if (!vector_reading_done && current_element_offset + i < MAX_COLS && current_element_offset + i < length_or_cols) begin
                             gemv_x_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
                             // if(vector_buffer_read_data[i] != 0)
                             //     $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
@@ -385,11 +374,13 @@ module execution_unit #(
                 
                 GEMV_COMPUTE: begin
                     // Properly manage weight tile reading from matrix buffer
-                    if (gemv_w_ready && !gemv_done) begin
+                    if (gemv_w_ready && !gemv_done && gemv_tile_done) begin
                         // GEMV is ready for next weight tile, provide next tile address
                         tile_read_count <= tile_read_count + 1;
                     end
-                    
+                    if(matrix_reading_done) begin
+                        matrix_read_enable <= 0;
+                    end
                     if (gemv_done) begin
                         // Copy GEMV results
                         for (int i = 0; i < MAX_ROWS; i++) begin
@@ -427,5 +418,6 @@ module execution_unit #(
             endcase
         end
     end
+    
 
 endmodule
