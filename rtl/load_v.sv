@@ -92,7 +92,7 @@ module load_v #(
                     end
 
                     // End-of-tile after ELEM_COUNT captures (0..ELEM_COUNT-1)
-                    if (byte_cnt == ELEM_COUNT - 1) begin
+                    if (int'(byte_cnt) == ELEM_COUNT - 1) begin
                         state <= NEXT_TILE;
                     end else begin
                         byte_cnt <= byte_cnt + 1;

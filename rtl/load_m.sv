@@ -81,7 +81,7 @@ module load_m #(
 
 
                     // End-of-tile check (NUM_BYTES captures: 0..NUM_BYTES-1)
-                    if (byte_cnt == NUM_BYTES-1) begin
+                    if (int'(byte_cnt) == NUM_BYTES-1) begin
                         state <= NEXT_TILE;
                     end else begin
                         byte_cnt <= byte_cnt + 1;

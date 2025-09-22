@@ -69,10 +69,10 @@ module top_gemv #(
     // ================= Combinational Logic =================
     
     // Calculate starting column and valid elements
-    assign col_start = tile_idx * TILE_SIZE;
+    assign col_start = {tile_idx * TILE_SIZE}[COL_IDX_WIDTH-1:0];
     assign num_current_row = (col_start < cols[COL_IDX_WIDTH-1:0]) ? 
-                           ((col_start + TILE_SIZE <= cols[COL_IDX_WIDTH-1:0]) ? TILE_SIZE : cols[COL_IDX_WIDTH-1:0] - col_start) : 
-                           0;
+                           ((int'(col_start) + TILE_SIZE <= cols[COL_IDX_WIDTH-1:0]) ? TILE_SIZE[9:0] : cols[COL_IDX_WIDTH-1:0] - col_start) : 
+                           0; // strange behaviour in verilator warning without int()
     
     // x input selection with zero-padding
     always_comb begin
@@ -114,8 +114,8 @@ module top_gemv #(
     end
 
     // Tile boundary conditions
-    assign last_in_row = (col_start + TILE_SIZE >= cols[COL_IDX_WIDTH-1:0]);
-    assign row_overflow = (col_start < cols[COL_IDX_WIDTH-1:0]) && (col_start + TILE_SIZE > cols[COL_IDX_WIDTH-1:0]);
+    assign last_in_row = (int'(col_start) + TILE_SIZE >= cols[COL_IDX_WIDTH-1:0]);
+    assign row_overflow = (col_start < cols[COL_IDX_WIDTH-1:0]) && (int'(col_start) + TILE_SIZE > cols[COL_IDX_WIDTH-1:0]);
 
     // Absolute value for max calculation
     assign current_abs = (res[max_idx] >= 0) ? res[max_idx] : -res[max_idx];

@@ -16,9 +16,11 @@ module execution_unit #(
     input logic [4:0] dest,
     input logic [9:0] length_or_cols,  // increased width to handle larger values
     input logic [9:0] rows,
-    input logic [23:0] addr,
+    input logic [ADDR_WIDTH-1:0] addr,
+    // verilator lint_off UNUSED
     input logic [4:0] b_id, x_id, w_id,
-    
+    // verilator lint_on UNUSED
+
     
     // Results
     output logic signed [DATA_WIDTH-1:0] result [0:MAX_ROWS-1],
@@ -58,8 +60,10 @@ module execution_unit #(
 
     // Buffer file signals - separate for vectors and matrices
     logic vector_buffer_write_enable, matrix_buffer_write_enable;
-    logic [3:0] vector_buffer_read_addr;
-    logic [3:0] matrix_buffer_read_addr;
+    // verilator lint_off UNUSED
+    logic [4:0] vector_buffer_read_addr;
+    // verilator lint_on UNUSED
+    logic [4:0] matrix_buffer_read_addr;
     logic [TILE_WIDTH-1:0] vector_buffer_write_tile, matrix_buffer_write_tile;
     logic signed [DATA_WIDTH-1:0] vector_buffer_read_data [0:TILE_ELEMS-1];
     logic signed [DATA_WIDTH-1:0] matrix_buffer_read_data [0:TILE_ELEMS-1];
@@ -113,7 +117,7 @@ module execution_unit #(
     logic vector_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(8192),
-        .BUFFER_COUNT(16),  // Smaller buffer for vectors
+        .BUFFER_COUNT(32),  // Smaller buffer for vectors
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),
         .TILE_SIZE(TILE_ELEMS)
@@ -126,7 +130,9 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(vector_buffer_read_addr),
         .read_data(vector_buffer_read_data),
+        // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
+        // verilator lint_on PINCONNECTEMPTY
         .reading_done(vector_reading_done)
     );
     
@@ -134,7 +140,7 @@ module execution_unit #(
     logic matrix_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(802820),
-        .BUFFER_COUNT(128),  // Larger buffer for matrix tiles
+        .BUFFER_COUNT(32),  // Larger buffer for matrix tiles
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),
         .TILE_SIZE(TILE_ELEMS)
@@ -147,7 +153,9 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(matrix_buffer_read_addr),
         .read_data(matrix_buffer_read_data),
+        // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
+        // verilator lint_on PINCONNECTEMPTY
         .reading_done(matrix_reading_done)
     );
     
@@ -327,8 +335,8 @@ module execution_unit #(
                 GEMV_READ_X_TILES: begin
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
                     for (int i = 0; i < TILE_ELEMS; i++) begin
-                        if (!vector_reading_done && current_element_offset + i < MAX_COLS && current_element_offset + i < length_or_cols) begin
-                            gemv_x_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
+                        if (vector_reading_done && int'(current_element_offset) + i < MAX_COLS && int'(current_element_offset) + i < length_or_cols) begin
+                            gemv_x_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
                             // if(vector_buffer_read_data[i] != 0)
                             //     $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
                         end
@@ -353,8 +361,8 @@ module execution_unit #(
                 GEMV_READ_BIAS_TILES: begin
                     // Wait one cycle for buffer read, then copy tile data to appropriate position 
                     for (int i = 0; i < TILE_ELEMS; i++) begin
-                        if (current_element_offset + i < MAX_ROWS && current_element_offset + i < rows) begin
-                            gemv_bias_buffer[current_element_offset + i] <= vector_buffer_read_data[i];
+                        if (int'(current_element_offset) + i < MAX_ROWS && {int'(current_element_offset)+i} < rows) begin
+                            gemv_bias_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
                         end
                     end
                     
