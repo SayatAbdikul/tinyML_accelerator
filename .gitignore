@@ -13,3 +13,4 @@ compiler/digit_model_weights.pth
 dump.vcd
 rtl/dram.hex
 execution_unit.vcd
+*.vcd
