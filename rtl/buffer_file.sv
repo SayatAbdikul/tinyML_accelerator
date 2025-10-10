@@ -38,7 +38,9 @@ always @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
         // Reset buffers and indices
         for (i = 0; i < BUFFER_COUNT; i++) begin
+            // verilator lint_off WIDTHCONCAT
             buffers[i] <= {BUFFER_WIDTH{1'b0}};
+            // verilator lint_on WIDTHCONCAT
         end
         w_tile_index <= 0;
         r_tile_index <= 0;
@@ -60,8 +62,8 @@ always @(posedge clk or negedge reset_n) begin
             if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index } == TILE_COUNT - 1) begin
                 w_tile_index <= 0;
                 writing_done <= 1;
-                if(write_buffer == 9)
-                    $display("Writing input is done, the value is %0h", buffers[write_buffer][5:0]);
+                // if(write_buffer == 9)
+                //     $display("Writing input is done, the value is %0h", buffers[write_buffer][5:0]);
             end else begin
                 w_tile_index <= w_tile_index + 1;
             end
