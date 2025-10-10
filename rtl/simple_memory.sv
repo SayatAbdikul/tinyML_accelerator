@@ -7,14 +7,15 @@ module simple_memory #(
     input  logic                    we,      // Write enable
     input  logic [ADDR_WIDTH-1:0]   addr,    // Address input
     input  logic [DATA_WIDTH-1:0]   din,     // Data input (for writes)
-    output logic [DATA_WIDTH-1:0]   dout     // Data output (for reads)
+    output logic [DATA_WIDTH-1:0]   dout,    // Data output (for reads)
+    input  logic                    dump     // When high for a cycle, dump memory to HEX_FILE
 );
 
 // Calculate memory depth
 localparam MEM_DEPTH = 2**ADDR_WIDTH;
 
 // Declare memory array 
-logic [DATA_WIDTH-1:0] memory [0:MEM_DEPTH-1];
+logic [DATA_WIDTH-1:0] memory [0:MEM_DEPTH-1] /*verilator public_flat*/;
 
 // Initialize memory from hex file
 initial begin
@@ -26,11 +27,14 @@ end
 always_ff @(posedge clk) begin
     // Read-before-write behavior
     dout <= memory[addr];
-    //$display("Memory read at address %0h: %0h", addr, memory[addr]);
     // Write operation
     if (we) begin
         memory[addr] <= din;
-        //$display("Memory write at address %0h: %0h", addr, memory[addr]);
+    end
+    // Dump on request
+    if (dump) begin
+        $writememh(HEX_FILE, memory);
+        $display("[simple_memory] Dumped memory to %s", HEX_FILE);
     end
 end
 

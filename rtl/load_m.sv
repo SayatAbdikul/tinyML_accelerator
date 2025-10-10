@@ -26,7 +26,8 @@ module load_m #(
         .we(0),
         .addr(mem_addr),
         .din(8'b0),
-        .dout(mem_data_out)
+        .dout(mem_data_out),
+        .dump(1'b0)
     );
 
     logic [$clog2(NUM_BYTES)-1:0] byte_cnt;

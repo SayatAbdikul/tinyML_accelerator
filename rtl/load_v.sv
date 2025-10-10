@@ -39,7 +39,8 @@ module load_v #(
         .we(mem_we),
         .addr(mem_addr),
         .din(mem_din),   // allow TB writes; was 8'b0
-        .dout(mem_data_out)
+        .dout(mem_data_out),
+        .dump(1'b0)
     );
 
     // Internal state

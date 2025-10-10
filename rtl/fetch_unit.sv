@@ -32,7 +32,8 @@ module fetch_unit #(
         .we  (1'b0),
         .addr(mem_addr),
         .din ({DATA_WIDTH{1'b0}}),
-        .dout(mem_dout)
+        .dout(mem_dout),
+        .dump(1'b0)
     );
 
     // Address always current pc (pc points to next byte request)
