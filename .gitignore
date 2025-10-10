@@ -14,3 +14,6 @@ dump.vcd
 rtl/dram.hex
 execution_unit.vcd
 *.vcd
+sim_build
+__pycache__
+results.xml
