@@ -35,7 +35,7 @@ def create_mlp_model():
         model, dummy_input, onnx_filename,
         input_names=["input"], output_names=["output"],
         dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}},
-        opset_version=11
+        opset_version=18
     )
 
     # print(f"MLP model successfully exported to '{onnx_filename}'")

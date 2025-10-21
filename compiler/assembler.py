@@ -1,5 +1,6 @@
 """ Assembler for a custom architecture based on a simplified instruction set. """
 import re
+import numpy as np
 from dram import write_to_dram
 # === Define opcode mapping ===
 OPCODES = {
@@ -61,7 +62,8 @@ def assemble_file(asm_file):
         if encoded:
             machine_code.extend(int(encoded[i:i+2], 16) for i in range(0, len(encoded), 2))  # Split into 8-char chunks
 
-    write_to_dram(machine_code, 0) # Write at the starting point 0
+    machine_code_np = np.array(machine_code, dtype=np.uint8).view(np.int8)
+    write_to_dram(machine_code_np, 0) # Write at the starting point 0
 
     # print(f"✅ Assembled {len(machine_code)} instructions to DRAM")
 
