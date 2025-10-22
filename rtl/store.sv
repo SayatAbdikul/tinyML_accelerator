@@ -98,6 +98,7 @@ module store #(
                         mem_addr <= base_addr + elem_idx_ext;
                         mem_din  <= buf_read_data[elem_idx];
                         mem_we   <= 1'b1;
+                        mem_dump <= 1'b1;
                         written_bits <= written_bits + DATA_WIDTH;
                         if (int'(elem_idx) == TILE_ELEMS-1) begin
                             state <= S_ADVANCE;
