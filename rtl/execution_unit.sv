@@ -4,8 +4,8 @@ module execution_unit #(
     parameter DATA_WIDTH = 8,
     parameter TILE_WIDTH = 256,
     parameter ADDR_WIDTH = 24,
-    parameter MAX_ROWS = 784,
-    parameter MAX_COLS = 784
+    parameter MAX_ROWS = 1024,
+    parameter MAX_COLS = 1024
 )(
     input logic clk,
     input logic rst,
@@ -45,7 +45,8 @@ module execution_unit #(
     } exec_state_t;
     
     exec_state_t state;
-    
+    // wires for debugging
+    logic nonzero_load_v;
     // Load_v module signals and buffer
     logic load_v_start, load_v_done, load_v_tile_ready;
     logic signed [DATA_WIDTH-1:0] load_v_buffer [0:TILE_ELEMS-1];
@@ -80,7 +81,9 @@ module execution_unit #(
     logic gemv_start, gemv_done, gemv_w_ready, gemv_tile_done;
     logic w_valid, vector_read_enable, matrix_read_enable;
     logic signed [DATA_WIDTH-1:0] y_gemv [0:MAX_ROWS-1];
-    
+    // Delayed read-enable signals to sample buffer_file outputs one cycle after read_enable is asserted
+    logic vector_read_enable_d, matrix_read_enable_d;
+
     // ReLU signals
     logic signed [DATA_WIDTH-1:0] relu_out [0:MAX_ROWS-1];
 
@@ -221,15 +224,20 @@ module execution_unit #(
             matrix_buffer_write_tile = load_m_buffer;
         end
     end
-    
+    reg load_v_tile_ready_d;
+    always_ff @(posedge clk) load_v_tile_ready_d <= load_v_tile_ready;
+    wire tile_ready_pulse = load_v_tile_ready & ~load_v_tile_ready_d;
+
+    always_comb vector_buffer_write_enable = tile_ready_pulse;
+
     // Buffer file control signals
     always_comb begin
         // Vector buffer control (for load_v)
-        if (load_v_tile_ready) begin
-            vector_buffer_write_enable = 1;
-        end else begin
-            vector_buffer_write_enable = 0;
-        end
+        // if (load_v_tile_ready) begin
+        //     vector_buffer_write_enable = 1;
+        // end else begin
+        //     vector_buffer_write_enable = 0;
+        // end
         
         // Matrix buffer control (for load_m)
         if (load_m_tile_ready) begin
@@ -247,6 +255,8 @@ module execution_unit #(
             gemv_start <= 0;
             load_v_start <= 0;
             load_m_start <= 0;
+            vector_read_enable <= 0;
+            matrix_read_enable <= 0;
             vector_buffer_read_addr <= 0;
             matrix_buffer_read_addr <= 0;
             tile_read_count <= 0;
@@ -262,11 +272,16 @@ module execution_unit #(
             gemv_start <= 0;
             load_v_start <= 0;
             load_m_start <= 0;
-            
+            // Default read enables to 0; will be explicitly asserted in states that need them
+            vector_read_enable <= 0;
+            matrix_read_enable <= 0;
+
             case (state)
                 IDLE: begin
                     if (start) begin
                         $display("length_or_cols is %0d and length_or_cols*DATA_WIDTH is %0d", length_or_cols, length_or_cols*DATA_WIDTH);
+                        $display("opcode is %0h", opcode);
+                        nonzero_load_v <= 0;
                         case (opcode)
                             5'h00: begin // NOP
                                 state <= COMPLETE;
@@ -295,7 +310,11 @@ module execution_unit #(
                                 state <= GEMV_READ_X;
                             end
                             5'h05: begin // RELU
+                                vector_read_enable <= 1;
                                 vector_buffer_read_addr <= dest;
+                                tile_read_count <= 0;
+                                total_tiles_needed <= (length_or_cols + TILE_ELEMS - 1) / TILE_ELEMS;
+                                current_element_offset <= 0;
                                 state <= EXECUTE_RELU;
                             end
                             default: begin
@@ -318,6 +337,7 @@ module execution_unit #(
                 
                 LOAD_MATRIX: begin
                     // Increment tile count when a tile is written
+                    //$display("In LOAD_MATRIX state");
                     if (load_m_tile_ready) begin
                         write_tile_count <= write_tile_count + 1;
                     end
@@ -328,17 +348,22 @@ module execution_unit #(
                 
                 GEMV_READ_X: begin
                     // Start reading first tile of x vector
-                    
+                    //$display("In GEMV_READ_X state");
+                    vector_read_enable <= 1;  // Pulse read enable for first x tile
                     state <= GEMV_READ_X_TILES;
                 end
                 
                 GEMV_READ_X_TILES: begin
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
+                    $display("In GEMV_READ_X_TILES state, tile_read_count=%0d", tile_read_count);
                     for (int i = 0; i < TILE_ELEMS; i++) begin
-                        if (vector_reading_done && int'(current_element_offset) + i < MAX_COLS && int'(current_element_offset) + i < length_or_cols) begin
+                        // Use delayed read-enable to capture the tile output from buffer_file
+                        if (vector_read_enable_d && int'(current_element_offset) + i < MAX_COLS && int'(current_element_offset) + i < length_or_cols) begin
                             gemv_x_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
-                            // if(vector_buffer_read_data[i] != 0)
-                            //     $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                            if (vector_buffer_read_data[i] != 0) begin
+                                nonzero_load_v <= 1;
+                                $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                            end
                         end
                     end
                     
@@ -350,19 +375,29 @@ module execution_unit #(
                         total_tiles_needed <= (rows + TILE_ELEMS - 1) / TILE_ELEMS; // Bias vector tiles
                         current_element_offset <= 0;
                         state <= GEMV_READ_BIAS;
+                    end else begin
+                        // Pulse vector_read_enable for next tile
+                        vector_read_enable <= 1;
                     end
                 end
                 
                 GEMV_READ_BIAS: begin
                     // Start reading first tile of bias vector
+                    //$display("In GEMV_READ_BIAS state");
+                    vector_read_enable <= 1;  // Pulse read enable for first bias tile
                     state <= GEMV_READ_BIAS_TILES;
                 end
                 
                 GEMV_READ_BIAS_TILES: begin
-                    // Wait one cycle for buffer read, then copy tile data to appropriate position 
+                    // Wait one cycle for buffer read, then copy tile data to appropriate position
+                    //$display("In GEMV_READ_BIAS_TILES state, tile_read_count=%0d", tile_read_count); 
                     for (int i = 0; i < TILE_ELEMS; i++) begin
-                        if (int'(current_element_offset) + i < MAX_ROWS && {int'(current_element_offset)+i} < rows) begin
+                        // Use delayed read-enable to capture the tile output from buffer_file
+                        if (vector_read_enable_d && int'(current_element_offset) + i < MAX_ROWS && {int'(current_element_offset)+i} < rows) begin
                             gemv_bias_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
+                            // if(vector_buffer_read_data[i] != 0) begin
+                            //     $display("Read nonzero bias[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                            // end
                         end
                     end
                     
@@ -373,11 +408,16 @@ module execution_unit #(
                         tile_read_count <= 0; // Reset for weight tile counting
                         state <= GEMV_COMPUTE;
                         matrix_buffer_read_addr <= w_id;
+                        
+                    end else begin
+                        // Pulse vector_read_enable for next tile
+                        vector_read_enable <= 1;
                     end
                 end
                 
                 GEMV_COMPUTE: begin
                     // Properly manage weight tile reading from matrix buffer
+                    //$display("In GEMV_COMPUTE state");
                     if (gemv_w_ready && !gemv_done && gemv_tile_done) begin
                         // GEMV is ready for next weight tile, provide next tile address
                         tile_read_count <= tile_read_count + 1;
@@ -387,31 +427,80 @@ module execution_unit #(
                     end
                     if (gemv_done) begin
                         // Copy GEMV results
+                        $display("Starting GEMV with biases: ");
+                        for (int i = 0; i < MAX_ROWS; i++) begin
+                            if (gemv_bias_buffer[i] != 0) begin
+                                $display("non-zero bias[%0d] = %0d", i, gemv_bias_buffer[i]);
+                            end
+                        end
+
+                        $display("Starting GEMV with inputs: ");
+                        for (int i = 0; i < MAX_COLS; i++) begin
+                            if (gemv_x_buffer[i] != 0) begin
+                                $display("non-zero input[%0d] = %0d", i, gemv_x_buffer[i]);
+                            end
+                        end
+
+                        $display("GEMV done, copying results.");
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             result[i] <= y_gemv[i];
+                            if (y_gemv[i] != 0) begin
+                                $display("non-zero result[%0d] = %0d", i, y_gemv[i]);
+                            end
                         end
+
                         state <= COMPLETE;
                     end
                 end
                 
                 EXECUTE_RELU: begin
-                    // Copy the input data for ReLU directly from x_buffer for this test
-                    for (int i = 0; i < MAX_COLS; i++) begin
-                        if (i < TILE_ELEMS && i < 10) begin
-                            result[i] <= relu_out[i];
-                        end else if (i >= 10) begin
-                            result[i] <= 0;
+                    // Read the GEMV results from buffer and apply ReLU
+                    $display("In EXECUTE_RELU state, tile_read_count=%0d", tile_read_count);
+                    
+                    // Copy data from buffer to result with ReLU applied
+                    for (int i = 0; i < TILE_ELEMS; i++) begin
+                        if (vector_read_enable_d && int'(current_element_offset) + i < MAX_ROWS && int'(current_element_offset) + i < length_or_cols) begin
+                            // Apply ReLU: max(0, input)
+                            if (vector_buffer_read_data[i][DATA_WIDTH-1]) begin // negative
+                                result[int'(current_element_offset) + i] <= '0;
+                            end else begin // positive or zero
+                                result[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
+                            end
+                            
+                            if (vector_buffer_read_data[i] != 0) begin
+                                $display("ReLU input[%0d] = %0d, output = %0d", 
+                                        current_element_offset + i, 
+                                        vector_buffer_read_data[i],
+                                        vector_buffer_read_data[i][DATA_WIDTH-1] ? 0 : vector_buffer_read_data[i]);
+                            end
                         end
                     end
-                    state <= COMPLETE;
+                    
+                    tile_read_count <= tile_read_count + 1;
+                    current_element_offset <= current_element_offset + TILE_ELEMS;
+                    
+                    if (tile_read_count + 1 >= total_tiles_needed) begin
+                        $display("ReLU execution done");
+                        for (int i = 0; i < length_or_cols; i++) begin
+                            if (result[i] != 0) begin
+                                $display("non-zero ReLU result[%0d] = %0d", i, result[i]);
+                            end
+                        end
+                        state <= COMPLETE;
+                    end else begin
+                        // Pulse vector_read_enable for next tile
+                        vector_read_enable <= 1;
+                    end
                 end
                 
                 STORE_RESULT: begin
                     // Placeholder for store operations
+                    //$display("In STORE_RESULT state");
                     state <= COMPLETE;
                 end
                 
                 COMPLETE: begin
+                    //$display("In COMPLETE state, execution done.");
                     done <= 1;
                     state <= IDLE;
                 end
@@ -420,6 +509,9 @@ module execution_unit #(
                     state <= IDLE;
                 end
             endcase
+            // Update delayed versions of read-enable signals (capture current cycle values)
+            vector_read_enable_d <= vector_read_enable;
+            matrix_read_enable_d <= matrix_read_enable;
         end
     end
     
