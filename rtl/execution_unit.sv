@@ -205,8 +205,8 @@ module execution_unit #(
         .out_vec(relu_out)
     );
     
-    // Gate w_valid for GEMV - simple logic: valid when in GEMV_COMPUTE state
-    assign w_valid = (state == GEMV_COMPUTE);
+    // Gate w_valid for GEMV - valid when we have matrix buffer data ready after read request
+    assign w_valid = (state == GEMV_COMPUTE) && matrix_read_enable_d;
     
     // Buffer file control - separate control for vector and matrix buffers
     always_comb begin
@@ -301,7 +301,6 @@ module execution_unit #(
                             end
                             5'h04: begin // GEMV
                                 vector_read_enable <= 1;
-                                matrix_read_enable <= 1;
                                 vector_buffer_read_addr <= x_id;
                                 matrix_buffer_read_addr <= w_id; // Initialize weight buffer read
                                 tile_read_count <= 0; // Reset tile counter for weight tiles
@@ -355,14 +354,14 @@ module execution_unit #(
                 
                 GEMV_READ_X_TILES: begin
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
-                    $display("In GEMV_READ_X_TILES state, tile_read_count=%0d", tile_read_count);
+                    //$display("In GEMV_READ_X_TILES state, tile_read_count=%0d", tile_read_count);
                     for (int i = 0; i < TILE_ELEMS; i++) begin
                         // Use delayed read-enable to capture the tile output from buffer_file
                         if (vector_read_enable_d && int'(current_element_offset) + i < MAX_COLS && int'(current_element_offset) + i < length_or_cols) begin
                             gemv_x_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
                             if (vector_buffer_read_data[i] != 0) begin
                                 nonzero_load_v <= 1;
-                                $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                                //$display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
                             end
                         end
                     end
@@ -406,8 +405,11 @@ module execution_unit #(
                     if (tile_read_count + 1 >= total_tiles_needed) begin
                         gemv_start <= 1;
                         tile_read_count <= 0; // Reset for weight tile counting
+                        // Calculate total weight tiles needed: rows × tiles_per_row
+                        total_tiles_needed <= rows * ((length_or_cols + TILE_ELEMS - 1) / TILE_ELEMS);
                         state <= GEMV_COMPUTE;
                         matrix_buffer_read_addr <= w_id;
+                        matrix_read_enable <= 1; // Pulse for first weight tile
                         
                     end else begin
                         // Pulse vector_read_enable for next tile
@@ -417,29 +419,38 @@ module execution_unit #(
                 
                 GEMV_COMPUTE: begin
                     // Properly manage weight tile reading from matrix buffer
-                    //$display("In GEMV_COMPUTE state");
-                    if (gemv_w_ready && !gemv_done && gemv_tile_done) begin
-                        // GEMV is ready for next weight tile, provide next tile address
-                        tile_read_count <= tile_read_count + 1;
+                    // $display("In GEMV_COMPUTE state, tile_read_count=%0d, total_tiles=%0d, gemv_w_ready=%0d, gemv_tile_done=%0d, gemv_done=%0d", 
+                    //         tile_read_count, total_tiles_needed, gemv_w_ready, gemv_tile_done, gemv_done);
+                    
+                    // Provide weight tiles when GEMV is ready and we haven't sent all tiles
+                    if (gemv_w_ready && !gemv_done) begin
+                        // Check if we have more tiles to send
+                        if (tile_read_count < total_tiles_needed) begin
+                            matrix_read_enable <= 1;
+                            tile_read_count <= tile_read_count + 1;
+                            //$display("Providing weight tile %0d of %0d to GEMV", tile_read_count + 1, total_tiles_needed);
+                        end else begin
+                            // All tiles sent, but GEMV not done - this indicates an error
+                            //$display("ERROR: All %0d tiles sent but GEMV not done! Forcing completion.", total_tiles_needed);
+                            state <= COMPLETE;
+                        end
                     end
-                    if(matrix_reading_done) begin
-                        matrix_read_enable <= 0;
-                    end
+                    
                     if (gemv_done) begin
                         // Copy GEMV results
-                        $display("Starting GEMV with biases: ");
-                        for (int i = 0; i < MAX_ROWS; i++) begin
-                            if (gemv_bias_buffer[i] != 0) begin
-                                $display("non-zero bias[%0d] = %0d", i, gemv_bias_buffer[i]);
-                            end
-                        end
+                        // $display("Starting GEMV with biases: ");
+                        // for (int i = 0; i < MAX_ROWS; i++) begin
+                        //     if (gemv_bias_buffer[i] != 0) begin
+                        //         $display("non-zero bias[%0d] = %0d", i, gemv_bias_buffer[i]);
+                        //     end
+                        // end
 
-                        $display("Starting GEMV with inputs: ");
-                        for (int i = 0; i < MAX_COLS; i++) begin
-                            if (gemv_x_buffer[i] != 0) begin
-                                $display("non-zero input[%0d] = %0d", i, gemv_x_buffer[i]);
-                            end
-                        end
+                        // $display("Starting GEMV with inputs: ");
+                        // for (int i = 0; i < MAX_COLS; i++) begin
+                        //     if (gemv_x_buffer[i] != 0) begin
+                        //         $display("non-zero input[%0d] = %0d", i, gemv_x_buffer[i]);
+                        //     end
+                        // end
 
                         $display("GEMV done, copying results.");
                         for (int i = 0; i < MAX_ROWS; i++) begin
@@ -455,7 +466,7 @@ module execution_unit #(
                 
                 EXECUTE_RELU: begin
                     // Read the GEMV results from buffer and apply ReLU
-                    $display("In EXECUTE_RELU state, tile_read_count=%0d", tile_read_count);
+                    //$display("In EXECUTE_RELU state, tile_read_count=%0d", tile_read_count);
                     
                     // Copy data from buffer to result with ReLU applied
                     for (int i = 0; i < TILE_ELEMS; i++) begin
@@ -467,12 +478,12 @@ module execution_unit #(
                                 result[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
                             end
                             
-                            if (vector_buffer_read_data[i] != 0) begin
-                                $display("ReLU input[%0d] = %0d, output = %0d", 
-                                        current_element_offset + i, 
-                                        vector_buffer_read_data[i],
-                                        vector_buffer_read_data[i][DATA_WIDTH-1] ? 0 : vector_buffer_read_data[i]);
-                            end
+                            // if (vector_buffer_read_data[i] != 0) begin
+                            //     $display("ReLU input[%0d] = %0d, output = %0d", 
+                            //             current_element_offset + i, 
+                            //             vector_buffer_read_data[i],
+                            //             vector_buffer_read_data[i][DATA_WIDTH-1] ? 0 : vector_buffer_read_data[i]);
+                            // end
                         end
                     end
                     
@@ -480,11 +491,11 @@ module execution_unit #(
                     current_element_offset <= current_element_offset + TILE_ELEMS;
                     
                     if (tile_read_count + 1 >= total_tiles_needed) begin
-                        $display("ReLU execution done");
+                        //$display("ReLU execution done");
                         for (int i = 0; i < length_or_cols; i++) begin
-                            if (result[i] != 0) begin
-                                $display("non-zero ReLU result[%0d] = %0d", i, result[i]);
-                            end
+                            // if (result[i] != 0) begin
+                            //     $display("non-zero ReLU result[%0d] = %0d", i, result[i]);
+                            // end
                         end
                         state <= COMPLETE;
                     end else begin
