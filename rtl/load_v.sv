@@ -105,7 +105,9 @@ module load_v #(
                 NEXT_TILE: begin
                     $display("Tile loaded. Last address: %0h. Length is %0h elements. Remaining: %0h bits", mem_addr - 1, length, (length * DATA_WIDTH) - (length_cnt + TILE_WIDTH));
                     // for (int i = 0; i < ELEM_COUNT; i++) begin
-                    //     $display(" load_v data_out[%0d] = %0h", i, tile[i]);
+                    //     if (tile[i] != 0) begin
+                    //         $display(" non-zero load_v data_out[%0d] = %0h", i, tile[i]);
+                    //     end
                     // end
                     tile_out <= 1;
                     // Account for this tile worth of bits

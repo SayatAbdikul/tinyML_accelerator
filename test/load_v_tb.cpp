@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     const int TILE_WIDTH = 256;
     const int TILE_BYTES = TILE_WIDTH / 8;  // 32 bytes/tile
     const int TEST_DATA_BYTES = 64;         // 2 tiles (64 bytes)
-    const int DRAM_ADDR = 0x000000;
+    const int DRAM_ADDR = 0x700;
     const int WORDS = (TILE_WIDTH + 31) / 32;  // 8 words for 256 bits
 
     // Reset sequence
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
     int tiles_seen = 0;
 
-    while (tiles_seen < 3 && !Verilated::gotFinish()) {
+    while (tiles_seen < 5 && !Verilated::gotFinish()) {
         tick(top);
 
         if (top->tile_out) {
