@@ -69,7 +69,13 @@ module top_gemv #(
     // ================= Combinational Logic =================
     
     // Calculate starting column and valid elements
-    assign col_start = {tile_idx * TILE_SIZE}[COL_IDX_WIDTH-1:0];
+    // Size col_start_full to accommodate the multiplication result
+    localparam COL_START_WIDTH = TILE_IDX_WIDTH + $clog2(TILE_SIZE);
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic [COL_START_WIDTH-1:0] col_start_full;
+    /* verilator lint_on UNUSEDSIGNAL */
+    assign col_start_full = tile_idx * TILE_SIZE;
+    assign col_start = col_start_full[COL_IDX_WIDTH-1:0];
     assign num_current_row = (col_start < cols[COL_IDX_WIDTH-1:0]) ? 
                            ((int'(col_start) + TILE_SIZE <= cols[COL_IDX_WIDTH-1:0]) ? TILE_SIZE[9:0] : cols[COL_IDX_WIDTH-1:0] - col_start) : 
                            0; // strange behaviour in verilator warning without int()

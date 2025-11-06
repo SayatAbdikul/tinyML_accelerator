@@ -46,7 +46,7 @@ module execution_unit #(
     
     exec_state_t state;
     // wires for debugging
-    logic nonzero_load_v;
+    // logic nonzero_load_v;
     // Load_v module signals and buffer
     logic load_v_start, load_v_done, load_v_tile_ready;
     logic signed [DATA_WIDTH-1:0] load_v_buffer [0:TILE_ELEMS-1];
@@ -78,7 +78,7 @@ module execution_unit #(
     logic signed [DATA_WIDTH-1:0] gemv_bias_buffer [0:MAX_ROWS-1];
     
     // GEMV signals
-    logic gemv_start, gemv_done, gemv_w_ready, gemv_tile_done;
+    logic gemv_start, gemv_done, gemv_w_ready;
     logic w_valid, vector_read_enable, matrix_read_enable;
     logic signed [DATA_WIDTH-1:0] y_gemv [0:MAX_ROWS-1];
     // Delayed read-enable signals to sample buffer_file outputs one cycle after read_enable is asserted
@@ -117,7 +117,6 @@ module execution_unit #(
     );
 
     // Vector Buffer file instantiation (for vectors like x, bias)
-    logic vector_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(8192),
         .BUFFER_COUNT(32),  // Smaller buffer for vectors
@@ -135,12 +134,11 @@ module execution_unit #(
         .read_data(vector_buffer_read_data),
         // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
+        .reading_done()
         // verilator lint_on PINCONNECTEMPTY
-        .reading_done(vector_reading_done)
     );
     
     // Matrix Buffer file instantiation (for weight matrices)
-    logic matrix_reading_done;
     buffer_file #(
         .BUFFER_WIDTH(802820),
         .BUFFER_COUNT(32),  // Larger buffer for matrix tiles
@@ -158,8 +156,8 @@ module execution_unit #(
         .read_data(matrix_buffer_read_data),
         // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
+        .reading_done()
         // verilator lint_on PINCONNECTEMPTY
-        .reading_done(matrix_reading_done)
     );
     
     // GEMV instance - matrix buffer data is already properly formatted as array
@@ -180,7 +178,9 @@ module execution_unit #(
         .rows(rows),
         .cols(length_or_cols),
         .y(y_gemv),
-        .tile_done(gemv_tile_done),
+        // verilator lint_off PINCONNECTEMPTY
+        .tile_done(), // we just don't need this signal here
+        // verilator lint_on PINCONNECTEMPTY
         .done(gemv_done)
     );
     
@@ -281,7 +281,7 @@ module execution_unit #(
                     if (start) begin
                         $display("length_or_cols is %0d and length_or_cols*DATA_WIDTH is %0d", length_or_cols, length_or_cols*DATA_WIDTH);
                         $display("opcode is %0h", opcode);
-                        nonzero_load_v <= 0;
+                        //nonzero_load_v <= 0;
                         case (opcode)
                             5'h00: begin // NOP
                                 state <= COMPLETE;
@@ -359,10 +359,10 @@ module execution_unit #(
                         // Use delayed read-enable to capture the tile output from buffer_file
                         if (vector_read_enable_d && int'(current_element_offset) + i < MAX_COLS && int'(current_element_offset) + i < length_or_cols) begin
                             gemv_x_buffer[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
-                            if (vector_buffer_read_data[i] != 0) begin
-                                nonzero_load_v <= 1;
-                                //$display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
-                            end
+                            // if (vector_buffer_read_data[i] != 0) begin
+                            //     nonzero_load_v <= 1;
+                            //     $display("Read nonzero x[%0d] = %0d from vector buffer", current_element_offset + i, vector_buffer_read_data[i]);
+                            // end
                         end
                     end
                     
@@ -418,9 +418,6 @@ module execution_unit #(
                 end
                 
                 GEMV_COMPUTE: begin
-                    // Properly manage weight tile reading from matrix buffer
-                    // $display("In GEMV_COMPUTE state, tile_read_count=%0d, total_tiles=%0d, gemv_w_ready=%0d, gemv_tile_done=%0d, gemv_done=%0d", 
-                    //         tile_read_count, total_tiles_needed, gemv_w_ready, gemv_tile_done, gemv_done);
                     
                     // Provide weight tiles when GEMV is ready and we haven't sent all tiles
                     if (gemv_w_ready && !gemv_done) begin
@@ -465,24 +462,21 @@ module execution_unit #(
                 end
                 
                 EXECUTE_RELU: begin
-                    // Read the GEMV results from buffer and apply ReLU
+                    // Read the GEMV results from buffer and apply ReLU using relu_out from relu module
                     //$display("In EXECUTE_RELU state, tile_read_count=%0d", tile_read_count);
                     
-                    // Copy data from buffer to result with ReLU applied
+                    // Copy data from buffer to result with ReLU applied from relu_out
+                    // The relu module processes vector_buffer_read_data combinationally via relu_input
                     for (int i = 0; i < TILE_ELEMS; i++) begin
                         if (vector_read_enable_d && int'(current_element_offset) + i < MAX_ROWS && int'(current_element_offset) + i < length_or_cols) begin
-                            // Apply ReLU: max(0, input)
-                            if (vector_buffer_read_data[i][DATA_WIDTH-1]) begin // negative
-                                result[int'(current_element_offset) + i] <= '0;
-                            end else begin // positive or zero
-                                result[int'(current_element_offset) + i] <= vector_buffer_read_data[i];
-                            end
+                            // Use ReLU output from the relu module
+                            result[int'(current_element_offset) + i] <= relu_out[i];
                             
                             // if (vector_buffer_read_data[i] != 0) begin
                             //     $display("ReLU input[%0d] = %0d, output = %0d", 
                             //             current_element_offset + i, 
                             //             vector_buffer_read_data[i],
-                            //             vector_buffer_read_data[i][DATA_WIDTH-1] ? 0 : vector_buffer_read_data[i]);
+                            //             relu_out[i]);
                             // end
                         end
                     end
@@ -492,11 +486,11 @@ module execution_unit #(
                     
                     if (tile_read_count + 1 >= total_tiles_needed) begin
                         //$display("ReLU execution done");
-                        for (int i = 0; i < length_or_cols; i++) begin
-                            // if (result[i] != 0) begin
-                            //     $display("non-zero ReLU result[%0d] = %0d", i, result[i]);
-                            // end
-                        end
+                        // for (int i = 0; i < length_or_cols; i++) begin
+                        //     if (result[i] != 0) begin
+                        //         $display("non-zero ReLU result[%0d] = %0d", i, result[i]);
+                        //     end
+                        // end
                         state <= COMPLETE;
                     end else begin
                         // Pulse vector_read_enable for next tile
