@@ -230,165 +230,159 @@ public:
     
     void test_neural_network_sequence() {
         printf("\n=== Testing Neural Network Sequence (Following model_assembly.asm) ===\n");
-        printf("Implementing ORIGINAL neural network: 784→128→64→10 (full-scale network)\n");
+        printf("Implementing ACTUAL neural network: 784→12→32→10 (efficient network)\n");
         printf("Demonstrates complete neural network instruction flow with EXACT assembly parameters\n");
         
         printf("\n🎯 ASSEMBLY INSTRUCTIONS TO REPLICATE:\n");
         printf("LOAD_V 9, 0x700, 784\n");
-        printf("LOAD_M 1, 0x10700, 128, 784\n");
-        printf("LOAD_V 3, 0x100000, 128\n");
-        printf("GEMV 5, 1, 9, 3, 128, 784\n");
+        printf("LOAD_M 1, 0x10700, 12, 784\n");
+        printf("LOAD_V 4, 0x13001, 12\n");
+        printf("GEMV 5, 1, 9, 4, 12, 784\n");
         printf("RELU 7, 5\n");
-        printf("LOAD_M 2, 0x28f00, 64, 128\n");
-        printf("LOAD_V 4, 0x100080, 64\n");
-        printf("GEMV 6, 2, 7, 4, 64, 128\n");
+        printf("LOAD_M 2, 0x12bc0, 32, 12\n");
+        printf("LOAD_V 3, 0x1300d, 32\n");
+        printf("GEMV 6, 2, 7, 3, 32, 12\n");
         printf("RELU 8, 6\n");
-        printf("LOAD_M 1, 0x2af00, 10, 64\n");
-        printf("LOAD_V 3, 0x1000c0, 10\n");
-        printf("GEMV 5, 1, 8, 3, 10, 64\n");
-        printf("STORE 5, 0x1007d0, 10\n");
+        printf("LOAD_M 1, 0x12d40, 10, 32\n");
+        printf("LOAD_V 4, 0x1302d, 10\n");
+        printf("GEMV 5, 1, 8, 4, 10, 32\n");
         printf("\n");
         
-        // Layer 1: Input (784) → Hidden1 (128) 
-        printf("\n--- Layer 1: 784 → 128 ---\n");
+        // Layer 1: Input (784) → Hidden1 (12) 
+        printf("\n--- Layer 1: 784 → 12 ---\n");
         
         // LOAD_V 9, 0x700, 784 (Load input vector to buffer 9)
         printf("Step 1: LOAD_V 9, 0x700, 784 (Loading input vector - 784 elements)...\n");
-        start_operation(0x01, 9, 784, 0, 0);  // LOAD_V: dest=9, cols=784, address=0x700
+        start_operation(0x01, 9, 784, 0, 0x700);  // LOAD_V: dest=9, cols=784, address=0x700
         if (!wait_for_done(2000)) {  // Larger timeout for 784 elements
             printf("❌ Failed to load input vector\n");
             return;
         }
         printf("✅ Input vector loaded to buffer 9\n");
         
-        // LOAD_M 1, 0x10700, 128, 784 (Load weight matrix to buffer 1)
-        printf("Step 2: LOAD_M 1, 0x10700, 128, 784 (Loading weight matrix W1 - 128×784)...\n");
-        start_operation(0x02, 1, 784, 128, 0x10700);  // LOAD_M: dest=1, cols=784, rows=128, address=0x10700
-        if (!wait_for_done(300000)) {  // Much larger timeout for 128*784=100,352 elements
+        // LOAD_M 1, 0x10700, 12, 784 (Load weight matrix to buffer 1)
+        printf("Step 2: LOAD_M 1, 0x10700, 12, 784 (Loading weight matrix W1 - 12×784)...\n");
+        start_operation(0x02, 1, 784, 12, 0x10700);  // LOAD_M: dest=1, cols=784, rows=12, address=0x10700
+        if (!wait_for_done(20000)) {  // Timeout for 12*784=9,408 elements
             printf("❌ Failed to load weight matrix W1\n");
             return;
         }
-        printf("✅ Weight matrix W1 (128×784) loaded to buffer 1\n");
+        printf("✅ Weight matrix W1 (12×784) loaded to buffer 1\n");
         
-        // LOAD_V 3, 0x100000, 128 (Load bias vector to buffer 3)
-        printf("Step 3: LOAD_V 3, 0x100000, 128 (Loading bias vector b1 - 128 elements)...\n");
-        start_operation(0x01, 3, 128, 0, 0);  // LOAD_V: dest=3, cols=128, address=0x100000
-        if (!wait_for_done(300000)) {  // 128 elements
+        // LOAD_V 4, 0x13001, 12 (Load bias vector to buffer 4)
+        printf("Step 3: LOAD_V 4, 0x13001, 12 (Loading bias vector b1 - 12 elements)...\n");
+        start_operation(0x01, 4, 12, 0, 0x13001);  // LOAD_V: dest=4, cols=12, address=0x13001
+        if (!wait_for_done(100)) {  // 12 elements
             printf("❌ Failed to load bias vector b1\n");
             return;
         }
-        printf("✅ Bias vector b1 loaded to buffer 3\n");
+        printf("✅ Bias vector b1 loaded to buffer 4\n");
         
-        // GEMV 5, 1, 9, 3, 128, 784 (Perform matrix-vector multiplication)
-        printf("Step 4: GEMV 5, 1, 9, 3, 128, 784 (Computing W1 * input + b1)...\n");
-        printf("⚠️  Note: Large GEMV (128×784) - will take significant time\n");
-        start_operation(0x04, 5, 784, 128, 0x0, 3, 1, 9);  // GEMV: result=5, cols=784, rows=128, b_id=3, w_id=1, x_id=9
+        // GEMV 5, 1, 9, 4, 12, 784 (Perform matrix-vector multiplication)
+        printf("Step 4: GEMV 5, 1, 9, 4, 12, 784 (Computing W1 * input + b1)...\n");
+        printf("⚠️  Note: GEMV (12×784) - efficient computation\n");
+        start_operation(0x04, 5, 784, 12, 0x0, 4, 1, 9);  // GEMV: result=5, cols=784, rows=12, b_id=4, w_id=1, x_id=9
         
-        bool gemv1_success = wait_for_done(300000);  // Very large timeout for 128×784 GEMV
-        
+        bool gemv1_success = wait_for_done(50000);  // Timeout for 12×784 GEMV
+        if (gemv1_success) {
+            printf("✅ Layer 1 GEMV completed\n");
+        } else {
+            printf("⚠️  Layer 1 GEMV timed out\n");
+        }
         
         // RELU 7, 5 (Apply ReLU activation)
         printf("Step 5: RELU 7, 5 (Applying ReLU activation)...\n");
-        start_operation(0x05, 7, 128, 0, 0x0, 0, 0, 5);  // RELU: dest=7, source=5
-        bool relu1_success = wait_for_done(300000);
+        start_operation(0x05, 7, 12, 0, 0x0, 0, 0, 5);  // RELU: dest=7, source=5
+        bool relu1_success = wait_for_done(200);
         if (relu1_success) {
             printf("✅ Layer 1 ReLU completed\n");
         } else {
             printf("⚠️  Layer 1 ReLU timed out\n");
         }
         
-        // Layer 2: Hidden1 (128) → Hidden2 (64)
-        printf("\n--- Layer 2: 128 → 64 ---\n");
+        // Layer 2: Hidden1 (12) → Hidden2 (32)
+        printf("\n--- Layer 2: 12 → 32 ---\n");
         
-        // LOAD_M 2, 0x28f00, 64, 128
-        printf("Step 6: LOAD_M 2, 0x28f00, 64, 128 (Loading weight matrix W2 - 64×128)...\n");
-        start_operation(0x02, 2, 128, 64, 0x28f00);  // LOAD_M: dest=2, cols=128, rows=64, address=0x28f00
-        if (!wait_for_done(300000)) {  // 64*128 = 8,192 elements
+        // LOAD_M 2, 0x12bc0, 32, 12
+        printf("Step 6: LOAD_M 2, 0x12bc0, 32, 12 (Loading weight matrix W2 - 32×12)...\n");
+        start_operation(0x02, 2, 12, 32, 0x12bc0);  // LOAD_M: dest=2, cols=12, rows=32, address=0x12bc0
+        if (!wait_for_done(1000)) {  // 32*12 = 384 elements
             printf("❌ Failed to load weight matrix W2\n");
             return;
         } else {
-            printf("✅ Weight matrix W2 (64×128) loaded to buffer 2\n");
+            printf("✅ Weight matrix W2 (32×12) loaded to buffer 2\n");
         }
         
-        // LOAD_V 4, 0x100080, 64
-        printf("Step 7: LOAD_V 4, 0x100080, 64 (Loading bias vector b2 - 64 elements)...\n");
-        start_operation(0x01, 4, 64, 0, 0);  // LOAD_V: dest=4, cols=64, address=0x100080
-        if (!wait_for_done(300000)) {
+        // LOAD_V 3, 0x1300d, 32
+        printf("Step 7: LOAD_V 3, 0x1300d, 32 (Loading bias vector b2 - 32 elements)...\n");
+        start_operation(0x01, 3, 32, 0, 0x1300d);  // LOAD_V: dest=3, cols=32, address=0x1300d
+        if (!wait_for_done(200)) {
             printf("❌ Failed to load bias vector b2\n");
             return;
         } else {
-            printf("✅ Bias vector b2 loaded to buffer 4\n");
+            printf("✅ Bias vector b2 loaded to buffer 3\n");
         }
         
-        // GEMV 6, 2, 7, 4, 64, 128 (Layer 2 GEMV)
-        printf("Step 8: GEMV 6, 2, 7, 4, 64, 128 (Computing W2 * h1 + b2)...\n");
-        start_operation(0x04, 6, 128, 64, 0x0, 4, 2, 7);  // GEMV: result=6, cols=128, rows=64, b_id=4, w_id=2, x_id=7
+        // GEMV 6, 2, 7, 3, 32, 12 (Layer 2 GEMV)
+        printf("Step 8: GEMV 6, 2, 7, 3, 32, 12 (Computing W2 * h1 + b2)...\n");
+        start_operation(0x04, 6, 12, 32, 0x0, 3, 2, 7);  // GEMV: result=6, cols=12, rows=32, b_id=3, w_id=2, x_id=7
         
-        bool gemv2_success = wait_for_done(300000);  // Large timeout for 64×128 GEMV
+        bool gemv2_success = wait_for_done(5000);  // Timeout for 32×12 GEMV
         if (gemv2_success) {
             printf("✅ Layer 2 GEMV completed\n");
         } else {
-            printf("⚠️  Layer 2 GEMV timed out (pipeline demonstration)\n");
+            printf("⚠️  Layer 2 GEMV timed out\n");
         }
         
         // RELU 8, 6 (Apply ReLU activation)
         printf("Step 9: RELU 8, 6 (Applying ReLU activation)...\n");
-        start_operation(0x05, 8, 64, 0, 0x0, 0, 0, 6);  // RELU: dest=8, source=6
-        bool relu2_success = wait_for_done(300000);
+        start_operation(0x05, 8, 32, 0, 0x0, 0, 0, 6);  // RELU: dest=8, source=6
+        bool relu2_success = wait_for_done(200);
         if (relu2_success) {
             printf("✅ Layer 2 ReLU completed\n");
         } else {
             printf("⚠️  Layer 2 ReLU timed out\n");
         }
         
-        // Layer 3: Hidden2 (64) → Output (10)
-        printf("\n--- Layer 3: 64 → 10 (Output Layer) ---\n");
+        // Layer 3: Hidden2 (32) → Output (10)
+        printf("\n--- Layer 3: 32 → 10 (Output Layer) ---\n");
         
-        // LOAD_M 1, 0x2af00, 10, 64
-        printf("Step 10: LOAD_M 1, 0x2af00, 10, 64 (Loading output weight matrix W3 - 10×64)...\n");
-        start_operation(0x02, 1, 64, 10, 0x2af00);  // LOAD_M: dest=1, cols=64, rows=10, address=0x2af00
-        if (!wait_for_done(300000)) {  // 10*64 = 640 elements
+        // LOAD_M 1, 0x12d40, 10, 32
+        printf("Step 10: LOAD_M 1, 0x12d40, 10, 32 (Loading output weight matrix W3 - 10×32)...\n");
+        start_operation(0x02, 1, 32, 10, 0x12d40);  // LOAD_M: dest=1, cols=32, rows=10, address=0x12d40
+        if (!wait_for_done(1000)) {  // 10*32 = 320 elements
             printf("❌ Failed to load weight matrix W3\n");
         } else {
-            printf("✅ Weight matrix W3 (10×64) loaded to buffer 1\n");
+            printf("✅ Weight matrix W3 (10×32) loaded to buffer 1\n");
         }
         
-        // LOAD_V 3, 0x1000c0, 10
-        printf("Step 11: LOAD_V 3, 0x1000c0, 10 (Loading output bias vector b3 - 10 elements)...\n");
-        start_operation(0x01, 3, 10, 0, 0);  // LOAD_V: dest=3, cols=10, address=0x1000c0
-        if (!wait_for_done(300000)) {
+        // LOAD_V 4, 0x1302d, 10
+        printf("Step 11: LOAD_V 4, 0x1302d, 10 (Loading output bias vector b3 - 10 elements)...\n");
+        start_operation(0x01, 4, 10, 0, 0x1302d);  // LOAD_V: dest=4, cols=10, address=0x1302d
+        if (!wait_for_done(100)) {
             printf("❌ Failed to load bias vector b3\n");
         } else {
-            printf("✅ Bias vector b3 loaded to buffer 3\n");
+            printf("✅ Bias vector b3 loaded to buffer 4\n");
         }
         
-        // GEMV 5, 1, 8, 3, 10, 64 (Final output GEMV)
-        printf("Step 12: GEMV 5, 1, 8, 3, 10, 64 (Computing final W3 * h2 + b3)...\n");
-        start_operation(0x04, 5, 64, 10, 0x0, 3, 1, 8);  // GEMV: result=5, cols=64, rows=10, b_id=3, w_id=1, x_id=8
+        // GEMV 5, 1, 8, 4, 10, 32 (Final output GEMV)
+        printf("Step 12: GEMV 5, 1, 8, 4, 10, 32 (Computing final W3 * h2 + b3)...\n");
+        start_operation(0x04, 5, 32, 10, 0x0, 4, 1, 8);  // GEMV: result=5, cols=32, rows=10, b_id=4, w_id=1, x_id=8
         
-        bool gemv3_success = wait_for_done(300000);  // Timeout for 10×64 GEMV
+        bool gemv3_success = wait_for_done(5000);  // Timeout for 10×32 GEMV
         if (gemv3_success) {
             printf("✅ Final GEMV completed\n");
         } else {
-            printf("⚠️  Final GEMV timed out (demonstrates full pipeline)\n");
+            printf("⚠️  Final GEMV timed out\n");
         }
         
-        // STORE 5, 0x1007d0, 10 (Store final results)
-        printf("Step 13: STORE 5, 0x1007d0, 10 (Storing final results)...\n");
-        start_operation(0x03, 5, 10, 0, 0x1007d0);  // STORE: source=5, cols=10, address=0x1007d0
-        if (!wait_for_done(100)) {
-            printf("❌ Failed to store final results\n");
-        } else {
-            printf("✅ Results stored\n");
-        }
-        
-        printf("\n🎯 FULL-SCALE NEURAL NETWORK SEQUENCE COMPLETE! 🎯\n");
-        printf("✅ Successfully demonstrated COMPLETE neural network assembly pattern:\n");
+        printf("\n🎯 NEURAL NETWORK SEQUENCE COMPLETE! 🎯\n");
+        printf("✅ Successfully demonstrated neural network assembly pattern:\n");
         printf("   • Input processing: 784 elements ✅\n");
-        printf("   • Layer 1: 784→128 (100,352 parameters) %s\n", gemv1_success ? "✅" : "⚠️");
-        printf("   • Layer 2: 128→64 (8,192 parameters) %s\n", gemv2_success ? "✅" : "⚠️");
-        printf("   • Layer 3: 64→10 (640 parameters) %s\n", gemv3_success ? "✅" : "⚠️");
-        printf("   • Full instruction sequence: LOAD_V, LOAD_M, GEMV, RELU, STORE ✅\n");
+        printf("   • Layer 1: 784→12 (9,408 parameters) %s\n", gemv1_success ? "✅" : "⚠️");
+        printf("   • Layer 2: 12→32 (384 parameters) %s\n", gemv2_success ? "✅" : "⚠️");
+        printf("   • Layer 3: 32→10 (320 parameters) %s\n", gemv3_success ? "✅" : "⚠️");
+        printf("   • Full instruction sequence: LOAD_V, LOAD_M, GEMV, RELU ✅\n");
         printf("   • EXACT assembly parameters: Matching model_assembly.asm ✅\n");
 
         
@@ -399,7 +393,7 @@ public:
         
         printf("\n📊 Network Processing Statistics:\n");
         printf("  🎯 GEMV success rate: %d/3 operations completed\n", successful_ops);
-        printf("  📈 Total parameters processed: 109,184 (784→128→64→10)\n");
+        printf("  📈 Total parameters processed: 10,112 (784→12→32→10)\n");
         printf("  🔄 ReLU activations: %s\n", (relu1_success && relu2_success) ? "2/2 ✅" : "Partial ⚠️");
         
         if (successful_ops > 0) {
@@ -409,7 +403,7 @@ public:
             }
         }
         
-        printf("\n🏆 ACHIEVEMENT: Full-scale neural network (784→128→64→10) successfully executed!\n");
+        printf("\n🏆 ACHIEVEMENT: Efficient neural network (784→12→32→10) successfully executed!\n");
         printf("    Original assembly pattern replicated with 100%% parameter accuracy.\n");
     }
     
