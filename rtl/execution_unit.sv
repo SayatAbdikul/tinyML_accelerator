@@ -223,11 +223,11 @@ module execution_unit #(
             matrix_buffer_write_tile = load_m_buffer;
         end
     end
-    reg load_v_tile_ready_d;
-    always_ff @(posedge clk) load_v_tile_ready_d <= load_v_tile_ready;
-    wire tile_ready_pulse = load_v_tile_ready & ~load_v_tile_ready_d;
+    //reg load_v_tile_ready_d;
+    //always_ff @(posedge clk) load_v_tile_ready_d <= load_v_tile_ready;
+    //wire tile_ready_pulse = load_v_tile_ready & ~load_v_tile_ready_d;
 
-    always_comb vector_buffer_write_enable = tile_ready_pulse;
+    always_comb vector_buffer_write_enable = load_v_tile_ready;
 
     // Buffer file control signals
     always_comb begin
