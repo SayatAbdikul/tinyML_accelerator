@@ -1,0 +1,40 @@
+digraph execution_fsm {
+    rankdir=TB;
+    node [shape=circle, style=filled, fillcolor=lightblue];
+    
+    IDLE [fillcolor=lightgreen];
+    LOAD_VECTOR;
+    LOAD_MATRIX;
+    EXECUTE_GEMV;
+    GEMV_READ_X;
+    GEMV_READ_X_TILES;
+    GEMV_READ_BIAS;
+    GEMV_READ_BIAS_TILES;
+    GEMV_COMPUTE;
+    EXECUTE_RELU;
+    STORE_RESULT;
+    COMPLETE [fillcolor=lightcoral];
+    
+    IDLE -> LOAD_VECTOR [label="opcode=LOAD_V"];
+    IDLE -> LOAD_MATRIX [label="opcode=LOAD_M"];
+    IDLE -> EXECUTE_GEMV [label="opcode=GEMV"];
+    IDLE -> EXECUTE_RELU [label="opcode=RELU"];
+    
+    LOAD_VECTOR -> COMPLETE [label="load_done"];
+    LOAD_MATRIX -> COMPLETE [label="load_done"];
+    
+    EXECUTE_GEMV -> GEMV_READ_X;
+    GEMV_READ_X -> GEMV_READ_X_TILES;
+    GEMV_READ_X_TILES -> GEMV_READ_X_TILES [label="more tiles"];
+    GEMV_READ_X_TILES -> GEMV_READ_BIAS [label="tiles done"];
+    
+    GEMV_READ_BIAS -> GEMV_READ_BIAS_TILES;
+    GEMV_READ_BIAS_TILES -> GEMV_READ_BIAS_TILES [label="more tiles"];
+    GEMV_READ_BIAS_TILES -> GEMV_COMPUTE [label="tiles done"];
+    
+    GEMV_COMPUTE -> COMPLETE [label="gemv_done"];
+    
+    EXECUTE_RELU -> COMPLETE [label="relu_done"];
+    
+    COMPLETE -> IDLE;
+}

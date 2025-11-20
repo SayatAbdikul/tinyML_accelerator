@@ -1,0 +1,56 @@
+digraph execution_unit {
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fillcolor=lightblue];
+    
+    // Main module
+    exec_unit [label="execution_unit\n(Main Controller)", fillcolor=lightgreen, shape=box3d];
+    
+    // Inputs
+    node [shape=invhouse, fillcolor=lightyellow];
+    clk [label="clk"];
+    rst [label="rst"];
+    start [label="start"];
+    opcode [label="opcode[4:0]"];
+    addr [label="addr"];
+    
+    // Outputs
+    node [shape=house, fillcolor=lightcoral];
+    result [label="result"];
+    done [label="done"];
+    
+    // Submodules
+    node [shape=box, fillcolor=lightblue];
+    load_v [label="load_v\n(Vector Loader)"];
+    load_m [label="load_m\n(Matrix Loader)"];
+    vector_buf [label="vector_buffer_file"];
+    matrix_buf [label="matrix_buffer_file"];
+    gemv [label="top_gemv\n(GEMV Engine)"];
+    relu_mod [label="relu\n(ReLU Activation)"];
+    
+    // Connect inputs to main
+    clk -> exec_unit;
+    rst -> exec_unit;
+    start -> exec_unit;
+    opcode -> exec_unit;
+    addr -> exec_unit;
+    
+    // Connect main to outputs
+    exec_unit -> result;
+    exec_unit -> done;
+    
+    // Connect to submodules
+    exec_unit -> load_v [label="control", style=dashed];
+    exec_unit -> load_m [label="control", style=dashed];
+    exec_unit -> vector_buf [label="control", style=dashed];
+    exec_unit -> matrix_buf [label="control", style=dashed];
+    exec_unit -> gemv [label="control", style=dashed];
+    exec_unit -> relu_mod [label="control", style=dashed];
+    
+    // Data paths
+    load_v -> vector_buf [label="data"];
+    load_m -> matrix_buf [label="data"];
+    vector_buf -> gemv [label="x, bias"];
+    matrix_buf -> gemv [label="weights"];
+    gemv -> relu_mod [label="y"];
+    relu_mod -> exec_unit [label="activated"];
+}

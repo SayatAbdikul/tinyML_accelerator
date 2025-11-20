@@ -17,3 +17,8 @@ execution_unit.vcd
 sim_build
 __pycache__
 results.xml
+
+# Diagrams - generated outputs (but keep .dot source files and .sh scripts)
+diagrams/*.svg
+diagrams/*.png
+diagrams/*.pdf

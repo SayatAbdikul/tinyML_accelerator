@@ -1,0 +1,20 @@
+digraph hierarchy {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled"];
+    
+    exec [label="execution_unit", fillcolor=lightgreen];
+    
+    load_v [label="load_v", fillcolor=lightblue];
+    load_m [label="load_m", fillcolor=lightblue];
+    vec_buf [label="vector_buffer_file", fillcolor=lightyellow];
+    mat_buf [label="matrix_buffer_file", fillcolor=lightyellow];
+    gemv [label="top_gemv", fillcolor=lightcoral];
+    relu [label="relu", fillcolor=lightcoral];
+    
+    exec -> load_v [label="load_v_inst"];
+    exec -> load_m [label="load_m_inst"];
+    exec -> vec_buf [label="vector_buffer_inst"];
+    exec -> mat_buf [label="matrix_buffer_inst"];
+    exec -> gemv [label="gemv_unit"];
+    exec -> relu [label="relu_unit"];
+}
