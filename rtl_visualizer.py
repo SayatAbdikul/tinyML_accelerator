@@ -85,7 +85,7 @@ def create_fsm_diagram(sv_file, output_file='fsm_diagram'):
     transitions = re.findall(r'state\s*<=\s*(\w+)', content)
     
     dot = graphviz.Digraph(comment='FSM State Diagram')
-    dot.attr(rankdir='TB')
+    dot.attr(rankdir='LR')
     dot.attr('node', shape='circle', style='filled', fillcolor='lightblue')
     
     # Add states

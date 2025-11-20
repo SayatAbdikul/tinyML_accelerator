@@ -22,3 +22,5 @@ results.xml
 diagrams/*.svg
 diagrams/*.png
 diagrams/*.pdf
+
+diagram_env
