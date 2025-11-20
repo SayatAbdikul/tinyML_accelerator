@@ -33,7 +33,6 @@ module execution_unit #(
         IDLE,
         LOAD_VECTOR,
         LOAD_MATRIX, 
-        EXECUTE_GEMV,
         GEMV_READ_X,
         GEMV_READ_X_TILES,
         GEMV_READ_BIAS,
