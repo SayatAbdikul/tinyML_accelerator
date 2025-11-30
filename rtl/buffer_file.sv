@@ -25,12 +25,13 @@ localparam INDEX_WIDTH = $clog2(BUFFER_WIDTH);
 // Memory buffers
 logic [BUFFER_WIDTH-1:0] buffers [0:BUFFER_COUNT-1];
 
-// Tile indices
-logic [TILE_INDEX_WIDTH-1:0] w_tile_index, r_tile_index;
+// Tile indices - separate for each buffer
+logic [TILE_INDEX_WIDTH-1:0] w_tile_index [0:BUFFER_COUNT-1];
+logic [TILE_INDEX_WIDTH-1:0] r_tile_index [0:BUFFER_COUNT-1];
 
-// Bit indices (calculated from tile indices)
-wire [INDEX_WIDTH-1:0] w_bit_index = w_tile_index * TILE_WIDTH;
-wire [INDEX_WIDTH-1:0] r_bit_index = r_tile_index * TILE_WIDTH;
+// Bit indices (calculated from tile indices for current buffer)
+wire [INDEX_WIDTH-1:0] w_bit_index = w_tile_index[write_buffer] * TILE_WIDTH;
+wire [INDEX_WIDTH-1:0] r_bit_index = r_tile_index[read_buffer] * TILE_WIDTH;
 
 // Reset and operation logic
 integer i;
@@ -41,9 +42,9 @@ always @(posedge clk or negedge reset_n) begin
             // verilator lint_off WIDTHCONCAT
             buffers[i] <= {BUFFER_WIDTH{1'b0}};
             // verilator lint_on WIDTHCONCAT
+            w_tile_index[i] <= 0;
+            r_tile_index[i] <= 0;
         end
-        w_tile_index <= 0;
-        r_tile_index <= 0;
         for (i = 0; i < TILE_SIZE; i++) begin
             read_data[i] <= 0;
         end
@@ -58,14 +59,14 @@ always @(posedge clk or negedge reset_n) begin
         if (write_enable) begin
             buffers[write_buffer][w_bit_index +: TILE_WIDTH] <= write_data;
             // if(BUFFER_COUNT == 16)
-            //     $display("Wrote to buffer %0d at tile index %0d: %0h", write_buffer, w_tile_index, write_data);
-            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index } == TILE_COUNT - 1) begin
-                w_tile_index <= 0;
+            //     $display("Wrote to buffer %0d at tile index %0d: %0h", write_buffer, w_tile_index[write_buffer], write_data);
+            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index[write_buffer] } == TILE_COUNT - 1) begin
+                w_tile_index[write_buffer] <= 0;
                 writing_done <= 1;
                 // if(write_buffer == 9)
                 //     $display("Writing input is done, the value is %0h", buffers[write_buffer][5:0]);
             end else begin
-                w_tile_index <= w_tile_index + 1;
+                w_tile_index[write_buffer] <= w_tile_index[write_buffer] + 1;
             end
         end 
         // Read operation
@@ -74,15 +75,16 @@ always @(posedge clk or negedge reset_n) begin
                 read_data[i] <= buffers[read_buffer][{ {(32-INDEX_WIDTH){1'b0}}, r_bit_index }+i*8 +: DATA_WIDTH];
                 //$display("Read data[%0d]: %0h", i, buffers[read_buffer][r_bit_index+i*8 +: DATA_WIDTH]);
             end
-            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, r_tile_index } == TILE_COUNT - 1) begin
-                r_tile_index <= 0;
+            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, r_tile_index[read_buffer] } == TILE_COUNT - 1) begin
+                r_tile_index[read_buffer] <= 0;
                 reading_done <= 1;
                 //$display("Reading done here, the value is %0h", read_data);
             end else begin
-                r_tile_index <= r_tile_index + 1;
+                r_tile_index[read_buffer] <= r_tile_index[read_buffer] + 1;
             end
         end
     end
 end
 
 endmodule
+
