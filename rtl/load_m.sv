@@ -51,12 +51,13 @@ module load_m #(
             case (state)
                 IDLE: begin
                     byte_cnt <= '0;
+                    valid_out <= 0; // Ensure valid_out is low in IDLE
                     if (valid_in) begin
                         mem_addr   <= dram_addr;  // Present first address
                         length_cnt <= 0;          // Start of transfer
                         state      <= INIT_READING; // Prime 1 cycle for sync read
-                        valid_out <= 0; // Clear valid_out when starting new operation
-                        // $display(" length is %0d bits", length);
+                        $display("[LOAD_M] Starting: length=%0d elements (%0d bits), addr=0x%h", 
+                                 length, length * DATA_WIDTH, dram_addr);
                     end
                 end
 
@@ -91,8 +92,8 @@ module load_m #(
                 end
 
                 NEXT_TILE: begin
-                    //$display("Tile data: %0h", tile);
-                    //$display("Last address read (decimal): %0d", mem_addr - 1);
+                    $display("[LOAD_M] Tile complete. length_cnt=%0d, total=%0d bits", 
+                             length_cnt + TILE_WIDTH, length * DATA_WIDTH);
                     tile_out <= 1;
                     length_cnt <= length_cnt + TILE_WIDTH;
 
@@ -102,6 +103,7 @@ module load_m #(
                         byte_cnt <= '0;           // reset for new tile
                         // mem_addr already points to the next byte to read
                     end else begin
+                        $display("[LOAD_M] All tiles complete, going to DONE");
                         state <= DONE;
                         valid_out <= 1; // Assert completion signal
                     end
