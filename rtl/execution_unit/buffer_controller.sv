@@ -63,6 +63,67 @@ module buffer_controller #(
         end
     end
     
+    // Track last accessed buffer and operation type for each buffer
+    logic [4:0] vec_last_buffer_id, mat_last_buffer_id;
+    logic vec_last_was_read, mat_last_was_read;
+    logic vec_reset_indices, mat_reset_indices;
+    
+    // Detect when we switch buffers OR switch between read/write operations
+    // Reset ensures we start from the correct tile index
+    always_comb begin
+        vec_reset_indices = 0;
+        mat_reset_indices = 0;
+        
+        if (vec_read_enable) begin
+            // Reset if different buffer OR switching from write to read on same buffer
+            vec_reset_indices = (vec_read_buffer_id != vec_last_buffer_id) || 
+                                (vec_read_buffer_id == vec_last_buffer_id && !vec_last_was_read);
+        end else if (vec_write_enable) begin
+            // Reset if different buffer OR switching from read to write on same buffer
+            vec_reset_indices = (vec_write_buffer_id != vec_last_buffer_id) ||
+                                (vec_write_buffer_id == vec_last_buffer_id && vec_last_was_read);
+        end
+        
+        if (mat_read_enable) begin
+            mat_reset_indices = (mat_read_buffer_id != mat_last_buffer_id) ||
+                                (mat_read_buffer_id == mat_last_buffer_id && !mat_last_was_read);
+        end else if (mat_write_enable) begin
+            mat_reset_indices = (mat_write_buffer_id != mat_last_buffer_id) ||
+                                (mat_write_buffer_id == mat_last_buffer_id && mat_last_was_read);
+        end
+    end
+    
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            vec_last_buffer_id <= 5'h1F;  // Initialize to invalid value
+            mat_last_buffer_id <= 5'h1F;
+            vec_last_was_read <= 0;
+            mat_last_was_read <= 0;
+        end else begin
+            // Track last operation
+            if (vec_read_enable) begin
+                vec_last_buffer_id <= vec_read_buffer_id;
+                vec_last_was_read <= 1;
+            end else if (vec_write_enable) begin
+                vec_last_buffer_id <= vec_write_buffer_id;
+                vec_last_was_read <= 0;
+            end
+            
+            if (mat_read_enable) begin
+                mat_last_buffer_id <= mat_read_buffer_id;
+                mat_last_was_read <= 1;
+            end else if (mat_write_enable) begin
+                mat_last_buffer_id <= mat_write_buffer_id;
+                mat_last_was_read <= 0;
+            end
+        end
+    end
+    
+    // Select which buffer to reset (prioritize read operations)
+    logic [4:0] vec_reset_buffer_id, mat_reset_buffer_id;
+    assign vec_reset_buffer_id = vec_read_enable ? vec_read_buffer_id : vec_write_buffer_id;
+    assign mat_reset_buffer_id = mat_read_enable ? mat_read_buffer_id : mat_write_buffer_id;
+    
     // Vector Buffer File Instance
     // Optimized for smaller vectors (x, bias, intermediate activations)
     buffer_file #(
@@ -81,7 +142,9 @@ module buffer_controller #(
         .read_buffer(vec_read_buffer_id),
         .read_data(vec_read_tile),
         .writing_done(vec_write_done),
-        .reading_done(vec_read_done)
+        .reading_done(vec_read_done),
+        .reset_indices_enable(vec_reset_indices),
+        .reset_indices_buffer(vec_reset_buffer_id)
     );
     
     // Matrix Buffer File Instance
@@ -102,7 +165,9 @@ module buffer_controller #(
         .read_buffer(mat_read_buffer_id),
         .read_data(mat_read_tile),
         .writing_done(mat_write_done),
-        .reading_done(mat_read_done)
+        .reading_done(mat_read_done),
+        .reset_indices_enable(mat_reset_indices),
+        .reset_indices_buffer(mat_reset_buffer_id)
     );
     
     // Generate read valid signals (1 cycle after read enable)

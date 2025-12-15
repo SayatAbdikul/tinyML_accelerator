@@ -98,6 +98,14 @@ module load_execution #(
         vec_write_tile = load_v_tile;
     end
     
+    // Debug: Log what load_v is outputting
+    always @(posedge clk) begin
+        if (load_v_tile_ready && dest_buffer_id == 9 && tile_count == 0) begin
+            $display("[LOAD_EXEC_DBG] load_v outputting tile 0 to buffer 9, first 4 values: %h %h %h %h",
+                     load_v_tile[0], load_v_tile[1], load_v_tile[2], load_v_tile[3]);
+        end
+    end
+    
     // Matrix writes: triggered by load_m tile ready
     always_comb begin
         mat_write_enable = load_m_tile_ready;
