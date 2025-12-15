@@ -14,7 +14,10 @@ module buffer_file #(
     input [$clog2(BUFFER_COUNT)-1:0] read_buffer,
     output reg [DATA_WIDTH-1:0] read_data [0:TILE_SIZE-1],
     output reg writing_done,
-    output reg reading_done
+    output reg reading_done,
+    // New: reset tile indices for a specific buffer
+    input reset_indices_enable,
+    input [$clog2(BUFFER_COUNT)-1:0] reset_indices_buffer
 );
 
 // Calculate buffer parameters
@@ -33,10 +36,14 @@ logic [TILE_INDEX_WIDTH-1:0] r_tile_index [0:BUFFER_COUNT-1];
 wire [INDEX_WIDTH-1:0] w_bit_index = w_tile_index[write_buffer] * TILE_WIDTH;
 wire [INDEX_WIDTH-1:0] r_bit_index = r_tile_index[read_buffer] * TILE_WIDTH;
 
+// Edge detection for read_enable (only read on rising edge)
+logic read_enable_prev;
+
 // Reset and operation logic
 integer i;
 always @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
+        read_enable_prev <= 0;
         // Reset buffers and indices
         for (i = 0; i < BUFFER_COUNT; i++) begin
             // verilator lint_off WIDTHCONCAT
@@ -54,33 +61,44 @@ always @(posedge clk or negedge reset_n) begin
         // Default done signals
         writing_done <= 0;
         reading_done <= 0;
+        
+        // Update edge detection
+        read_enable_prev <= read_enable;
 
         // Write operation
         if (write_enable) begin
-            buffers[write_buffer][w_bit_index +: TILE_WIDTH] <= write_data;
-            // if(BUFFER_COUNT == 16)
-            //     $display("Wrote to buffer %0d at tile index %0d: %0h", write_buffer, w_tile_index[write_buffer], write_data);
-            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, w_tile_index[write_buffer] } == TILE_COUNT - 1) begin
+            // Use index 0 if resetting this buffer, otherwise use current index
+            logic [TILE_INDEX_WIDTH-1:0] effective_w_index;
+            effective_w_index = (reset_indices_enable && reset_indices_buffer == write_buffer) ? 
+                                0 : w_tile_index[write_buffer];
+            
+            buffers[write_buffer][(effective_w_index * TILE_WIDTH) +: TILE_WIDTH] <= write_data;
+            //$display("[BUFFER] Write to buffer %0d tile %0d", write_buffer, effective_w_index);
+            
+            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, effective_w_index } == TILE_COUNT - 1) begin
                 w_tile_index[write_buffer] <= 0;
                 writing_done <= 1;
-                // if(write_buffer == 9)
-                //     $display("Writing input is done, the value is %0h", buffers[write_buffer][5:0]);
             end else begin
-                w_tile_index[write_buffer] <= w_tile_index[write_buffer] + 1;
+                w_tile_index[write_buffer] <= effective_w_index + 1;
             end
         end 
-        // Read operation
-        else if (read_enable) begin
+        // Read operation - only on rising edge of read_enable
+        if (read_enable && !read_enable_prev) begin
+            // Use index 0 if resetting this buffer, otherwise use current index
+            logic [TILE_INDEX_WIDTH-1:0] effective_r_index;
+            effective_r_index = (reset_indices_enable && reset_indices_buffer == read_buffer) ?
+                                0 : r_tile_index[read_buffer];
+            
             for (i = 0; i < TILE_SIZE; i++) begin
-                read_data[i] <= buffers[read_buffer][{ {(32-INDEX_WIDTH){1'b0}}, r_bit_index }+i*8 +: DATA_WIDTH];
-                //$display("Read data[%0d]: %0h", i, buffers[read_buffer][r_bit_index+i*8 +: DATA_WIDTH]);
+                read_data[i] <= buffers[read_buffer][(effective_r_index * TILE_WIDTH + i * 8) +: DATA_WIDTH];
             end
-            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, r_tile_index[read_buffer] } == TILE_COUNT - 1) begin
+            //$display("[BUFFER] Read from buffer %0d tile %0d", read_buffer, effective_r_index);
+            
+            if ({ {(32-TILE_INDEX_WIDTH){1'b0}}, effective_r_index } == TILE_COUNT - 1) begin
                 r_tile_index[read_buffer] <= 0;
                 reading_done <= 1;
-                //$display("Reading done here, the value is %0h", read_data);
             end else begin
-                r_tile_index[read_buffer] <= r_tile_index[read_buffer] + 1;
+                r_tile_index[read_buffer] <= effective_r_index + 1;
             end
         end
     end

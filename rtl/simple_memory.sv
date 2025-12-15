@@ -1,7 +1,7 @@
 module simple_memory #(
     parameter ADDR_WIDTH = 24,        // Address bus width (determines memory depth)
     parameter DATA_WIDTH = 8,        // Data bus width
-    parameter HEX_FILE = "/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/dram.hex"  // Memory initialization file
+    parameter HEX_FILE = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"  // Memory initialization file
 )(
     input  logic                    clk,     // Clock
     input  logic                    we,      // Write enable
