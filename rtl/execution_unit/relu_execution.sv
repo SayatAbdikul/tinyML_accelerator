@@ -108,14 +108,14 @@ module relu_execution #(
                         
                         vec_read_enable <= 1;  // Pulse read enable for one cycle
                         tile_count <= 0;
-                        total_tiles_needed <= (length + TILE_ELEMS - 1) / TILE_ELEMS;
+                        total_tiles_needed <= (length + 10'd31) / 10'd32;
                         current_element_offset <= 0;
                         state <= READ_AND_WRITE_TILES;
                         
-                        $display("[RELU_EXEC] Starting ReLU: length=%0d, src_buf=%0d, dst_buf=%0d",
-                                 length, x_buffer_id, dest_buffer_id);
-                        $display("[RELU_EXEC] Total tiles to process: %0d",
-                                 (length + TILE_ELEMS - 1) / TILE_ELEMS);
+                        //$display("[RELU_EXEC] Starting ReLU: length=%0d, src_buf=%0d, dst_buf=%0d",
+                        //         length, x_buffer_id, dest_buffer_id);
+                        //$display("[RELU_EXEC] Total tiles to process: %0d",
+                        //         (length + TILE_ELEMS - 1) / TILE_ELEMS);
                     end
                 end
                 
@@ -127,10 +127,10 @@ module relu_execution #(
                     if (vec_read_valid) begin
                         vec_write_enable <= 1;
                         
-                        $display("[RELU_EXEC] Read from buffer %0d, input[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
-                                 x_buffer_id,
-                                 vec_read_tile[0], vec_read_tile[1], vec_read_tile[2], vec_read_tile[3],
-                                 vec_read_tile[4], vec_read_tile[5], vec_read_tile[6], vec_read_tile[7]);
+                        //$display("[RELU_EXEC] Read from buffer %0d, input[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
+                        //         x_buffer_id,
+                        //         vec_read_tile[0], vec_read_tile[1], vec_read_tile[2], vec_read_tile[3],
+                        //         vec_read_tile[4], vec_read_tile[5], vec_read_tile[6], vec_read_tile[7]);
                         
                         // Pack ReLU output to write tile
                         // Handle partial tiles by zero-padding elements beyond length
@@ -142,16 +142,16 @@ module relu_execution #(
                             end
                         end
                         
-                        $display("[RELU_EXEC] Writing to buffer %0d, output[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
-                                 dest_buffer_id,
-                                 relu_output[0], relu_output[1], relu_output[2], relu_output[3],
-                                 relu_output[4], relu_output[5], relu_output[6], relu_output[7]);
+                        //$display("[RELU_EXEC] Writing to buffer %0d, output[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
+                        //         dest_buffer_id,
+                        //         relu_output[0], relu_output[1], relu_output[2], relu_output[3],
+                        //         relu_output[4], relu_output[5], relu_output[6], relu_output[7]);
                         
                         tile_count <= tile_count + 1;
-                        current_element_offset <= current_element_offset + TILE_ELEMS;
+                        current_element_offset <= current_element_offset + 10'd32;
                         
-                        $display("[RELU_EXEC] Processed tile %0d/%0d",
-                                 tile_count + 1, total_tiles_needed);
+                        //$display("[RELU_EXEC] Processed tile %0d/%0d",
+                        //         tile_count + 1, total_tiles_needed);
                         
                         if (tile_count + 1 >= total_tiles_needed) begin
                             // All tiles processed
@@ -164,7 +164,7 @@ module relu_execution #(
                 end
                 
                 COMPLETE: begin
-                    $display("[RELU_EXEC] ReLU execution complete: %0d tiles processed", tile_count);
+                    //$display("[RELU_EXEC] ReLU execution complete: %0d tiles processed", tile_count);
                     done <= 1;
                     // Copy results to output
                     for (int i = 0; i < 1024; i++) begin

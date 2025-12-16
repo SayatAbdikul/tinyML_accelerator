@@ -23,7 +23,6 @@ module buffer_file #(
 // Calculate buffer parameters
 localparam TILE_COUNT = BUFFER_WIDTH / TILE_WIDTH;
 localparam TILE_INDEX_WIDTH = (TILE_COUNT == 1) ? 1 : $clog2(TILE_COUNT);
-localparam INDEX_WIDTH = $clog2(BUFFER_WIDTH);
 
 // Memory buffers
 logic [BUFFER_WIDTH-1:0] buffers [0:BUFFER_COUNT-1];
@@ -32,9 +31,6 @@ logic [BUFFER_WIDTH-1:0] buffers [0:BUFFER_COUNT-1];
 logic [TILE_INDEX_WIDTH-1:0] w_tile_index [0:BUFFER_COUNT-1];
 logic [TILE_INDEX_WIDTH-1:0] r_tile_index [0:BUFFER_COUNT-1];
 
-// Bit indices (calculated from tile indices for current buffer)
-wire [INDEX_WIDTH-1:0] w_bit_index = w_tile_index[write_buffer] * TILE_WIDTH;
-wire [INDEX_WIDTH-1:0] r_bit_index = r_tile_index[read_buffer] * TILE_WIDTH;
 
 // Edge detection for read_enable (only read on rising edge)
 logic read_enable_prev;

@@ -79,10 +79,6 @@ module modular_execution_unit #(
     logic signed [DATA_WIDTH-1:0] buf_mat_read_tile [0:TILE_ELEMS-1];
     logic buf_mat_read_valid;
     
-    // Status signals
-    logic buf_vec_write_done, buf_vec_read_done;
-    logic buf_mat_write_done, buf_mat_read_done;
-    
     // ========================================================================
     // Load Execution Signals
     // ========================================================================
@@ -155,10 +151,12 @@ module modular_execution_unit #(
         .mat_read_buffer_id(buf_mat_read_buffer_id),
         .mat_read_tile(buf_mat_read_tile),
         .mat_read_valid(buf_mat_read_valid),
-        .vec_write_done(buf_vec_write_done),
-        .vec_read_done(buf_vec_read_done),
-        .mat_write_done(buf_mat_write_done),
-        .mat_read_done(buf_mat_read_done)
+        /* verilator lint_off PINCONNECTEMPTY */
+        .vec_write_done(),
+        .vec_read_done(),
+        .mat_write_done(),
+        .mat_read_done()
+        /* verilator lint_on PINCONNECTEMPTY */
     );
     
     // Load Execution Module
@@ -348,7 +346,7 @@ module modular_execution_unit #(
             case (state)
                 IDLE: begin
                     if (start) begin
-                        $display("[MODULAR_EXEC] Received opcode 0x%h", opcode);
+                        //$display("[MODULAR_EXEC] Received opcode 0x%h", opcode);
                         state <= DISPATCH;
                     end
                 end
@@ -357,7 +355,7 @@ module modular_execution_unit #(
                     // Route to appropriate execution module based on opcode
                     case (opcode)
                         5'h00: begin // NOP
-                            $display("[MODULAR_EXEC] NOP operation");
+                            //$display("[MODULAR_EXEC] NOP operation");
                             state <= COMPLETE;
                         end
                         
@@ -382,7 +380,7 @@ module modular_execution_unit #(
                         end
                         
                         default: begin
-                            $display("[MODULAR_EXEC] Unknown opcode: 0x%h", opcode);
+                            //$display("[MODULAR_EXEC] Unknown opcode: 0x%h", opcode);
                             state <= COMPLETE;
                         end
                     endcase
@@ -390,14 +388,14 @@ module modular_execution_unit #(
                 
                 WAIT_LOAD: begin
                     if (load_done) begin
-                        $display("[MODULAR_EXEC] Load operation complete");
+                        //$display("[MODULAR_EXEC] Load operation complete");
                         state <= COMPLETE;
                     end
                 end
                 
                 WAIT_GEMV: begin
                     if (gemv_done) begin
-                        $display("[MODULAR_EXEC] GEMV operation complete");
+                        //$display("[MODULAR_EXEC] GEMV operation complete");
                         // Copy GEMV results to result register
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             result[i] <= gemv_result[i];
@@ -408,7 +406,7 @@ module modular_execution_unit #(
                 
                 WAIT_RELU: begin
                     if (relu_done) begin
-                        $display("[MODULAR_EXEC] ReLU operation complete");
+                        //$display("[MODULAR_EXEC] ReLU operation complete");
                         // Copy ReLU results to result register
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             result[i] <= relu_result[i];
@@ -419,13 +417,13 @@ module modular_execution_unit #(
                 
                 WAIT_STORE: begin
                     if (store_done) begin
-                        $display("[MODULAR_EXEC] Store operation complete");
+                        //$display("[MODULAR_EXEC] Store operation complete");
                         state <= COMPLETE;
                     end
                 end
                 
                 COMPLETE: begin
-                    $display("[MODULAR_EXEC] Operation complete");
+                    //$display("[MODULAR_EXEC] Operation complete");
                     done <= 1;
                     state <= IDLE;
                     

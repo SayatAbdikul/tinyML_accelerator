@@ -101,8 +101,8 @@ module load_execution #(
     // Debug: Log what load_v is outputting
     always @(posedge clk) begin
         if (load_v_tile_ready && dest_buffer_id == 9 && tile_count == 0) begin
-            $display("[LOAD_EXEC_DBG] load_v outputting tile 0 to buffer 9, first 4 values: %h %h %h %h",
-                     load_v_tile[0], load_v_tile[1], load_v_tile[2], load_v_tile[3]);
+            //$display("[LOAD_EXEC_DBG] load_v outputting tile 0 to buffer 9, first 4 values: %h %h %h %h",
+            //         load_v_tile[0], load_v_tile[1], load_v_tile[2], load_v_tile[3]);
         end
     end
     
@@ -136,15 +136,15 @@ module load_execution #(
                             5'h01: begin // LOAD_V
                                 load_v_start <= 1;
                                 state <= LOADING_VECTOR;
-                                $display("[LOAD_EXEC] Starting LOAD_V: dest=%0d, length=%0d, addr=0x%h",
-                                         dest_buffer_id, length_or_cols, addr);
+                                //$display("[LOAD_EXEC] Starting LOAD_V: dest=%0d, length=%0d, addr=0x%h",
+                                //         dest_buffer_id, length_or_cols, addr);
                             end
                             
                             5'h02: begin // LOAD_M
                                 load_m_start <= 1;
                                 state <= LOADING_MATRIX;
-                                $display("[LOAD_EXEC] Starting LOAD_M: dest=%0d, rows=%0d, cols=%0d, total_elements=%0d, addr=0x%h",
-                                         dest_buffer_id, rows, length_or_cols, rows * length_or_cols, addr);
+                                //$display("[LOAD_EXEC] Starting LOAD_M: dest=%0d, rows=%0d, cols=%0d, total_elements=%0d, addr=0x%h",
+                                //         dest_buffer_id, rows, length_or_cols, rows * length_or_cols, addr);
                             end
                             
                             default: begin
@@ -159,15 +159,15 @@ module load_execution #(
                     // Track tiles being written
                     if (load_v_tile_ready) begin
                         tile_count <= tile_count + 1;
-                        $display("[LOAD_EXEC] Vector tile %0d written to buffer %0d",
-                                 tile_count + 1, dest_buffer_id);
+                        //$display("[LOAD_EXEC] Vector tile %0d written to buffer %0d",
+                        //         tile_count + 1, dest_buffer_id);
                     end
                     
                     // Complete when load_v signals done
                     if (load_v_done) begin
                         // Account for tile_ready and done happening in same cycle
-                        $display("[LOAD_EXEC] LOAD_V complete: %0d tiles written", 
-                                 load_v_tile_ready ? tile_count + 1 : tile_count);
+                        //$display("[LOAD_EXEC] LOAD_V complete: %0d tiles written", 
+                        //         load_v_tile_ready ? tile_count + 1 : tile_count);
                         state <= COMPLETE;
                     end
                 end
@@ -176,15 +176,15 @@ module load_execution #(
                     // Track tiles being written
                     if (load_m_tile_ready) begin
                         tile_count <= tile_count + 1;
-                        $display("[LOAD_EXEC] Matrix tile %0d written to buffer %0d",
-                                 tile_count + 1, dest_buffer_id);
+                        //$display("[LOAD_EXEC] Matrix tile %0d written to buffer %0d",
+                        //         tile_count + 1, dest_buffer_id);
                     end
                     
                     // Complete when load_m signals done
                     if (load_m_done) begin
                         // Account for tile_ready and done happening in same cycle
-                        $display("[LOAD_EXEC] LOAD_M complete: %0d tiles written", 
-                                 load_m_tile_ready ? tile_count + 1 : tile_count);
+                        //$display("[LOAD_EXEC] LOAD_M complete: %0d tiles written", 
+                        //         load_m_tile_ready ? tile_count + 1 : tile_count);
                         state <= COMPLETE;
                     end
                 end

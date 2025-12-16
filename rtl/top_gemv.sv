@@ -189,16 +189,12 @@ module top_gemv #(
                 WAIT_TILE: begin
                     w_ready <= 1;  // Signal ready for weights
                     tile_done <= 0;
-                    //$display("Waiting for tile %0d for row %0d, state is %d", tile_idx, row_idx, state);
                     if (w_valid) begin
                         // Latch incoming weights (unpacked array)
                         for (int i = 0; i < TILE_SIZE; i++) begin
                             w_latched[i] <= w_tile_row_in[i];
-                            // if(w_tile_row_in[i] != 0) 
-                            //     $display("Received nonzero weight[%0d] = %0d for row %0d", i, w_tile_row_in[i], row_idx);
                         end
                         w_ready <= 0;
-                        //$display("Received tile %0d for row %0d", tile_idx, row_idx);
                     end
                 end
 
