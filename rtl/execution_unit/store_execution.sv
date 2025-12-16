@@ -1,14 +1,11 @@
 // Store Execution Module
 // Handles STORE operations - writes vector data from buffer to memory
-// Currently a placeholder for future implementation
+// Uses the store.sv module for actual DRAM writes
 //
 // Operation Flow:
-// 1. Read vector tiles from source buffer
-// 2. Write data to DRAM at specified address
-// 3. Signal done when complete
-//
-// NOTE: This is a simplified placeholder. Full implementation would require
-// a store_v module similar to load_v for DRAM writes.
+// 1. Start the store module with source buffer and DRAM address
+// 2. Store module reads tiles from buffer and writes to DRAM
+// 3. Signal done when store completes
 
 module store_execution #(
     parameter DATA_WIDTH = 8,
@@ -31,89 +28,79 @@ module store_execution #(
     output logic [4:0] vec_read_buffer_id,
     input logic signed [DATA_WIDTH-1:0] vec_read_tile [0:TILE_ELEMS-1],
     input logic vec_read_valid
-    
-    // TODO: Add DRAM write interface when store_v module is implemented
 );
 
-    // FSM states
+    // Store module control signals
+    logic store_start;
+    logic store_done;
+    
+    // Connect vec_read_tile to unsigned array for store module
+    logic [DATA_WIDTH-1:0] buf_read_data [0:TILE_ELEMS-1];
+    
+    // Convert signed to unsigned (reinterpret bits)
+    always_comb begin
+        for (int i = 0; i < TILE_ELEMS; i++) begin
+            buf_read_data[i] = vec_read_tile[i];
+        end
+    end
+    
+    // Instantiate store module
+    store #(
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_WIDTH(TILE_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS)
+    ) store_inst (
+        .clk(clk),
+        .rst(rst),
+        .start(store_start),
+        .dram_addr(addr),
+        .length(length),
+        .buf_id(src_buffer_id),
+        .buf_read_en(vec_read_enable),
+        .buf_read_id(vec_read_buffer_id),
+        .buf_read_data(buf_read_data),
+        .buf_read_done(vec_read_valid),
+        .done(store_done)
+    );
+    
+    // Simple control FSM
     typedef enum logic [1:0] {
         IDLE,
-        READING_TILES,
+        STORING,
         COMPLETE
     } store_state_t;
     
     store_state_t state;
     
-    // Tile counters
-    logic [9:0] tile_count;
-    logic [9:0] total_tiles_needed;
-    logic [9:0] current_element_offset;
-    
-    // TODO: Add store_v module instantiation here when implemented
-    // For now, this is a placeholder that just reads from buffer and discards
-    
-    // Main FSM for store execution
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             state <= IDLE;
             done <= 0;
-            vec_read_enable <= 0;
-            vec_read_buffer_id <= 0;
-            tile_count <= 0;
-            total_tiles_needed <= 0;
-            current_element_offset <= 0;
+            store_start <= 0;
         end else begin
             // Default signal values
             done <= 0;
-            vec_read_enable <= 0;
+            store_start <= 0;
             
             case (state)
                 IDLE: begin
                     if (start) begin
-                        vec_read_buffer_id <= src_buffer_id;
-                        vec_read_enable <= 1;
-                        tile_count <= 0;
-                        total_tiles_needed <= (length + TILE_ELEMS - 1) / TILE_ELEMS;
-                        current_element_offset <= 0;
-                        state <= READING_TILES;
-                        
-                        $display("[STORE_EXEC] Starting STORE: src_buf=%0d, length=%0d, addr=0x%h",
-                                 src_buffer_id, length, addr);
-                        $display("[STORE_EXEC] NOTE: Placeholder implementation - data not written to DRAM");
+                        store_start <= 1;
+                        state <= STORING;
+                        //$display("[STORE_EXEC] Starting STORE: src_buf=%0d, length=%0d, addr=0x%h",
+                        //         src_buffer_id, length, addr);
                     end
                 end
                 
-                READING_TILES: begin
-                    // Read tiles from buffer
-                    if (vec_read_valid) begin
-                        // TODO: Write tile to DRAM via store_v module
-                        // For now, just log that we read the tile
-                        $display("[STORE_EXEC] Read tile %0d/%0d from buffer (not stored to DRAM yet)",
-                                 tile_count + 1, total_tiles_needed);
-                        
-                        // Log non-zero data for debugging
-                        for (int i = 0; i < TILE_ELEMS; i++) begin
-                            if (int'(current_element_offset) + i < length && vec_read_tile[i] != 0) begin
-                                $display("[STORE_EXEC] Element %0d: %0d",
-                                         current_element_offset + i, vec_read_tile[i]);
-                            end
-                        end
-                        
-                        tile_count <= tile_count + 1;
-                        current_element_offset <= current_element_offset + TILE_ELEMS;
-                        
-                        if (tile_count + 1 >= total_tiles_needed) begin
-                            state <= COMPLETE;
-                        end else begin
-                            vec_read_enable <= 1;
-                        end
-                    end else if (tile_count < total_tiles_needed) begin
-                        vec_read_enable <= 1;
+                STORING: begin
+                    if (store_done) begin
+                        state <= COMPLETE;
                     end
                 end
                 
                 COMPLETE: begin
-                    $display("[STORE_EXEC] STORE execution complete (placeholder): %0d tiles read", tile_count);
+                    //$display("[STORE_EXEC] STORE execution complete");
                     done <= 1;
                     state <= IDLE;
                 end

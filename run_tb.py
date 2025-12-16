@@ -19,9 +19,10 @@ print("15. tinyML Accelerator Top Test")
 print("16. Integrated Top Module Test")
 print("17. Execution Unit Test")
 print("18. Store Test")
+print("19. Modular Execution Unit Test (Refactored)")
 
-choice = input("Enter your choice (1-18): ")
-if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'}:
+choice = input("Enter your choice (1-19): ")
+if choice not in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19'}:
     print("Invalid choice. Exiting.")
     exit(1)
 # Run the selected test based on user input
@@ -83,6 +84,12 @@ commands = {
     '18': ["verilator -Wall --cc rtl/store.sv rtl/simple_memory.sv --top store --exe test/store_tb.cpp",
             "make -C obj_dir -f Vstore.mk Vstore",
             "./obj_dir/Vstore"],
+    '19': ["verilator -Wall --trace --cc rtl/execution_unit/modular_execution_unit.sv rtl/execution_unit/buffer_controller.sv rtl/execution_unit/load_execution.sv rtl/execution_unit/gemv_execution.sv rtl/execution_unit/relu_execution.sv "
+    "rtl/execution_unit/store_execution.sv rtl/store.sv rtl/buffer_file.sv rtl/simple_memory.sv rtl/top_gemv.sv rtl/pe.sv rtl/compressor_3to2.sv rtl/wallace_32x32.sv "
+    "rtl/load_v.sv rtl/load_m.sv rtl/quantization.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/relu.sv --top modular_execution_unit --exe test/execution_tests/neural_network_tb.cpp",
+            "make -C obj_dir -f Vmodular_execution_unit.mk Vmodular_execution_unit",
+            "./obj_dir/Vmodular_execution_unit"],
+        
 }
 for cmd in commands[choice]:
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
