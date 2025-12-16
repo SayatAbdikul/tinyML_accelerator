@@ -131,6 +131,8 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(vector_buffer_read_addr),
         .read_data(vector_buffer_read_data),
+        .reset_indices_enable(1'b0),
+        .reset_indices_buffer(5'b0),
         // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
         .reading_done()
@@ -153,6 +155,8 @@ module execution_unit #(
         .write_buffer(dest),
         .read_buffer(matrix_buffer_read_addr),
         .read_data(matrix_buffer_read_data),
+        .reset_indices_enable(1'b0),
+        .reset_indices_buffer(5'b0),
         // verilator lint_off PINCONNECTEMPTY
         .writing_done(),
         .reading_done()
@@ -352,6 +356,9 @@ module execution_unit #(
                 end
                 
                 GEMV_READ_X_TILES: begin
+                    // Default: don't assert read_enable (edge-triggered)
+                    vector_read_enable <= 0;
+                    
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
                     //$display("In GEMV_READ_X_TILES state, tile_read_count=%0d", tile_read_count);
                     for (int i = 0; i < TILE_ELEMS; i++) begin
@@ -387,6 +394,9 @@ module execution_unit #(
                 end
                 
                 GEMV_READ_BIAS_TILES: begin
+                    // Default: don't assert read_enable (edge-triggered)
+                    vector_read_enable <= 0;
+                    
                     // Wait one cycle for buffer read, then copy tile data to appropriate position
                     //$display("In GEMV_READ_BIAS_TILES state, tile_read_count=%0d", tile_read_count); 
                     for (int i = 0; i < TILE_ELEMS; i++) begin
@@ -417,12 +427,14 @@ module execution_unit #(
                 end
                 
                 GEMV_COMPUTE: begin
+                    // Default: don't assert read_enable (edge-triggered)
+                    matrix_read_enable <= 0;
                     
                     // Provide weight tiles when GEMV is ready and we haven't sent all tiles
                     if (gemv_w_ready && !gemv_done) begin
                         // Check if we have more tiles to send
                         if (tile_read_count < total_tiles_needed) begin
-                            matrix_read_enable <= 1;
+                            matrix_read_enable <= 1;  // Pulse for one cycle
                             tile_read_count <= tile_read_count + 1;
                             //$display("Providing weight tile %0d of %0d to GEMV", tile_read_count + 1, total_tiles_needed);
                         end else begin
@@ -461,6 +473,9 @@ module execution_unit #(
                 end
                 
                 EXECUTE_RELU: begin
+                    // Default: don't assert read_enable (edge-triggered)
+                    vector_read_enable <= 0;
+                    
                     // Read the GEMV results from buffer and apply ReLU using relu_out from relu module
                     //$display("In EXECUTE_RELU state, tile_read_count=%0d", tile_read_count);
                     
@@ -471,12 +486,12 @@ module execution_unit #(
                             // Use ReLU output from the relu module
                             result[int'(current_element_offset) + i] <= relu_out[i];
                             
-                            // if (vector_buffer_read_data[i] != 0) begin
-                            //     $display("ReLU input[%0d] = %0d, output = %0d", 
-                            //             current_element_offset + i, 
-                            //             vector_buffer_read_data[i],
-                            //             relu_out[i]);
-                            // end
+                            if (vector_buffer_read_data[i] != 0) begin
+                                $display("ReLU input[%0d] = %0d, output = %0d", 
+                                        current_element_offset + i, 
+                                        vector_buffer_read_data[i],
+                                        relu_out[i]);
+                            end
                         end
                     end
                     
