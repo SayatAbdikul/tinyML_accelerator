@@ -2,7 +2,7 @@ module fetch_unit #(
     parameter ADDR_WIDTH  = 24,  // word-addressed (each address is one byte in current design)
     parameter INSTR_WIDTH = 64,
     parameter DATA_WIDTH  = 8,
-    parameter HEX_FILE    = "/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/dram.hex"
+    parameter HEX_FILE    = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
 )(
     input  logic                     clk,
     input  logic                     rst_n,
