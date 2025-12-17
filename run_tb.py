@@ -71,7 +71,11 @@ commands = {
     '14': ["verilator -Wall --cc rtl/fetch_unit.sv rtl/simple_memory.sv --top fetch_unit --exe test/fetch_unit_tb.cpp",
             "make -C obj_dir -f Vfetch_unit.mk Vfetch_unit",
             "./obj_dir/Vfetch_unit"],
-    '15': ["verilator -Wall --trace --cc rtl/tinyml_accelerator_top.sv rtl/execution_unit.sv rtl/buffer_file.sv rtl/fetch_unit.sv rtl/i_decoder.sv rtl/load_m.sv rtl/load_v.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/relu.sv rtl/simple_memory.sv --top tinyml_accelerator_top --exe test/tinyml_accelerator_top_tb.cpp",
+    '15': ["verilator -Wall --trace --cc rtl/tinyml_accelerator_top.sv rtl/execution_unit/modular_execution_unit.sv rtl/execution_unit/buffer_controller.sv "
+    "rtl/execution_unit/load_execution.sv rtl/execution_unit/gemv_execution.sv rtl/execution_unit/relu_execution.sv rtl/execution_unit/store_execution.sv "
+    "rtl/store.sv rtl/buffer_file.sv rtl/fetch_unit.sv rtl/i_decoder.sv rtl/load_m.sv rtl/load_v.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv "
+    "rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/quantization.sv rtl/relu.sv rtl/simple_memory.sv "
+    "--top tinyml_accelerator_top --exe test/tinyml_accelerator_top_tb.cpp",
             "make -C obj_dir -f Vtinyml_accelerator_top.mk Vtinyml_accelerator_top",
             "./obj_dir/Vtinyml_accelerator_top"],
     '16': ["verilator -Wall --trace --cc rtl/top.sv rtl/tinyml_accelerator_top.sv rtl/execution_unit.sv rtl/buffer_file.sv rtl/fetch_unit.sv rtl/i_decoder.sv rtl/load_m.sv rtl/load_v.sv rtl/top_gemv.sv rtl/pe.sv rtl/scale_calculator.sv rtl/quantizer_pipeline.sv rtl/wallace_32x32.sv rtl/compressor_3to2.sv rtl/relu.sv rtl/simple_memory.sv --top top --exe test/top_integrated_tb.cpp",

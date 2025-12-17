@@ -1,15 +1,30 @@
 // Top Module - tinyML Accelerator
-// Fetches an instruction, decodes it, then executes it using the execution_unit.
-// Simple single-instruction controller (fetch -> decode -> execute -> done).
+// Fetches an instruction, decodes it, then executes it using the modular execution unit.
+// 
+// Architecture:
+// - Fetch Unit: Reads 64-bit instructions from memory
+// - Instruction Decoder: Decodes instruction fields (opcode, operands, addresses)
+// - Modular Execution Unit: Executes operations with separated execution modules
+//   * Buffer Controller: Manages vector and matrix buffer files
+//   * Load Execution: Handles LOAD_V and LOAD_M from DRAM to buffers
+//   * GEMV Execution: Matrix-vector multiplication with tiled computation
+//   * ReLU Execution: Applies ReLU activation function
+//   * Store Execution: Writes buffer data back to DRAM
+// 
+// FSM: IDLE -> FETCH -> WAIT_FETCH -> DECODE -> EXECUTE_START -> EXECUTE_WAIT -> DONE
+// 
+// The module pulses 'done' for one cycle when an instruction completes execution.
+// Connect 'start' high for one cycle to begin processing a new instruction.
+//
 module tinyml_accelerator_top #(
     parameter DATA_WIDTH = 8,
     parameter TILE_WIDTH = 256,              // Match execution_unit default (256) for TILE_ELEMS consistency
     parameter ADDR_WIDTH = 24,
-    parameter MAX_ROWS  = 784,
-    parameter MAX_COLS  = 784,
+    parameter MAX_ROWS  = 1024,
+    parameter MAX_COLS  = 1024,
     parameter OUT_N     = 10,
     parameter INSTR_WIDTH = 64,
-    parameter HEX_FILE  = "/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/dram.hex"
+    parameter HEX_FILE  = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
 )(
     input  logic clk,
     input  logic rst,            // Active high
@@ -17,7 +32,6 @@ module tinyml_accelerator_top #(
     output logic signed [DATA_WIDTH-1:0] y [0:OUT_N-1], // Truncated execution results
     output logic done            // High for 1 cycle when instruction fully executed
 );
-
     // ------------------------------------------------------------
     // State Machine for top-level control
     // ------------------------------------------------------------
@@ -28,10 +42,12 @@ module tinyml_accelerator_top #(
     // Fetch Unit
     // ------------------------------------------------------------
     logic fetch_en;
-    logic [ADDR_WIDTH-1:0] pc;
+    /* verilator lint_off UNUSEDSIGNAL */
+    logic [ADDR_WIDTH-1:0] pc; // will be needed for debugging and maybe branching in future
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [INSTR_WIDTH-1:0] instr;
     logic fetch_done;
-
+    logic store_instr;
     fetch_unit #(
         .ADDR_WIDTH (ADDR_WIDTH),
         .INSTR_WIDTH(INSTR_WIDTH),
@@ -83,7 +99,7 @@ module tinyml_accelerator_top #(
     logic exec_done;
     logic signed [DATA_WIDTH-1:0] exec_result [0:MAX_ROWS-1];
 
-    execution_unit #(
+    modular_execution_unit #(
         .DATA_WIDTH (DATA_WIDTH),
         .TILE_WIDTH (TILE_WIDTH),
         .ADDR_WIDTH (ADDR_WIDTH),
@@ -112,29 +128,40 @@ module tinyml_accelerator_top #(
         t_state_n = t_state;
         fetch_en  = 1'b0;
         exec_start = 1'b0;
+        
         done = 1'b0;
         case (t_state)
             T_IDLE: begin
                 if (start) begin
-                    t_state_n = T_FETCH;
+                    $display("Starting new instruction fetch-execute cycle");
                 end
+                t_state_n = T_FETCH;
             end
             T_FETCH: begin
                 fetch_en   = 1'b1;          // Pulse enable to begin fetch
                 t_state_n  = T_WAIT_FETCH;
+                $display("Fetch enabled");
             end
             T_WAIT_FETCH: begin
                 if (fetch_done) begin
                     t_state_n = T_DECODE;
+                    if(instr == '0) begin
+                        $display("Fetched instruction is all zeros. Finishing execution.");
+                        done = 1'b1;  // Pulse done for all instructions
+                    end
+                    $display("Fetch done, instruction fetched: %h", instr);
                 end
             end
             T_DECODE: begin
                 // Latch decoded fields next cycle
                 t_state_n = T_EXECUTE_START;
+                $display("Decoding instruction: opcode=%0h, dest=%0d, length_or_cols=%0d, rows=%0d, addr=%0d, b=%0d, x=%0d, w=%0d",
+                         d_opcode, d_dest, d_length_or_cols, d_rows, d_addr, d_b, d_x, d_w);
             end
             T_EXECUTE_START: begin
                 exec_start = 1'b1;          // One-cycle start pulse
                 t_state_n  = T_EXECUTE_WAIT;
+                $display("Execution started");
             end
             T_EXECUTE_WAIT: begin
                 if (exec_done) begin
@@ -142,7 +169,13 @@ module tinyml_accelerator_top #(
                 end
             end
             T_DONE: begin
-                done      = 1'b1;           // Pulse done
+                $display("Execution done, pc is %0d", pc);
+                if (store_instr) begin
+                    $display("Store instruction executed");
+                end else begin
+                    $display("Non-store instruction executed");
+                end
+                //done = 1'b1;                 // Pulse done for one cycle
                 t_state_n = T_IDLE;         // Ready for next instruction
             end
             default: t_state_n = T_IDLE;
@@ -156,6 +189,7 @@ module tinyml_accelerator_top #(
         if (rst) begin
             t_state <= T_IDLE;
             ex_opcode <= '0; ex_dest <= '0; ex_length_or_cols <= '0; ex_rows <= '0; ex_addr <= '0; ex_b <= '0; ex_x <= '0; ex_w <= '0;
+            store_instr <= 0;
         end else begin
             t_state <= t_state_n;
             if (t_state == T_DECODE) begin
@@ -167,6 +201,8 @@ module tinyml_accelerator_top #(
                 ex_b             <= d_b;
                 ex_x             <= d_x;
                 ex_w             <= d_w;
+                // Track if this is a store instruction for potential future use
+                store_instr <= (d_opcode == 5'b00011);
             end
         end
     end
@@ -178,7 +214,7 @@ module tinyml_accelerator_top #(
         genvar gi;
         for (gi = 0; gi < OUT_N; gi++) begin : OUT_COPY
             always_comb begin
-                if (gi < MAX_ROWS) y[gi] = exec_result[gi]; else y[gi] = '0;
+                if (gi < MAX_ROWS && !store_instr) y[gi] = exec_result[gi]; else y[gi] = '1;
             end
         end
     endgenerate

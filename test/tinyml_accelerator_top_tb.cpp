@@ -65,14 +65,14 @@ int main(int argc, char** argv) {
     
     // Run until done or timeout
     int cycle_count = 0;
-    const int TIMEOUT = 10000;  // Generous timeout
+    const int TIMEOUT = 100000;  // Generous timeout
     
     while (!dut->done && cycle_count < TIMEOUT) {
         tick(tfp, dut);
         cycle_count++;
-        
-        // Print progress every 100 cycles
-        if (cycle_count % 100 == 0) {
+
+        // Print progress every 10000 cycles
+        if (cycle_count % 10000 == 0) {
             std::cout << "Cycle " << cycle_count << " - Still processing..." << std::endl;
         }
     }
