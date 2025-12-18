@@ -18,9 +18,31 @@ sim_build
 __pycache__
 results.xml
 
+# Cocotb test outputs
+test/cocotb_tests/sim_build/
+test/cocotb_tests/__pycache__/
+test/cocotb_tests/*.pyc
+test/cocotb_tests/results.xml
+test/cocotb_tests/*.log
+test/cocotb_tests/dump.vcd
+test/cocotb_tests/dump.fst
+
 # Diagrams - generated outputs (but keep .dot source files and .sh scripts)
 diagrams/*.svg
 diagrams/*.png
 diagrams/*.pdf
 
 diagram_env
+
+# Python cache
+*.pyc
+*.pyo
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+v_env/
+venv/
+ENV/
+env/
