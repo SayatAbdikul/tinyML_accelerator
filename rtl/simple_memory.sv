@@ -34,7 +34,7 @@ always_ff @(posedge clk) begin
     // Dump on request
     if (dump) begin
         $writememh(HEX_FILE, memory);
-        $display("[simple_memory] Dumped memory to %s", HEX_FILE);
+        //$display("[simple_memory] Dumped memory to %s", HEX_FILE);
     end
 end
 

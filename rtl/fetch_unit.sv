@@ -77,7 +77,7 @@ module fetch_unit #(
                 FETCH: begin
                     // Issue next address every cycle
                     instruction[((INSTR_WIDTH/8 - 1 - int'(byte_cnt))*8) +: 8] <= mem_dout;
-                    $display("Fetched byte: %h for mem_addr=%0d", mem_dout, mem_addr);
+                    //$display("Fetched byte: %h for mem_addr=%0d", mem_dout, mem_addr);
                     if (byte_cnt < $clog2(INSTR_WIDTH/8)'((INSTR_WIDTH/8)-1)) begin
                         byte_cnt <= byte_cnt + 1'b1;
                         pc <= pc + 1'b1;
@@ -86,7 +86,7 @@ module fetch_unit #(
 
                 DONE: begin
                     instr_o <= instruction;
-                    $display("Fetch done, instruction: %h", instruction);
+                    //$display("Fetch done, instruction: %h", instruction);
                     done    <= 1'b1;
                 end
             endcase

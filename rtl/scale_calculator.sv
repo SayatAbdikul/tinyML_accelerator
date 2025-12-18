@@ -30,7 +30,7 @@ always @(posedge clk or negedge reset_n) begin
                 ready <= 1;
             end else begin
                 divisor <= max_abs;
-                $display("Starting scale calculation with max_abs = %0d", max_abs);
+                //$display("Starting scale calculation with max_abs = %0d", max_abs);
                 rem_quot <= {32'b0, DIVIDEND};
                 cycle_count <= 0;
                 active <= 1;
@@ -50,7 +50,7 @@ always @(posedge clk or negedge reset_n) begin
             
             if (cycle_count == MAX_CYCLES-1) begin
                 reciprocal_scale <= next_rem_quot[31:0];
-                $display("Scale calculation complete: reciprocal_scale = %d for the divisor(decimal) = %d", next_rem_quot[31:0], divisor);
+                //$display("Scale calculation complete: reciprocal_scale = %d for the divisor(decimal) = %d", next_rem_quot[31:0], divisor);
                 ready <= 1;
                 active <= 0;
             end else begin
