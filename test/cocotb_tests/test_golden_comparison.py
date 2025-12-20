@@ -36,246 +36,7 @@ from dram import save_dram_to_file, save_input_to_dram, read_from_dram, MEM_SIZE
 from compile import generate_assembly
 from model import create_mlp_model
 from assembler import assemble_file
-
-
-class TinyMLAcceleratorTester:
-    """Helper class to manage the accelerator testbench"""
-    
-    def __init__(self, dut):
-        self.dut = dut
-        self.clock_period = 10  # 10ns = 100MHz
-        self.output_addr = 0x20000  # Default output address from compile.py
-        self.output_length = 10  # Default output length for MNIST (10 classes)
-        self.input_addr = 0x700  # Input data address (must match compile.py)
-        self.dram_offsets = {
-            "inputs":  0x700,
-            "weights": 0x10700,
-            "biases":  0x13000,
-            "outputs": 0x20000,
-        }
-        
-    async def reset(self):
-        """Apply reset to the DUT"""
-        self.dut.rst.value = 1
-        self.dut.start.value = 0
-        await RisingEdge(self.dut.clk)
-        await RisingEdge(self.dut.clk)
-        self.dut.rst.value = 0
-        await RisingEdge(self.dut.clk)
-        cocotb.log.info("Reset complete")
-        
-    async def wait_for_done(self, timeout_cycles=200000):
-        """Wait for the done signal with timeout"""
-        cycle_count = 0
-        while cycle_count < timeout_cycles:
-            await RisingEdge(self.dut.clk)
-            if self.dut.done.value == 1:
-                cocotb.log.info(f"Done signal received after {cycle_count} cycles")
-                return True
-            cycle_count += 1
-            
-            # Progress indicator every 10000 cycles
-            if cycle_count % 10000 == 0:
-                cocotb.log.info(f"  ... still executing (cycle {cycle_count})")
-                
-        cocotb.log.error(f"Timeout waiting for done after {timeout_cycles} cycles")
-        return False
-        
-    async def execute_single_instruction(self):
-        """Execute a single instruction by pulsing start"""
-        # Pulse start signal
-        self.dut.start.value = 1
-        await RisingEdge(self.dut.clk)
-        self.dut.start.value = 0
-        
-        # Wait for completion
-        success = await self.wait_for_done()
-        return success
-        
-    async def execute_program(self, max_instructions=20):
-        """
-        Execute all instructions in the program sequentially.
-        The program ends when an all-zero instruction is fetched.
-        """
-        cocotb.log.info("=" * 70)
-        cocotb.log.info("Starting program execution on RTL")
-        cocotb.log.info("=" * 70)
-        
-        for instr_num in range(max_instructions):
-            cocotb.log.info(f"\n--- Executing instruction #{instr_num} ---")
-            
-            # Execute one instruction
-            success = await self.execute_single_instruction()
-            
-            if not success:
-                cocotb.log.error(f"Failed to execute instruction #{instr_num}")
-                return False
-                
-            # Small delay between instructions
-            await RisingEdge(self.dut.clk)
-            await RisingEdge(self.dut.clk)
-            
-        cocotb.log.info("\n" + "=" * 70)
-        cocotb.log.info("Program execution complete")
-        cocotb.log.info("=" * 70 + "\n")
-        return True
-        
-    def read_memory_from_rtl(self, start_addr, length):
-        """
-        Read memory contents directly from RTL simulation memory.
-        Accesses the store module's DRAM memory array.
-        """
-        try:
-            # Access store module's memory through hierarchy
-            # Path: top -> execution_u -> store_exec -> store_inst -> dram -> memory
-            store_mem = self.dut.execution_u.store_exec.store_inst.dram.memory
-            
-            # Read memory values
-            result = []
-            for addr in range(start_addr, start_addr + length):
-                # Get value from simulation
-                val = store_mem[addr].value.integer
-                
-                # Convert unsigned to signed int8 if needed
-                if val > 127:
-                    val = val - 256
-                result.append(val)
-                    
-            result = np.array(result, dtype=np.int8)
-            cocotb.log.info(f"Read {length} bytes from RTL memory at address 0x{start_addr:06X}")
-            return result
-            
-        except AttributeError as e:
-            cocotb.log.error(f"Cannot access RTL memory hierarchy: {e}")
-            cocotb.log.error("Memory path may be incorrect. Check module hierarchy.")
-            return None
-        except Exception as e:
-            cocotb.log.error(f"Error reading RTL memory: {e}")
-            return None
-    
-    def read_memory_from_file(self, hex_file, start_addr, length):
-        """
-        Read memory contents from hex file after RTL execution.
-        Each line in the hex file is one byte in hex format.
-        NOTE: This method is deprecated - use read_memory_from_rtl() instead.
-        """
-        try:
-            with open(hex_file, 'r') as f:
-                lines = f.readlines()
-                
-            # Convert hex strings to integers
-            memory = []
-            for line in lines:
-                line = line.strip()
-                if line:
-                    # Convert hex to signed int8
-                    val = int(line, 16)
-                    # Convert unsigned to signed if needed
-                    if val > 127:
-                        val = val - 256
-                    memory.append(val)
-                    
-            # Extract the region of interest
-            end_addr = start_addr + length
-            if end_addr > len(memory):
-                cocotb.log.error(f"Requested memory region [{start_addr}:{end_addr}] exceeds file size {len(memory)}")
-                return None
-                
-            result = np.array(memory[start_addr:end_addr], dtype=np.int8)
-            cocotb.log.info(f"Read {length} bytes from {hex_file} at address 0x{start_addr:06X}")
-            return result
-            
-        except FileNotFoundError:
-            cocotb.log.error(f"Memory file {hex_file} not found")
-            return None
-        except Exception as e:
-            cocotb.log.error(f"Error reading memory file: {e}")
-            return None
-            
-    def prepare_input(self, input_tensor, compiler_dir):
-        """
-        Prepare input data by writing it to dram.hex at the input address.
-        This mimics what main.py does.
-        """
-        # Quantize input to int8
-        dummy_input = input_tensor.to(torch.int8).numpy().squeeze().flatten()
-        
-        cocotb.log.info(f"Preparing input: shape={input_tensor.shape}, quantized_length={len(dummy_input)}")
-        
-        # Save to DRAM (this updates the global DRAM state)
-        save_input_to_dram(dummy_input, self.dram_offsets["inputs"])
-        
-        # Verify write
-        written_input = read_from_dram(self.dram_offsets["inputs"], len(dummy_input))
-        if not np.array_equal(dummy_input, written_input):
-            cocotb.log.error("Input data mismatch after writing to DRAM")
-            return False
-            
-        # Save DRAM state to hex file
-        dram_hex_path = os.path.join(compiler_dir, 'dram.hex')
-        save_dram_to_file(dram_hex_path)
-        cocotb.log.info(f"Input saved to {dram_hex_path}")
-        
-        return True
-        
-    def compare_results(self, rtl_output, golden_output, verbose=True):
-        """
-        Compare RTL and golden model outputs element-by-element.
-        Returns (match, differences, max_error)
-        """
-        if rtl_output is None or golden_output is None:
-            cocotb.log.error("Cannot compare - one or both outputs are None")
-            return False, None, None
-            
-        if len(rtl_output) != len(golden_output):
-            cocotb.log.error(f"Length mismatch: RTL={len(rtl_output)}, Golden={len(golden_output)}")
-            return False, None, None
-            
-        # Calculate differences
-        differences = rtl_output - golden_output
-        max_error = np.max(np.abs(differences))
-        num_mismatches = np.count_nonzero(differences)
-        
-        # Check for exact match
-        match = np.array_equal(rtl_output, golden_output)
-        
-        if verbose:
-            # Log comparison results
-            cocotb.log.info("\n" + "=" * 70)
-            cocotb.log.info("RESULTS COMPARISON")
-            cocotb.log.info("=" * 70)
-            cocotb.log.info(f"Output length: {len(rtl_output)} elements")
-            cocotb.log.info(f"Exact match: {match}")
-            cocotb.log.info(f"Mismatches: {num_mismatches}/{len(rtl_output)} elements")
-            cocotb.log.info(f"Max absolute error: {max_error}")
-            
-            cocotb.log.info("\nElement-by-element comparison:")
-            cocotb.log.info("-" * 70)
-            cocotb.log.info(f"{'Index':<8} {'RTL':<12} {'Golden':<12} {'Diff':<12} {'Match'}")
-            cocotb.log.info("-" * 70)
-            
-            for i in range(len(rtl_output)):
-                rtl_val = int(rtl_output[i])
-                golden_val = int(golden_output[i])
-                diff = rtl_val - golden_val
-                match_str = "✓" if diff == 0 else "✗"
-                cocotb.log.info(f"{i:<8} {rtl_val:<12} {golden_val:<12} {diff:<12} {match_str}")
-                
-            cocotb.log.info("-" * 70)
-            
-            # Print summary
-            if match:
-                cocotb.log.info("\n✅ PASS: RTL output matches golden model exactly!")
-            else:
-                cocotb.log.warning(f"\n⚠️  MISMATCH: {num_mismatches} element(s) differ (max error: {max_error})")
-                
-            cocotb.log.info("=" * 70 + "\n")
-        
-        return match, differences, max_error
-    
-    def get_prediction(self, output):
-        """Get predicted class from output vector"""
-        return np.argmax(output)
+from utils.accelerator_tester import TinyMLAcceleratorTester
 
 
 @cocotb.test()
@@ -320,7 +81,7 @@ async def test_accelerator_mnist_dataset(dut):
     model_path = "mlp_model.onnx"
     
     # Save weights/biases to DRAM
-    from dram import save_initializers_to_dram
+    from dram import save_initializers_to_dram, save_dram_to_file
     weight_map, bias_map = save_initializers_to_dram(model_path, tester.dram_offsets)
     cocotb.log.info("Weights and biases saved to DRAM")
     
@@ -328,6 +89,17 @@ async def test_accelerator_mnist_dataset(dut):
     generate_assembly(model_path, "model_assembly.asm")
     assemble_file("model_assembly.asm")
     cocotb.log.info("Assembly code generated and assembled")
+    
+    # Save DRAM to file for golden model
+    dram_hex_path = os.path.join(compiler_dir, 'dram.hex')
+    save_dram_to_file(dram_hex_path)
+    
+    # CRITICAL: Sync ALL DRAM contents (instructions, weights, biases) to RTL memories
+    # The $readmemh in RTL only runs at simulation time 0, so any changes made during
+    # the test (like generating assembly or saving weights) must be manually synced.
+    cocotb.log.info("Syncing DRAM contents to all RTL memory instances...")
+    tester.sync_dram_to_rtl()
+    cocotb.log.info("DRAM sync complete - instructions, weights, and biases loaded to RTL")
     
     # ========================================================================
     # STEP 1: Load MNIST test dataset
@@ -375,9 +147,9 @@ async def test_accelerator_mnist_dataset(dut):
         # Apply reset before each test
         await tester.reset()
         
-        # Execute RTL
+        # Execute RTL - pulse start once and wait for done (zero instruction)
         cocotb.log.info("Executing RTL...")
-        success = await tester.execute_program(max_instructions=20)
+        success = await tester.execute_all(timeout_cycles=500000)
         
         if not success:
             cocotb.log.error(f"RTL execution failed for test {test_idx}")
@@ -387,11 +159,15 @@ async def test_accelerator_mnist_dataset(dut):
         for _ in range(100):
             await RisingEdge(dut.clk)
             
-        # Read RTL results directly from simulation memory
+        # Read RTL results directly from simulation memory (STORE output)
         rtl_output = tester.read_memory_from_rtl(
             tester.output_addr,
             tester.output_length
         )
+        
+        # Also read from y[] output port for comparison
+        rtl_y_output = np.array([int(dut.y[i].value.signed_integer) for i in range(10)], dtype=np.int8)
+        cocotb.log.info(f"RTL y[] output: {rtl_y_output}")
         
         if rtl_output is None:
             cocotb.log.error(f"Failed to read RTL output for test {test_idx}")

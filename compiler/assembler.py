@@ -44,8 +44,8 @@ def assemble_line(line):
         return f"{word:016X}"
 
     elif instr == "RELU":
-        dest, x = args
-        word = (x << 10) | (dest << 5) | opcode
+        dest, x, length = args
+        word = (length << 20) | (x << 10) | (dest << 5) | opcode
         return f"{word:016X}"
 
     else:

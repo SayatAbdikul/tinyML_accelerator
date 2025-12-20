@@ -124,44 +124,46 @@ module tinyml_accelerator_top #(
     // ------------------------------------------------------------
     // Top-level FSM next-state logic
     // ------------------------------------------------------------
+    // Track if we hit a zero instruction (program end)
+    logic program_done;
+    
     always_comb begin
         t_state_n = t_state;
         fetch_en  = 1'b0;
         exec_start = 1'b0;
-        
         done = 1'b0;
+        program_done = 1'b0;
+        
         case (t_state)
             T_IDLE: begin
-                // if (start) begin
-                //     $display("Starting new instruction fetch-execute cycle");
-                // end
-                t_state_n = T_FETCH;
+                // Wait for start signal before beginning execution
+                if (start) begin
+                    t_state_n = T_FETCH;
+                end
             end
             T_FETCH: begin
                 fetch_en   = 1'b1;          // Pulse enable to begin fetch
                 t_state_n  = T_WAIT_FETCH;
-                //$display("Fetch enabled");
             end
             T_WAIT_FETCH: begin
                 if (fetch_done) begin
-                    t_state_n = T_DECODE;
-                    if(instr == '0) begin
-                        //$display("Fetched instruction is all zeros. Finishing execution.");
-                        done = 1'b1;  // Pulse done for all instructions
+                    if (instr == '0) begin
+                        // Zero instruction = program end, signal done and go to IDLE
+                        program_done = 1'b1;
+                        done = 1'b1;
+                        t_state_n = T_IDLE;
+                    end else begin
+                        t_state_n = T_DECODE;
                     end
-                    //$display("Fetch done, instruction fetched: %h", instr);
                 end
             end
             T_DECODE: begin
                 // Latch decoded fields next cycle
                 t_state_n = T_EXECUTE_START;
-                //$display("Decoding instruction: opcode=%0h, dest=%0d, length_or_cols=%0d, rows=%0d, addr=%0d, b=%0d, x=%0d, w=%0d",
-                //         d_opcode, d_dest, d_length_or_cols, d_rows, d_addr, d_b, d_x, d_w);
             end
             T_EXECUTE_START: begin
                 exec_start = 1'b1;          // One-cycle start pulse
                 t_state_n  = T_EXECUTE_WAIT;
-                //$display("Execution started");
             end
             T_EXECUTE_WAIT: begin
                 if (exec_done) begin
@@ -169,14 +171,9 @@ module tinyml_accelerator_top #(
                 end
             end
             T_DONE: begin
-                //$display("Execution done, pc is %0d", pc);
-                // if (store_instr) begin
-                //     $display("Store instruction executed");
-                // end else begin
-                //     $display("Non-store instruction executed");
-                // end
-                //done = 1'b1;                 // Pulse done for one cycle
-                t_state_n = T_IDLE;         // Ready for next instruction
+                // Instruction complete, automatically fetch next instruction
+                // (don't pulse done here - only pulse when program ends)
+                t_state_n = T_FETCH;
             end
             default: t_state_n = T_IDLE;
         endcase

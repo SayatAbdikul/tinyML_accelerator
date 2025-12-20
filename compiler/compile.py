@@ -21,6 +21,7 @@ def generate_assembly(model_path, output_file):
     relu_buf = 7 # can be 7 or 8
     input_buf = 9 # always 9 for input tensor
     tensor_buffer_map = {}
+    tensor_size_map = {}  # Track output sizes for RELU length
     asm_instructions = []
     weight_counter = 0
     bias_counter = 0
@@ -120,6 +121,8 @@ def generate_assembly(model_path, output_file):
             asm_instructions.append(f"GEMV {gemv_buf}, {weight_buf}, {input_buf}, {bias_buf}, {rows}, {cols}")
             
             tensor_buffer_map[node.output[0]] = gemv_buf
+            # Track output size for subsequent RELU
+            tensor_size_map[node.output[0]] = rows
             gemv_buf = 6 if gemv_buf == 5 else 5  # ping-pong GEMV buffer
         
         elif node.op_type == "Add":
@@ -128,8 +131,11 @@ def generate_assembly(model_path, output_file):
         
         elif node.op_type == "Relu":
             input_buf = tensor_buffer_map.get(node.input[0], "?")
-            asm_instructions.append(f"RELU {relu_buf}, {input_buf}")
+            # Get the length from the input tensor's tracked size
+            relu_length = tensor_size_map.get(node.input[0], 0)
+            asm_instructions.append(f"RELU {relu_buf}, {input_buf}, {relu_length}")
             tensor_buffer_map[node.output[0]] = relu_buf
+            tensor_size_map[node.output[0]] = relu_length  # Pass through the size
             relu_buf = 8 if relu_buf == 7 else 7  # ping-pong ReLU buffer
 
         # Handle final output storage

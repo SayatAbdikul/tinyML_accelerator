@@ -49,8 +49,9 @@ module i_decoder (
             end
 
             5'h05: begin // RELU
-                dest = instr[9:5];
-                x    = instr[14:10];
+                dest           = instr[9:5];
+                x              = instr[14:10];
+                length_or_cols = instr[29:20];  // RELU length field
             end
 
             default: begin

@@ -51,7 +51,8 @@ def i_decoder(instruction):
     elif opcode == 5: # RELU
         dest = instruction >> 5 & 0x1F
         x = instruction >> 10 & 0x1F
-        relu(dest, x)
+        length = instruction >> 20 & 0x3FF  # length is at bits 20-29 (10 bits)
+        relu(dest, x, length)
     else:
         return f"UNKNOWN_OPCODE: {opcode}"
 
@@ -102,12 +103,18 @@ def gemv(dest, w, x, b, rows, cols):
     quantized_output_scale = np.max(np.abs(buffers[dest])) / 127
     buffers[dest] = quantize_int32_to_int8(np.array(buffers[dest], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
 
-def relu(dest, x):
-    """Apply ReLU activation."""
-    buffers[dest] = [max(0, val) for val in buffers[x]]  # Apply ReLU to each element in the buffer
+def relu(dest, x, length):
+    """Apply ReLU activation to specified number of elements."""
+    buffers[dest] = [max(0, val) for val in buffers[x][:length]]  # Apply ReLU to first 'length' elements
 
 def execute_program(hex_file):
     """Execute the program from a hex file."""
+    # Clear global state for fresh execution
+    global buffers, output_buffer, flag
+    buffers = {}
+    output_buffer = 0
+    flag = 0
+    
     with open(hex_file, 'r') as file:
         lines = [line.strip() for _, line in zip(range(0x700), file)]
         instructions = [''.join(lines[i:i+8]) for i in range(0, len(lines), 8)]
