@@ -1,0 +1,56 @@
+# Cocotb Makefile for Quantization Module Testing
+
+# Simulator
+SIM ?= verilator
+
+# Toplevel RTL module
+TOPLEVEL_LANG = verilog
+TOPLEVEL = quantization
+
+# Python test module
+MODULE = test_quantization_unit
+
+# Build directory (separate from golden comparison tests)
+SIM_BUILD_DIR = sim_build_quantization
+
+# Source files
+VERILOG_SOURCES += $(shell pwd)/../../rtl/quantization.sv
+VERILOG_SOURCES += $(shell pwd)/../../rtl/quantizer_pipeline.sv
+VERILOG_SOURCES += $(shell pwd)/../../rtl/scale_calculator.sv
+VERILOG_SOURCES += $(shell pwd)/../../rtl/wallace_32x32.sv
+VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
+
+# Verilator flags
+ifeq ($(SIM),verilator)
+    EXTRA_ARGS += --trace --trace-structs
+    EXTRA_ARGS += -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND
+    EXTRA_ARGS += -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM
+    EXTRA_ARGS += -Wno-PINCONNECTEMPTY
+    COMPILE_ARGS += -Wno-WIDTHTRUNC -Wno-WIDTHEXPAND
+    COMPILE_ARGS += -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM
+endif
+
+# Include cocotb makefiles
+include $(shell cocotb-config --makefiles)/Makefile.sim
+
+# Custom targets
+.PHONY: clean_all help clean_quantization
+
+clean_quantization:
+	rm -rf sim_build_quantization
+	rm -f results_quantization.xml
+	rm -f dump_quantization.vcd
+
+clean_all: clean_quantization
+	rm -rf __pycache__
+
+help:
+	@echo "Quantization Module Test Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make              - Run the quantization tests"
+	@echo "  make clean        - Clean cocotb generated files"
+	@echo "  make clean_all    - Clean all generated files"
+	@echo "  make help         - Show this help message"
+	@echo ""
+	@echo "Run with: make"
