@@ -277,6 +277,44 @@ module modular_execution_unit #(
         
         // Route signals based on active operation
         case (state)
+            DISPATCH: begin
+                // During DISPATCH, we're about to start an operation
+                // Route signals based on opcode so the first request isn't lost
+                case (opcode)
+                    5'h01, 5'h02: begin // LOAD_V or LOAD_M about to start
+                        buf_vec_write_enable = load_vec_write_enable;
+                        buf_vec_write_buffer_id = load_vec_write_buffer_id;
+                        buf_vec_write_tile = load_vec_write_tile;
+                        buf_mat_write_enable = load_mat_write_enable;
+                        buf_mat_write_buffer_id = load_mat_write_buffer_id;
+                        buf_mat_write_tile = load_mat_write_tile;
+                    end
+                    5'h04: begin // GEMV about to start
+                        buf_vec_read_enable = gemv_vec_read_enable;
+                        buf_vec_read_buffer_id = gemv_vec_read_buffer_id;
+                        buf_mat_read_enable = gemv_mat_read_enable;
+                        buf_mat_read_buffer_id = gemv_mat_read_buffer_id;
+                        buf_vec_write_enable = gemv_vec_write_enable;
+                        buf_vec_write_buffer_id = gemv_vec_write_buffer_id;
+                        buf_vec_write_tile = gemv_vec_write_tile;
+                    end
+                    5'h05: begin // RELU about to start
+                        buf_vec_read_enable = relu_vec_read_enable;
+                        buf_vec_read_buffer_id = relu_vec_read_buffer_id;
+                        buf_vec_write_enable = relu_vec_write_enable;
+                        buf_vec_write_buffer_id = relu_vec_write_buffer_id;
+                        buf_vec_write_tile = relu_vec_write_tile;
+                    end
+                    5'h03: begin // STORE about to start
+                        buf_vec_read_enable = store_vec_read_enable;
+                        buf_vec_read_buffer_id = store_vec_read_buffer_id;
+                    end
+                    default: begin
+                        // NOP or unknown - all idle
+                    end
+                endcase
+            end
+            
             WAIT_LOAD: begin
                 // Load module has priority during load operations
                 buf_vec_write_enable = load_vec_write_enable;
