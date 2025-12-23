@@ -1,0 +1,112 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    TinyML Accelerator - Test Quick Reference                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+QUICK START
+───────────
+  cd test && ./run_all_tests.sh quick     # Recommended: Run both suites
+  cd test && ./run_all_tests.sh full      # Full validation (30-60 min)
+
+BASIC TESTS (Fast - Development)
+─────────────────────────────────
+  Location:  test/cocotb_tests/
+  Time:      ~10-30 seconds
+  Dataset:   10 images
+  
+  Commands:
+    cd test/cocotb_tests
+    make TEST_TARGET=golden_comparison run_test    # Main test
+    make TEST_TARGET=load_m run_test               # Module test
+    make TEST_TARGET=buffer_controller run_test    # Module test
+
+HEAVY TESTS (Thorough - Validation) ⭐ NEW
+────────────────────────────────────────────
+  Location:  test/heavy_test/
+  Time:      1-60 minutes (configurable)
+  Dataset:   Up to 10,000 images
+  
+  Commands:
+    cd test/heavy_test
+    make quick_test                                # 100 images (~1 min)
+    make run_test                                  # 10,000 images (~30-60 min)
+    make debug_test                                # Debug mode
+    make run_test NUM_IMAGES=500                   # Custom count
+    make run_test STOP_ON_FIRST_FAIL=1             # Stop on failure
+    make run_test VERBOSE=1                        # Verbose output
+
+WHEN TO USE WHAT
+────────────────
+  During Development:          Basic tests (fast iteration)
+  Before Git Commit:           ./run_all_tests.sh quick
+  Before Pull Request:         ./run_all_tests.sh full
+  Debugging Failures:          Heavy debug_test
+  CI/CD Per Commit:            Basic tests
+  CI/CD Nightly:               Heavy quick_test
+  Release Validation:          Heavy full run_test
+
+PASS CRITERIA
+─────────────
+  Basic Tests:   70% accuracy, ±2 error tolerance
+  Heavy Tests:   85% accuracy, exact matches required ✓
+
+CONFIGURATION OPTIONS
+─────────────────────
+  NUM_IMAGES=N           Test first N images (default: 10000)
+  STOP_ON_FIRST_FAIL=1   Stop on first mismatch (default: 0)  
+  VERBOSE=1              Enable verbose output (default: 0)
+
+DEBUGGING WORKFLOW
+──────────────────
+  1. Heavy test fails → Run: make debug_test
+  2. Find failing image index (e.g., index 42)
+  3. Run: make run_test NUM_IMAGES=43 STOP_ON_FIRST_FAIL=1 VERBOSE=1
+  4. Review detailed output and fix issue
+  5. Re-run full test to verify
+
+COMMON COMMANDS
+───────────────
+  # Quick validation during development
+  cd test/heavy_test && make quick_test
+  
+  # Full validation before release
+  cd test/heavy_test && make run_test
+  
+  # Debug specific failure
+  cd test/heavy_test && make debug_test
+  
+  # Test specific count
+  cd test/heavy_test && make run_test NUM_IMAGES=1000
+  
+  # Clean artifacts
+  cd test/heavy_test && make clean_sim
+
+DOCUMENTATION
+─────────────
+  test/TESTING.md           This quick reference + guide
+  test/TEST_GUIDE.md        Detailed comparison of test suites
+  test/heavy_test/README.md Complete heavy test documentation
+
+TROUBLESHOOTING
+───────────────
+  Timeouts:           Increase timeout, check for hangs
+  Memory Sync Fails:  Verify DRAM sync after changes
+  Output Mismatches:  Run with VERBOSE=1, check clearing
+  Slow Performance:   Test subset first (NUM_IMAGES=100)
+
+OUTPUT INTERPRETATION
+─────────────────────
+  ✓ Basic Pass + Heavy Pass    = Production Ready
+  ✓ Basic Pass + Heavy Fail     = Edge cases need fixing
+  ✗ Basic Fail                  = Fundamental RTL issue
+
+NEED HELP?
+──────────
+  1. Check test output and statistics
+  2. Run in verbose/debug mode
+  3. Review README files
+  4. Check TEST_GUIDE.md
+  5. Use VCD traces for signal debugging
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  For complete documentation, see: test/TESTING.md and test/TEST_GUIDE.md   │
+└─────────────────────────────────────────────────────────────────────────────┘
