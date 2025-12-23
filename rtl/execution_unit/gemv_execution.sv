@@ -152,8 +152,8 @@ module gemv_execution #(
                         current_element_offset <= 0;
                         state <= READ_X_TILES;
                         
-                        //$display("[GEMV_EXEC] Starting GEMV: rows=%0d, cols=%0d", rows, cols);
-                        //$display("[GEMV_EXEC] Reading x from buffer %0d", x_buffer_id);
+                        // $display("[GEMV_EXEC] Starting GEMV: rows=%0d, cols=%0d", rows, cols);
+                        // $display("[GEMV_EXEC] Reading x from buffer %0d", x_buffer_id);
                     end
                 end
                 
@@ -173,10 +173,10 @@ module gemv_execution #(
                         tile_read_count <= tile_read_count + 1;
                         current_element_offset <= current_element_offset + 10'd32;
                         
-                        //$display("[GEMV_EXEC] Read x tile %0d/%0d, data[0:7]=%d,%d,%d,%d,%d,%d,%d,%d", 
-                                //  tile_read_count + 1, total_tiles_needed,
-                                //  vec_read_tile[0], vec_read_tile[1], vec_read_tile[2], vec_read_tile[3],
-                                //  vec_read_tile[4], vec_read_tile[5], vec_read_tile[6], vec_read_tile[7]);
+                        // $display("[GEMV_EXEC] Read x tile %0d/%0d, data[0:7]=%d,%d,%d,%d,%d,%d,%d,%d", 
+                        //           tile_read_count + 1, total_tiles_needed,
+                        //           vec_read_tile[0], vec_read_tile[1], vec_read_tile[2], vec_read_tile[3],
+                        //           vec_read_tile[4], vec_read_tile[5], vec_read_tile[6], vec_read_tile[7]);
                         
                         if (tile_read_count + 1 >= total_tiles_needed) begin
                             // Done reading x, start reading bias
@@ -210,7 +210,10 @@ module gemv_execution #(
                         tile_read_count <= tile_read_count + 1;
                         current_element_offset <= current_element_offset + 10'd32;
                         
-                        //$display("[GEMV_EXEC] Read bias tile %0d/%0d", tile_read_count + 1, total_tiles_needed);
+                        // $display("[GEMV_EXEC] Read bias tile %0d/%0d, data[0:7]=%d,%d,%d,%d,%d,%d,%d,%d", 
+                        //          tile_read_count + 1, total_tiles_needed,
+                        //          vec_read_tile[0], vec_read_tile[1], vec_read_tile[2], vec_read_tile[3],
+                        //          vec_read_tile[4], vec_read_tile[5], vec_read_tile[6], vec_read_tile[7]);
                         
                         if (tile_read_count + 1 >= total_tiles_needed) begin
                             // Done reading bias, start GEMV computation
@@ -255,9 +258,10 @@ module gemv_execution #(
                     
                     // When GEMV completes, copy results and prepare to write back
                     if (gemv_done) begin
-                        //$display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:9]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
-                        //         y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
-                        //         y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9]);
+                        // $display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:11]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
+                        //          y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
+                        //          y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9],
+                        //          y_gemv[10], y_gemv[11]);
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             gemv_result[i] <= y_gemv[i];
                             result[i] <= y_gemv[i];  // Also expose via result output

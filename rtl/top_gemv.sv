@@ -195,6 +195,10 @@ module top_gemv #(
                             w_latched[i] <= w_tile_row_in[i];
                         end
                         w_ready <= 0;
+                        // $display("[TOP_GEMV] Row %0d, Tile %0d: w_tile[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
+                        //          row_idx, tile_idx,
+                        //          w_tile_row_in[0], w_tile_row_in[1], w_tile_row_in[2], w_tile_row_in[3],
+                        //          w_tile_row_in[4], w_tile_row_in[5], w_tile_row_in[6], w_tile_row_in[7]);
                     end
                 end
 
@@ -239,6 +243,9 @@ module top_gemv #(
                             res[j] <= '0; // Zero padding for unused rows
                         end
                     end
+                    // $display("[TOP_GEMV] Before bias: res[0:11]=%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d",
+                    //          res[0], res[1], res[2], res[3], res[4], res[5],
+                    //          res[6], res[7], res[8], res[9], res[10], res[11]);
                     max_idx <= 0;
                     max_abs_reg <= 0;
                 end
@@ -289,7 +296,7 @@ module top_gemv #(
                 DONE: begin
                     tile_done <= 0;
                     done <= 1;
-                    $display("hardware results are: ");
+                    // $display("hardware results are: ");
                     // for (int j = 0; j < rows; j++) begin
                     //     $display("y[%0d] = %0d", j, res[j]);
                     // end

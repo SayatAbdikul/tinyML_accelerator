@@ -128,8 +128,8 @@ module gemv #(parameter DATA_WIDTH = 8, parameter ROWS = 128, parameter COLUMNS 
                 FIND_MAX: begin
                     // Compare and update max value
                     if (current_abs > max_abs_reg) begin
-                        $display("current_abs is %d", $signed(current_abs));
-                        $display("and the res value for it is %d", res[max_idx]);
+                        // $display("current_abs is %d", $signed(current_abs));
+                        // $display("and the res value for it is %d", res[max_idx]);
                         max_abs_reg <= current_abs;
                     end
                     

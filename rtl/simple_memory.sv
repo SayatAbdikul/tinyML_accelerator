@@ -19,7 +19,7 @@ logic [DATA_WIDTH-1:0] memory [0:MEM_DEPTH-1] /*verilator public_flat*/;
 
 // Initialize memory from hex file
 initial begin
-    $display("Initializing memory from %s", HEX_FILE);
+    // $display("Initializing memory from %s", HEX_FILE);
     $readmemh(HEX_FILE, memory);
 end
 

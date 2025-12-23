@@ -282,8 +282,8 @@ module execution_unit #(
             case (state)
                 IDLE: begin
                     if (start) begin
-                        $display("length_or_cols is %0d and length_or_cols*DATA_WIDTH is %0d", length_or_cols, length_or_cols*DATA_WIDTH);
-                        $display("opcode is %0h", opcode);
+                        // $display("length_or_cols is %0d and length_or_cols*DATA_WIDTH is %0d", length_or_cols, length_or_cols*DATA_WIDTH);
+                        // $display("opcode is %0h", opcode);
                         //nonzero_load_v <= 0;
                         case (opcode)
                             5'h00: begin // NOP
@@ -460,11 +460,11 @@ module execution_unit #(
                         //     end
                         // end
 
-                        $display("GEMV done, copying results.");
+                        // $display("GEMV done, copying results.");
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             result[i] <= y_gemv[i];
                             if (y_gemv[i] != 0) begin
-                                $display("non-zero result[%0d] = %0d", i, y_gemv[i]);
+                                // $display("non-zero result[%0d] = %0d", i, y_gemv[i]);
                             end
                         end
 
@@ -487,10 +487,10 @@ module execution_unit #(
                             result[int'(current_element_offset) + i] <= relu_out[i];
                             
                             if (vector_buffer_read_data[i] != 0) begin
-                                $display("ReLU input[%0d] = %0d, output = %0d", 
-                                        current_element_offset + i, 
-                                        vector_buffer_read_data[i],
-                                        relu_out[i]);
+                                // $display("ReLU input[%0d] = %0d, output = %0d", 
+                                //         current_element_offset + i, 
+                                //         vector_buffer_read_data[i],
+                                //         relu_out[i]);
                             end
                         end
                     end
