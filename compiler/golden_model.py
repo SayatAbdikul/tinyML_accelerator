@@ -72,9 +72,9 @@ def load_m(dest, addr, rows, cols):
 
 def store(buf_id, addr, length):
     """Store buffer to memory."""
-    output_length = length
-    quantized_output_scale = np.max(np.abs(buffers[buf_id])) / 127
-    buffers[buf_id] = quantize_int32_to_int8(np.array(buffers[buf_id], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
+    # output_length = length
+    # quantized_output_scale = np.max(np.abs(buffers[buf_id])) / 127
+    # buffers[buf_id] = quantize_int32_to_int8(np.array(buffers[buf_id], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
     # print(f"STORE: buf_id={buf_id}, addr={addr:#010x}, length={length}, output_length={output_length}")
     for i in range(length):
         memory[addr + i] = buffers[buf_id][i]  # Extract byte from buffer
