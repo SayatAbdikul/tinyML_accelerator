@@ -77,6 +77,7 @@ module load_execution #(
     
     // Load_m module instantiation
     // Loads matrix data from memory and outputs tiles
+    // Now row-aware: stores each row aligned to tile boundaries
     load_m #(
         .TILE_WIDTH(TILE_WIDTH)
     ) load_m_inst (
@@ -84,7 +85,8 @@ module load_execution #(
         .rst(rst),
         .valid_in(load_m_start),
         .dram_addr(addr),
-        .length(rows * length_or_cols),
+        .rows(rows),
+        .cols(length_or_cols),
         .data_out(load_m_tile),
         .tile_out(load_m_tile_ready),
         .valid_out(load_m_done)

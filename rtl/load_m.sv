@@ -7,16 +7,17 @@ module load_m #(
     input logic rst,
     input logic valid_in,
     input logic [23:0] dram_addr,
-    input logic [19:0] length,  // number of values
+    input logic [9:0] rows,       // number of rows (for row-aware padding)
+    input logic [9:0] cols,       // number of columns per row
     output logic [TILE_WIDTH-1:0] data_out,
     output logic tile_out,
     output logic valid_out
 );
 
-    localparam NUM_BYTES = TILE_WIDTH / 8;
-    logic [25:0] length_cnt;
+    localparam NUM_BYTES = TILE_WIDTH / 8;  // 32 bytes per tile
     logic [7:0] mem_data_out;
     logic [23:0] mem_addr;
+    logic [23:0] base_addr;  // Start address of current row in memory
 
     simple_memory #(
         .ADDR_WIDTH(24),
@@ -30,90 +31,114 @@ module load_m #(
         .dump(1'b0)
     );
 
-    logic [$clog2(NUM_BYTES)-1:0] byte_cnt;
+    logic [$clog2(NUM_BYTES)-1:0] byte_cnt;       // Byte position within current tile (0-31)
     logic [TILE_WIDTH-1:0] tile;
+    logic [9:0] current_row;                       // Current row being processed
+    logic [9:0] col_in_row;                        // Current column position within row
+    logic [9:0] tile_in_row;                       // Current tile within row
+    logic [9:0] tiles_per_row;                     // Number of tiles per row (with padding)
 
-    enum logic [2:0] {IDLE, INIT_READING, READING, NEXT_TILE, DONE} state;
+    enum logic [2:0] {IDLE, INIT_READING, READING, NEXT_TILE, NEXT_ROW, DONE} state;
 
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             state <= IDLE;
             byte_cnt <= '0;
             mem_addr <= '0;
+            base_addr <= '0;
             tile <= '0;
             valid_out <= 0;
             tile_out <= 0;
-            length_cnt <= 0;
-            $display("Resetting load_m module");
+            current_row <= 0;
+            col_in_row <= 0;
+            tile_in_row <= 0;
+            tiles_per_row <= 0;
+            // $display("Resetting load_m module");
         end else begin
             tile_out <= 0;
-            // Only clear valid_out when starting a new operation
+            
             case (state)
                 IDLE: begin
                     byte_cnt <= '0;
-                    valid_out <= 0; // Ensure valid_out is low in IDLE
+                    valid_out <= 0;
                     if (valid_in) begin
-                        mem_addr   <= dram_addr;  // Present first address
-                        length_cnt <= 0;          // Start of transfer
-                        state      <= INIT_READING; // Prime 1 cycle for sync read
-                        // $display("[LOAD_M] Starting: length=%0d elements (%0d bits), addr=0x%h", 
-                        //          length, length * DATA_WIDTH, dram_addr);
+                        mem_addr <= dram_addr;
+                        base_addr <= dram_addr;
+                        current_row <= 0;
+                        col_in_row <= 0;
+                        tile_in_row <= 0;
+                        tiles_per_row <= (cols + 10'd31) / 10'd32;  // Ceiling division
+                        state <= INIT_READING;
+                        // $display("[LOAD_M] Starting: rows=%0d, cols=%0d, tiles_per_row=%0d, addr=0x%h", 
+                        //          rows, cols, (cols + 10'd31) / 10'd32, dram_addr);
                     end
                 end
 
-                // New priming state to account for 1-cycle read latency
                 INIT_READING: begin
-                    // After this cycle, mem_data_out matches current mem_addr
+                    // Prime 1 cycle for sync read
                     state <= READING;
                     mem_addr <= mem_addr + 1;
                 end
 
                 READING: begin
-                    // Capture the data for the address presented in the previous cycle
-                    if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
-                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= mem_data_out;
-                        //$display("length_cnt + byte_cnt*8 = %0d, length = %0d", length_cnt + byte_cnt*8, length);
-                        //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
+                    // Capture data - only if within valid column range for this row
+                    if (col_in_row < cols) begin
+                        tile[int'(byte_cnt)*8 +: 8] <= mem_data_out;
+                    end else begin
+                        tile[int'(byte_cnt)*8 +: 8] <= '0;  // Padding zeros
                     end
-                    else begin
-                        tile[((NUM_BYTES-1) - int'(byte_cnt))*8 +: 8] <= '0; // Fill with zeros if out of range
-                        //$display("Out of range read at addr = %h, filling with zeros", mem_addr - 1);
-                    end
-                    //$display("Captured %h from addr = %h", mem_data_out, mem_addr - 1);
+                    
+                    col_in_row <= col_in_row + 1;
 
-
-                    // End-of-tile check (NUM_BYTES captures: 0..NUM_BYTES-1)
+                    // End-of-tile check
                     if (int'(byte_cnt) == NUM_BYTES-1) begin
                         state <= NEXT_TILE;
                     end else begin
                         byte_cnt <= byte_cnt + 1;
-                        mem_addr <= mem_addr + 1;
+                        // Only advance mem_addr if we're reading valid data
+                        if (col_in_row + 1 < cols) begin
+                            mem_addr <= mem_addr + 1;
+                        end
                     end
                 end
 
                 NEXT_TILE: begin
-                    // $display("[LOAD_M] Tile complete. length_cnt=%0d, total=%0d bits", 
-                    //          length_cnt + TILE_WIDTH, length * DATA_WIDTH);
                     tile_out <= 1;
-                    length_cnt <= length_cnt + TILE_WIDTH;
+                    tile_in_row <= tile_in_row + 1;
+                    byte_cnt <= '0;
 
-                    // If more full tiles remain, re-prime before next capture
-                    if (length_cnt + TILE_WIDTH < length * DATA_WIDTH) begin
-                        state    <= INIT_READING; // prime for the next tile
-                        byte_cnt <= '0;           // reset for new tile
-                        // mem_addr already points to the next byte to read
+                    // Check if this row is done
+                    if (tile_in_row + 1 >= tiles_per_row) begin
+                        // Move to next row
+                        state <= NEXT_ROW;
                     end else begin
-                        //$display("[LOAD_M] All tiles complete, going to DONE");
+                        // More tiles in this row
+                        state <= INIT_READING;
+                    end
+                end
+
+                NEXT_ROW: begin
+                    current_row <= current_row + 1;
+                    
+                    if (current_row + 1 >= rows) begin
+                        // All rows complete
                         state <= DONE;
-                        valid_out <= 1; // Assert completion signal
+                        valid_out <= 1;
+                        // $display("[LOAD_M] All rows complete");
+                    end else begin
+                        // Start next row: update base_addr to point to next row in memory
+                        base_addr <= base_addr + cols;
+                        mem_addr <= base_addr + cols;
+                        col_in_row <= 0;
+                        tile_in_row <= 0;
+                        state <= INIT_READING;
                     end
                 end
 
                 DONE: begin
-                    // Keep valid_out high until acknowledged
-                    // This ensures the execution unit can see the completion
                     state <= IDLE;
                 end
+                
                 default: state <= IDLE;
             endcase
         end

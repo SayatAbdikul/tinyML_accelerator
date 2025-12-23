@@ -61,7 +61,7 @@ module load_v #(
             valid_out <= 0;
             tile_out  <= 0;
             length_cnt <= 0;
-            $display("Resetting load_v module");
+            // $display("Resetting load_v module");
         end else begin
             valid_out <= 0;
             tile_out  <= 0;

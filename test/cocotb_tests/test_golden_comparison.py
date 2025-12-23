@@ -122,7 +122,7 @@ async def test_accelerator_mnist_dataset(dut):
     # ========================================================================
     # STEP 2: Test on subset of images
     # ========================================================================
-    num_tests = 10  # Test first 10 images for faster verification
+    num_tests = 20  # Test first 10 images for faster verification
     cocotb.log.info(f"\nTesting on first {num_tests} images...")
     
     rtl_correct = 0
@@ -192,7 +192,7 @@ async def test_accelerator_mnist_dataset(dut):
         # Check accuracy
         rtl_match = (rtl_pred == label)
         golden_match = (golden_pred == label)
-        outputs_match = match or (max_error is not None and max_error <= 2)
+        outputs_match = match or (max_error is not None and max_error <= 0)
         
         if rtl_match:
             rtl_correct += 1

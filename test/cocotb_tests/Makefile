@@ -6,7 +6,7 @@ SIM ?= verilator
 
 # Test target selection - MUST be set before any includes
 TEST_TARGET ?= full_accelerator
-# Options: full_accelerator, top_gemv
+# Options: full_accelerator, top_gemv, execution_unit, load_v, load_m
 
 # Export for nested makes
 export TEST_TARGET
@@ -14,6 +14,21 @@ export TEST_TARGET
 ifeq ($(TEST_TARGET),top_gemv)
     TOPLEVEL = top_gemv
     MODULE = test_top_gemv
+else ifeq ($(TEST_TARGET),execution_unit)
+    TOPLEVEL = modular_execution_unit
+    MODULE = test_execution_unit
+else ifeq ($(TEST_TARGET),load_v)
+    TOPLEVEL = load_v
+    MODULE = test_load_v
+else ifeq ($(TEST_TARGET),load_m)
+    TOPLEVEL = load_m
+    MODULE = test_load_m
+else ifeq ($(TEST_TARGET),gemv_execution)
+    TOPLEVEL = gemv_execution
+    MODULE = test_gemv_execution
+else ifeq ($(TEST_TARGET),buffer_controller)
+    TOPLEVEL = buffer_controller
+    MODULE = test_buffer_controller
 else
     # Default: full_accelerator
     TOPLEVEL = tinyml_accelerator_top
@@ -35,6 +50,50 @@ ifeq ($(TEST_TARGET),top_gemv)
     # For top_gemv testbench, include only necessary supporting modules
     VERILOG_SOURCES += $(shell pwd)/../../rtl/top_gemv.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/pe.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/quantization.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/scale_calculator.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/quantizer_pipeline.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/wallace_32x32.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
+else ifeq ($(TEST_TARGET),load_v)
+    # For load_v testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/load_v.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/simple_memory.sv
+else ifeq ($(TEST_TARGET),load_m)
+    # For load_m testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/load_m.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/simple_memory.sv
+else ifeq ($(TEST_TARGET),gemv_execution)
+    # For gemv_execution testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/gemv_execution.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/top_gemv.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/pe.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/quantization.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/scale_calculator.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/quantizer_pipeline.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/wallace_32x32.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
+else ifeq ($(TEST_TARGET),buffer_controller)
+    # For buffer_controller testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/buffer_controller.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/buffer_file.sv
+else ifeq ($(TEST_TARGET),execution_unit)
+    # For execution unit testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/modular_execution_unit.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/buffer_controller.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/load_execution.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/gemv_execution.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/relu_execution.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/store_execution.sv
+    # Memory + helpers used by load_v/load_m/store
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/simple_memory.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/buffer_file.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/load_v.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/load_m.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/store.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/top_gemv.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/pe.sv
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/relu.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/quantization.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/scale_calculator.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/quantizer_pipeline.sv
@@ -121,12 +180,14 @@ help:
 	@echo "Test Targets (TEST_TARGET variable):"
 	@echo "  TEST_TARGET=full_accelerator  - Test complete accelerator (default)"
 	@echo "  TEST_TARGET=top_gemv          - Test top_gemv module only"
+	@echo "  TEST_TARGET=execution_unit    - Test execution unit module (NEW)"
 	@echo ""
 	@echo "Simulators (SIM variable):"
 	@echo "  SIM=verilator     - Use Verilator (default)"
 	@echo "  SIM=icarus        - Use Icarus Verilog"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make run_test                              - Run complete accelerator test"
-	@echo "  make TEST_TARGET=top_gemv run_test         - Run top_gemv test"
-	@echo "  make SIM=verilator TEST_TARGET=top_gemv    - Run top_gemv with Verilator"
+	@echo "  make run_test                                   - Run complete accelerator test"
+	@echo "  make TEST_TARGET=top_gemv run_test              - Run top_gemv test"
+	@echo "  make TEST_TARGET=execution_unit run_test        - Run execution unit test"
+	@echo "  make SIM=verilator TEST_TARGET=top_gemv         - Run top_gemv with Verilator"
