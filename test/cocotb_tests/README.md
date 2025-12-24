@@ -68,20 +68,29 @@ make              # runs the testbench
 
 ## Test Files
 
-- `test_golden_comparison.py` — main testbench with:
+`test_golden_comparison.py` — main testbench with:
   - `test_accelerator_mnist_dataset` (end-to-end, MNIST subset)
   - `test_single_instruction_load_v` (sanity)
   - `test_reset_behavior` (reset check)
 
-- **`test_top_gemv.py` (NEW)** — isolated GEMV module testbench with:
+- **`test_top_gemv.py`** — isolated GEMV module testbench with:
   - `test_top_gemv_small` (4×8 matrix, quick validation)
   - `test_top_gemv_medium` (16×32 matrix, scalability check)
   - `test_top_gemv_with_quantization_check` (2×4 fixed values, detailed verification)
   - Includes Python `GoldenGEMV` reference implementation
   - Validates quantization behavior matching RTL
 
+- **`test_execution_unit.py` (NEW)** — modular execution unit testbench with:
+   - `test_neural_network_complete` (full 784→12→32→10 network)
+   - `test_single_load_v` (single LOAD_V instruction)
+   - `test_single_gemv` (single GEMV operation)
+   - Uses golden_model.py functions for verification
+   - Tests complete neural network execution sequence from model_assembly.asm
+
 - `Makefile` — cocotb + Verilator build; `make run_test` prepares and runs.
-  - Now supports `TEST_TARGET=top_gemv` for isolated testing
+   - Now supports `TEST_TARGET=top_gemv` for isolated GEMV testing
+   - Now supports `TEST_TARGET=execution_unit` for execution unit testing
+   - `make TEST_TARGET=execution_unit run_test` runs execution unit tests
   - `make TEST_TARGET=top_gemv run_test` runs only GEMV tests
   - Default: full accelerator testbench
 
