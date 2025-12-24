@@ -1,0 +1,103 @@
+// GEMV Pipeline Architecture
+// Use: dot -Tpng gemv_pipeline.dot -o gemv_pipeline.png
+
+digraph GEMV_Pipeline {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled"];
+    
+    subgraph cluster_gemv {
+        label="top_gemv Module";
+        style=filled;
+        fillcolor=lightgray;
+        
+        // Inputs
+        subgraph cluster_inputs {
+            label="Inputs";
+            style=filled;
+            fillcolor=white;
+            rank=same;
+            
+            w_in [label="w_tile[32]\n(weight tile)", shape=parallelogram, fillcolor=lightyellow];
+            x_in [label="x[1024]\n(input vector)", shape=parallelogram, fillcolor=lightyellow];
+            b_in [label="bias[1024]\n(bias vector)", shape=parallelogram, fillcolor=lightyellow];
+            dims [label="rows, cols\n(dimensions)", shape=parallelogram, fillcolor=lightyellow];
+        }
+        
+        // PE Array
+        subgraph cluster_pe_array {
+            label="Processing Element Array";
+            style=filled;
+            fillcolor=lightblue;
+            
+            pe_0 [label="PE[0]\nw[0]×x[c+0]", fillcolor=lightgreen];
+            pe_1 [label="PE[1]\nw[1]×x[c+1]", fillcolor=lightgreen];
+            pe_dot [label="...", shape=plaintext];
+            pe_31 [label="PE[31]\nw[31]×x[c+31]", fillcolor=lightgreen];
+            
+            pe_0 -> pe_dot [style=invis];
+            pe_dot -> pe_31 [style=invis];
+        }
+        
+        // Accumulation
+        acc [label="Accumulation Tree\nΣ(PE outputs)\nAccumulate across tiles\nres[row] += tile_sum", 
+             fillcolor=lightcyan];
+        
+        // Bias addition
+        bias_add [label="Bias Addition\nres[row] += bias[row]\n(after all tiles)", 
+                  fillcolor=lightpink];
+        
+        // Quantization stages
+        subgraph cluster_quant {
+            label="Quantization Pipeline";
+            style=filled;
+            fillcolor=lightyellow;
+            
+            find_max [label="Stage 1:\nFind Max Absolute\nmax_abs = max(|res[i]|)", 
+                      fillcolor=white];
+            calc_scale [label="Stage 2:\nCompute Scale\nscale = 127 / max_abs\n(Q8.24 format)", 
+                        fillcolor=white];
+            quantize [label="Stage 3:\nQuantize Elements\ny[i] = sat(res[i] / scale)\n[-128, 127]", 
+                      fillcolor=white];
+            
+            find_max -> calc_scale;
+            calc_scale -> quantize;
+        }
+        
+        // FSM control
+        control [label="FSM Control\nIDLE → WAIT_TILE →\nACCUMULATE → BIAS →\nFIND_MAX → COMPUTE_SCALE →\nQUANTIZE → DONE", 
+                 shape=hexagon, fillcolor=orange];
+        
+        // Output
+        y_out [label="Output\ny[1024]\n(8-bit quantized)", 
+               shape=parallelogram, fillcolor=lightgreen];
+        
+        // Data flow
+        w_in -> pe_0;
+        w_in -> pe_1;
+        w_in -> pe_31;
+        x_in -> pe_0;
+        x_in -> pe_1;
+        x_in -> pe_31;
+        
+        pe_0 -> acc;
+        pe_1 -> acc;
+        pe_31 -> acc;
+        
+        acc -> bias_add;
+        b_in -> bias_add;
+        
+        bias_add -> find_max;
+        quantize -> y_out;
+        
+        dims -> control;
+        control -> pe_0 [label="tile_ready", style=dashed];
+        control -> acc [label="row_done", style=dashed];
+        control -> find_max [label="all_rows_done", style=dashed];
+    }
+    
+    // Tile processing note
+    note [label="Tile Processing:\n\n1. For each row:\n   a. For each tile (cols/32):\n      - Load w_tile\n      - Compute PE array\n      - Accumulate\n   b. Add bias\n\n2. After all rows:\n   - Find max_abs\n   - Compute scale\n   - Quantize all outputs", 
+          shape=note, fillcolor=lightyellow];
+    
+    note -> control [style=invis];
+}

@@ -1,0 +1,87 @@
+// FSM State Diagrams
+// Use: dot -Tpng fsm_states.dot -o fsm_states.png
+
+digraph FSM_States {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled"];
+    
+    // Top-level FSM
+    subgraph cluster_top_fsm {
+        label="Top-Level FSM (tinyml_accelerator_top)";
+        style=filled;
+        fillcolor=lightgray;
+        
+        t_idle [label="T_IDLE", fillcolor=lightgreen, shape=ellipse];
+        t_fetch [label="T_FETCH\nfetch_en=1", fillcolor=lightyellow];
+        t_wait_fetch [label="T_WAIT_FETCH\nWait for\nfetch_done", fillcolor=lightyellow];
+        t_decode [label="T_DECODE\nLatch instruction\nfields", fillcolor=lightblue];
+        t_exec_start [label="T_EXECUTE_START\nexec_start=1", fillcolor=lightpink];
+        t_exec_wait [label="T_EXECUTE_WAIT\nWait for\nexec_done", fillcolor=lightpink];
+        t_done [label="T_DONE\ndone=1 pulse\nCheck zero instr", fillcolor=lightgreen, shape=ellipse];
+        
+        t_idle -> t_fetch [label="start=1"];
+        t_fetch -> t_wait_fetch;
+        t_wait_fetch -> t_decode [label="fetch_done"];
+        t_decode -> t_exec_start;
+        t_exec_start -> t_exec_wait;
+        t_exec_wait -> t_done [label="exec_done"];
+        t_done -> t_idle [label="instr=0 or\nready for next"];
+        t_done -> t_fetch [label="instr≠0\ncontinue"];
+    }
+    
+    // Execution Unit FSM
+    subgraph cluster_exec_fsm {
+        label="Execution Unit FSM (modular_execution_unit)";
+        style=filled;
+        fillcolor=lightcyan;
+        
+        e_idle [label="IDLE", fillcolor=lightgreen, shape=ellipse];
+        e_dispatch [label="DISPATCH\nDecode opcode", fillcolor=lightyellow];
+        e_wait_load [label="WAIT_LOAD", fillcolor=lightblue];
+        e_wait_gemv [label="WAIT_GEMV", fillcolor=lightpink];
+        e_wait_relu [label="WAIT_RELU", fillcolor=orange];
+        e_wait_store [label="WAIT_STORE", fillcolor=yellow];
+        e_complete [label="COMPLETE\ndone=1", fillcolor=lightgreen, shape=ellipse];
+        
+        e_idle -> e_dispatch [label="start=1"];
+        e_dispatch -> e_wait_load [label="opcode=1\n(LOAD_V)"];
+        e_dispatch -> e_wait_load [label="opcode=2\n(LOAD_M)"];
+        e_dispatch -> e_wait_gemv [label="opcode=4\n(GEMV)"];
+        e_dispatch -> e_wait_relu [label="opcode=5\n(RELU)"];
+        e_dispatch -> e_wait_store [label="opcode=3\n(STORE)"];
+        
+        e_wait_load -> e_complete [label="load_done"];
+        e_wait_gemv -> e_complete [label="gemv_done"];
+        e_wait_relu -> e_complete [label="relu_done"];
+        e_wait_store -> e_complete [label="store_done"];
+        
+        e_complete -> e_idle;
+    }
+    
+    // GEMV FSM (simplified)
+    subgraph cluster_gemv_fsm {
+        label="GEMV FSM (top_gemv) - Simplified";
+        style=filled;
+        fillcolor=lightpink;
+        
+        g_idle [label="IDLE", fillcolor=lightgreen, shape=ellipse];
+        g_wait_tile [label="WAIT_TILE\nLoad w_tile", fillcolor=lightyellow];
+        g_accumulate [label="ACCUMULATE\nPE array\n+= tile_sum", fillcolor=lightblue];
+        g_bias [label="BIAS\n+= bias[row]", fillcolor=lightcyan];
+        g_find_max [label="FIND_MAX\nmax_abs", fillcolor=orange];
+        g_calc_scale [label="COMPUTE_SCALE\nscale = 127/max", fillcolor=orange];
+        g_quantize [label="QUANTIZE\nApply scale", fillcolor=orange];
+        g_done [label="DONE", fillcolor=lightgreen, shape=ellipse];
+        
+        g_idle -> g_wait_tile [label="start"];
+        g_wait_tile -> g_accumulate [label="w_valid"];
+        g_accumulate -> g_wait_tile [label="more tiles\nin row"];
+        g_accumulate -> g_bias [label="row done"];
+        g_bias -> g_wait_tile [label="more rows"];
+        g_bias -> g_find_max [label="all rows done"];
+        g_find_max -> g_calc_scale;
+        g_calc_scale -> g_quantize [label="scale_ready"];
+        g_quantize -> g_done [label="all quantized"];
+        g_done -> g_idle;
+    }
+}

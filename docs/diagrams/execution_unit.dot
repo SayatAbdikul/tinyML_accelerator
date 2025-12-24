@@ -1,0 +1,82 @@
+// Execution Unit Detailed Architecture
+// Use: dot -Tpng execution_unit.dot -o execution_unit.png
+
+digraph Execution_Unit {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled"];
+    
+    subgraph cluster_exec {
+        label="modular_execution_unit";
+        style=filled;
+        fillcolor=lightgray;
+        
+        // Control interface
+        subgraph cluster_control {
+            label="Control Interface";
+            style=filled;
+            fillcolor=white;
+            
+            ctrl_in [label="Inputs:\nstart, opcode\ndest, length_or_cols\nrows, addr\nb_id, x_id, w_id", 
+                     shape=note, fillcolor=lightyellow];
+            ctrl_out [label="Outputs:\nresult[0:1023]\ndone", 
+                      shape=note, fillcolor=lightgreen];
+        }
+        
+        // Main FSM
+        fsm [label="Main FSM\nIDLE → DISPATCH →\nWAIT_* → COMPLETE", 
+             shape=hexagon, fillcolor=orange];
+        
+        // Buffer Controller
+        subgraph cluster_buffers {
+            label="buffer_controller";
+            style=filled;
+            fillcolor=lightcyan;
+            
+            buf_vec [label="Vector Buffer File\n32 buffers × 1024 elem\nTile: 32 elements", 
+                     shape=folder, fillcolor=white];
+            buf_mat [label="Matrix Buffer File\n32 buffers × variable\nTile: 256 bits", 
+                     shape=folder, fillcolor=white];
+        }
+        
+        // Execution modules
+        subgraph cluster_operations {
+            label="Execution Modules";
+            style=filled;
+            fillcolor=white;
+            
+            load [label="Load Execution\n- LOAD_V\n- LOAD_M", fillcolor=lightblue];
+            gemv [label="GEMV Execution\n- Matrix-Vector Mult\n- 32 PEs\n- Quantization", 
+                  fillcolor=lightpink];
+            relu [label="ReLU Execution\n- Activation\n- Element-wise", fillcolor=lightgreen];
+            store [label="Store Execution\n- Buffer → DRAM", fillcolor=lightyellow];
+        }
+        
+        // Data flow
+        ctrl_in -> fsm;
+        fsm -> load [label="opcode=1,2"];
+        fsm -> gemv [label="opcode=4"];
+        fsm -> relu [label="opcode=5"];
+        fsm -> store [label="opcode=3"];
+        
+        load -> buf_vec [label="write tiles", style=bold];
+        load -> buf_mat [label="write tiles", style=bold];
+        
+        buf_vec -> gemv [label="read", style=dashed];
+        buf_mat -> gemv [label="read", style=dashed];
+        gemv -> buf_vec [label="write results", style=bold];
+        
+        buf_vec -> relu [label="read", style=dashed];
+        relu -> buf_vec [label="write results", style=bold];
+        
+        buf_vec -> store [label="read", style=dashed];
+        
+        gemv -> ctrl_out [label="result[]"];
+        fsm -> ctrl_out [label="done"];
+    }
+    
+    // External memory
+    dram [label="DRAM\n(4 memory instances)", shape=cylinder, fillcolor=lightgray];
+    
+    load -> dram [label="read", style=dashed, dir=back];
+    store -> dram [label="write", style=bold];
+}
