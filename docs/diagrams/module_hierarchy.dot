@@ -6,56 +6,56 @@ digraph Module_Hierarchy {
     node [shape=box, style="rounded,filled"];
     
     // Top level
-    top [label="tinyml_accelerator_top\n(220 lines)", fillcolor=lightblue];
+    top [label="tinyml_accelerator_top\n(219 lines)", fillcolor=lightblue];
     
     // Level 1
-    fetch [label="fetch_unit\n(97 lines)", fillcolor=lightyellow];
-    decoder [label="i_decoder\n(46 lines)", fillcolor=lightyellow];
-    exec [label="modular_execution_unit\n(482 lines)", fillcolor=lightpink];
+    fetch [label="fetch_unit\n(96 lines)", fillcolor=lightyellow];
+    decoder [label="i_decoder\n(63 lines)", fillcolor=lightyellow];
+    exec [label="modular_execution_unit\n(481 lines)", fillcolor=lightpink];
     
     // Level 2 - Fetch
     mem_fetch [label="simple_memory\n(Instructions)", fillcolor=lightgray, shape=cylinder];
     
     // Level 2 - Execution
-    buf_ctrl [label="buffer_controller\n(~200 lines)", fillcolor=lightcyan];
-    load_exec [label="load_execution\n(~200 lines)", fillcolor=lightcyan];
-    gemv_exec [label="gemv_execution\n(~200 lines)", fillcolor=lightcyan];
-    relu_exec [label="relu_execution\n(~150 lines)", fillcolor=lightcyan];
-    store_exec [label="store_execution\n(~150 lines)", fillcolor=lightcyan];
+    buf_ctrl [label="buffer_controller\n(189 lines)", fillcolor=lightcyan];
+    load_exec [label="load_execution\n(206 lines)", fillcolor=lightcyan];
+    gemv_exec [label="gemv_execution\n(331 lines)", fillcolor=lightcyan];
+    relu_exec [label="relu_execution\n(183 lines)", fillcolor=lightcyan];
+    store_exec [label="store_execution\n(115 lines)", fillcolor=lightcyan];
     
     // Level 3 - Buffer Controller
-    buf_vec [label="buffer_file\n(Vector Buffers)\n(113 lines)", fillcolor=white];
-    buf_mat [label="buffer_file\n(Matrix Buffers)\n(113 lines)", fillcolor=white];
+    buf_vec [label="buffer_file\n(Vector Buffers)\n(104 lines)", fillcolor=white];
+    buf_mat [label="buffer_file\n(Matrix Buffers)\n(104 lines)", fillcolor=white];
     
     // Level 3 - Load Execution
-    load_v [label="load_v\n(~150 lines)", fillcolor=white];
-    load_m [label="load_m\n(~150 lines)", fillcolor=white];
+    load_v [label="load_v\n(139 lines)", fillcolor=white];
+    load_m [label="load_m\n(148 lines)", fillcolor=white];
     mem_loadv [label="simple_memory\n(Load_V)", fillcolor=lightgray, shape=cylinder];
     mem_loadm [label="simple_memory\n(Load_M)", fillcolor=lightgray, shape=cylinder];
     
     // Level 3 - GEMV Execution
-    top_gemv [label="top_gemv\n(366 lines)", fillcolor=white];
+    top_gemv [label="top_gemv\n(365 lines)", fillcolor=white];
     
     // Level 3 - ReLU Execution
-    relu [label="relu\n(~100 lines)", fillcolor=white];
+    relu [label="relu\n(14 lines)", fillcolor=white];
     
     // Level 3 - Store Execution
-    store [label="store\n(~150 lines)", fillcolor=white];
+    store [label="store\n(134 lines)", fillcolor=white];
     mem_store [label="simple_memory\n(Store)", fillcolor=lightgray, shape=cylinder];
     
     // Level 4 - GEMV internals
     pe [label="pe[0:31]\n(32 instances)\n(25 lines each)", fillcolor=lightgreen];
-    quant [label="quantization\n(107 lines)", fillcolor=lightgreen];
+    quant [label="quantization\n(106 lines)", fillcolor=lightgreen];
     
     // Level 5 - Quantization internals
-    quant_pipe [label="quantizer_pipeline\n(~100 lines)", fillcolor=lightyellow];
-    scale_calc [label="scale_calculator\n(~150 lines)", fillcolor=lightyellow];
+    quant_pipe [label="quantizer_pipeline\n(71 lines)", fillcolor=lightyellow];
+    scale_calc [label="scale_calculator\n(65 lines)", fillcolor=lightyellow];
     
     // Level 6 - Scale calculator
-    wallace [label="wallace_32x32\n(~400 lines)", fillcolor=orange];
+    wallace [label="wallace_32x32\n(197 lines)", fillcolor=orange];
     
     // Level 7 - Wallace tree
-    compressor [label="compressor_3to2\n(15 lines)", fillcolor=pink];
+    compressor [label="compressor_3to2\n(11 lines)", fillcolor=pink];
     
     // Connections
     top -> fetch;

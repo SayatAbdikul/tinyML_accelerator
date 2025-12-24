@@ -12,21 +12,20 @@ digraph FSM_States {
         fillcolor=lightgray;
         
         t_idle [label="T_IDLE", fillcolor=lightgreen, shape=ellipse];
-        t_fetch [label="T_FETCH\nfetch_en=1", fillcolor=lightyellow];
+        t_fetch [label="T_FETCH\nfetch_en=1\nif instr==0: done=1", fillcolor=lightyellow];
         t_wait_fetch [label="T_WAIT_FETCH\nWait for\nfetch_done", fillcolor=lightyellow];
         t_decode [label="T_DECODE\nLatch instruction\nfields", fillcolor=lightblue];
         t_exec_start [label="T_EXECUTE_START\nexec_start=1", fillcolor=lightpink];
         t_exec_wait [label="T_EXECUTE_WAIT\nWait for\nexec_done", fillcolor=lightpink];
-        t_done [label="T_DONE\ndone=1 pulse\nCheck zero instr", fillcolor=lightgreen, shape=ellipse];
+        t_done [label="T_DONE\nFinalize previous op", fillcolor=lightgreen, shape=ellipse];
         
         t_idle -> t_fetch [label="start=1"];
-        t_fetch -> t_wait_fetch;
+        t_fetch -> t_wait_fetch [label="instr≠0"];
         t_wait_fetch -> t_decode [label="fetch_done"];
         t_decode -> t_exec_start;
         t_exec_start -> t_exec_wait;
         t_exec_wait -> t_done [label="exec_done"];
-        t_done -> t_idle [label="instr=0 or\nready for next"];
-        t_done -> t_fetch [label="instr≠0\ncontinue"];
+        t_done -> t_fetch [label="always"];
     }
     
     // Execution Unit FSM

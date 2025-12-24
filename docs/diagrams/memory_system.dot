@@ -11,24 +11,27 @@ digraph Memory_System {
     
     // Memory instances
     subgraph cluster_memories {
-        label="4 Separate Memory Instances";
+        label="5 Separate Memory Instances";
         style=filled;
         fillcolor=lightgray;
         
         mem1 [label="Instruction Memory\n(fetch_unit)\n0x000000-0x000700\n(1792 bytes)", 
               shape=cylinder, fillcolor=lightblue];
-        mem2 [label="Load_V Memory\n(load_v)\n0x000700-0x010700\n(64 KB)", 
-              shape=cylinder, fillcolor=lightgreen];
-        mem3 [label="Load_M Memory\n(load_m)\n0x010700-0x020000\n(~62 KB)", 
+        mem2a [label="Load_V Memory (Inputs)\n(load_v)\n0x000700-0x003000\n(~10.5 KB)", 
+               shape=cylinder, fillcolor=lightgreen];
+        mem3 [label="Load_M Memory\n(load_m)\n0x003000-0x013000\n(64 KB)", 
               shape=cylinder, fillcolor=lightpink];
-        mem4 [label="Store Memory\n(store)\n0x020000-0x030000\n(64 KB)", 
+        mem2b [label="Load_V Memory (Biases)\n(load_v)\n0x013000-0x020000\n(~52 KB)", 
+               shape=cylinder, fillcolor=lightgreen];
+        mem4 [label="Store Memory\n(store)\n0x020000-0x0203E8\n(~1 KB allocated)", 
               shape=cylinder, fillcolor=lightyellow];
     }
     
     // Initialization
     dram_hex -> mem1 [label="$readmemh\n(at time 0)", style=dashed];
-    dram_hex -> mem2 [label="$readmemh\n(at time 0)", style=dashed];
+    dram_hex -> mem2a [label="$readmemh\n(at time 0)", style=dashed];
     dram_hex -> mem3 [label="$readmemh\n(at time 0)", style=dashed];
+    dram_hex -> mem2b [label="$readmemh\n(at time 0)", style=dashed];
     dram_hex -> mem4 [label="$readmemh\n(at time 0)", style=dashed];
     
     // Memory map details
@@ -40,14 +43,14 @@ digraph Memory_System {
         
         region1 [label="0x000000-0x000700\nInstructions\n(1792 bytes)", 
                  shape=note, fillcolor=lightblue];
-        region2 [label="0x000700-0x010700\nInput Vectors\n(64 KB)", 
-                 shape=note, fillcolor=lightgreen];
-        region3 [label="0x010700-0x013000\nWeight Matrices\n(11 KB)", 
-                 shape=note, fillcolor=lightpink];
-        region4 [label="0x013000-0x020000\nBias Vectors\n(52 KB)", 
-                 shape=note, fillcolor=lightpink];
-        region5 [label="0x020000-0x030000\nOutput Buffers\n(64 KB)", 
-                 shape=note, fillcolor=lightyellow];
+      region2 [label="0x000700-0x003000\nLoad_V (Inputs)\n(~10.5 KB)", 
+             shape=note, fillcolor=lightgreen];
+      region3 [label="0x003000-0x013000\nLoad_M (Weights)\n(64 KB)", 
+             shape=note, fillcolor=lightpink];
+      region4 [label="0x013000-0x020000\nLoad_V (Biases)\n(~52 KB)", 
+             shape=note, fillcolor=lightgreen];
+      region5 [label="0x020000-0x0203E8\nStore (Outputs)\n(~1 KB allocated)", 
+             shape=note, fillcolor=lightyellow];
     }
     
     // Access patterns
@@ -59,13 +62,14 @@ digraph Memory_System {
                   shape=component, fillcolor=lightcyan];
     
     fetch_access -> mem1;
-    load_access -> mem2;
+    load_access -> mem2a;
     load_access -> mem3;
+    load_access -> mem2b;
     store_access -> mem4;
     
     // Synchronization note
-    sync_note [label="⚠️ CRITICAL:\n\nMemories are SEPARATE!\nNo hardware interconnect!\n\nTestbench must manually\nsynchronize all 4 instances\nwhen updating memory\nduring simulation.", 
-               shape=note, fillcolor=orange];
+    sync_note [label="All 5 memory instances are initialized\nfrom dram.hex at simulation start.\n\nEach module has independent\nread/write ports to its own\nmemory address space.", 
+               shape=note, fillcolor=lightcyan];
     
     mem1 -> sync_note [style=invis];
 }

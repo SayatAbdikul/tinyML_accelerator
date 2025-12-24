@@ -52,15 +52,15 @@ open system_architecture.png
 | **Top Level** | tinyml_accelerator_top | Main coordinator |
 | **Control** | fetch_unit, i_decoder | Instruction fetch & decode |
 | **Execution** | modular_execution_unit + 5 sub-modules | Operation execution |
-| **Memory** | simple_memory (4 instances) | Data storage |
-| **Buffers** | buffer_file (2 instances) | Temporary storage |
+| **Memory** | simple_memory (5 instances) | Data storage |
+| **Buffers** | buffer_file (2 instances: vector + matrix) | Temporary storage |
 | **Computation** | top_gemv, 32× pe | Matrix-vector multiply |
 | **Quantization** | quantization, scale_calculator | 32→8 bit conversion |
 | **Arithmetic** | wallace_32x32, compressor_3to2 | Fast multiplication |
 | **Activation** | relu | ReLU activation |
 | **Data Movement** | load_v, load_m, store | DRAM ↔ Buffer |
 
-**Total: 22 unique modules** across ~2500 lines of SystemVerilog
+**Total: 22 unique modules** across ~3300 lines of SystemVerilog
 
 ## Key Features
 
@@ -79,18 +79,18 @@ open system_architecture.png
 - **FSM-Based Control**: Hierarchical state machines
 
 ### Memory System
-- **4 Separate Memories**: Instructions, Load_V, Load_M, Store
+- **5 Separate Memories**: Instructions, Load_V (Inputs), Load_M, Load_V (Biases), Store
 - **Memory Map**:
   - 0x000000-0x000700: Instructions (1792 bytes)
-  - 0x000700-0x010700: Input vectors (64KB)
-  - 0x010700-0x013000: Weight matrices (11KB)
-  - 0x013000-0x020000: Bias vectors (52KB)
-  - 0x020000-0x030000: Output buffers (64KB)
+  - 0x000700-0x003000: Input vectors (10,496 bytes)
+  - 0x003000-0x013000: Weight matrices (64KB)
+  - 0x013000-0x020000: Bias vectors (~52KB)
+    - 0x020000-0x0203E8: Output buffers (~1000 bytes allocated)
 
 ### Buffer System
-- **Vector Buffers**: 32 buffers × 1024 elements (configurable)
-- **Matrix Buffers**: 32 buffers × variable size
-- **Tile-Based Access**: 32 bytes per tile
+- **Vector Buffers**: 16 buffers × 1024 elements each
+- **Matrix Buffers**: 2 buffers × 1024 elements each
+- **Tile-Based Access**: 32 elements (32 bytes) per tile
 
 ## Performance
 

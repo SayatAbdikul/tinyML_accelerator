@@ -32,9 +32,9 @@ digraph Execution_Unit {
             style=filled;
             fillcolor=lightcyan;
             
-            buf_vec [label="Vector Buffer File\n32 buffers × 1024 elem\nTile: 32 elements", 
+            buf_vec [label="Vector Buffer File\n16 buffers × 1024 elem\nTile: 32 elements", 
                      shape=folder, fillcolor=white];
-            buf_mat [label="Matrix Buffer File\n32 buffers × variable\nTile: 256 bits", 
+            buf_mat [label="Matrix Buffer File\n2 buffers × 1024 elem\nTile: 256 bits", 
                      shape=folder, fillcolor=white];
         }
         

@@ -223,25 +223,25 @@ The accelerator uses **4 separate simple_memory instances**:
 │                                                               │
 │  ┌──────────────────┐  ┌──────────────────┐                │
 │  │ Fetch Memory     │  │ Load_V Memory    │                │
-│  │ (Instructions)   │  │ (Vector Data)    │                │
+│  │ (Instructions)   │  │ (Vector/Bias)    │                │
 │  │ 0x000000-0x000700│  │ 0x000700-0x020000│                │
 │  └──────────────────┘  └──────────────────┘                │
 │                                                               │
 │  ┌──────────────────┐  ┌──────────────────┐                │
 │  │ Load_M Memory    │  │ Store Memory     │                │
 │  │ (Matrix Data)    │  │ (Output Data)    │                │
-│  │ 0x010700-0x020000│  │ 0x020000-0x030000│                │
+│  │ 0x003000-0x013000│  │ 0x020000-0x0203E8│                │
 │  └──────────────────┘  └──────────────────┘                │
 │                                                               │
 │  All initialized from: dram.hex                              │
 └──────────────────────────────────────────────────────────────┘
 
 Memory Map:
-  0x000000 - 0x000700: Instructions (1792 bytes)
-  0x000700 - 0x010700: Input vectors (64KB)
-  0x010700 - 0x013000: Weight matrices (11KB)
-  0x013000 - 0x020000: Bias vectors (52KB)
-  0x020000 - 0x030000: Output buffers (64KB)
+        0x000000 - 0x000700: Instructions (1792 bytes)
+        0x000700 - 0x003000: Input vectors (10,496 bytes)
+        0x003000 - 0x013000: Weight matrices (64KB)
+        0x013000 - 0x020000: Bias vectors (~52KB)
+        0x020000 - 0x0203E8: Output buffers (~1000 bytes allocated)
 ```
 
 ### Buffer System
@@ -252,7 +252,7 @@ Memory Map:
 │                                                               │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │  Vector Buffer File                                    │ │
-│  │  - 32 buffers x 1024 elements (configurable)          │ │
+│  │  - 16 buffers x 1024 elements each                    │ │
 │  │  - Tile-based access (32 elements per tile)           │ │
 │  │  - Separate read/write pointers per buffer            │ │
 │  │  - Read: element-wise output                          │ │
@@ -261,7 +261,7 @@ Memory Map:
 │                                                               │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │  Matrix Buffer File                                    │ │
-│  │  - 32 buffers x configurable size                     │ │
+│  │  - 2 buffers x 1024 elements each                     │ │
 │  │  - Tile-based access (256 bits = 32 bytes per tile)   │ │
 │  │  - Used for weight matrices                           │ │
 │  │  - Row-major storage                                  │ │
@@ -421,7 +421,7 @@ Memory Map:
 
 ## Module Descriptions
 
-### Core Modules
+### Core Modules (Total: ~3300 lines)
 
 | Module | Lines | Purpose | Key Features |
 |--------|-------|---------|--------------|
