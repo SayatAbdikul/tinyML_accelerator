@@ -18,7 +18,7 @@ results.xml
 .pytest_cache/
 
 # Test results (can be large)
-test_results.csv
+*.csv
 
 # Editor
 .vscode/

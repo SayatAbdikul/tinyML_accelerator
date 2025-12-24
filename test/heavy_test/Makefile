@@ -52,14 +52,20 @@ export PYTHONPATH := $(COCOTB_DIR)/utils:$(PYTHONPATH)
 
 # Test configuration via environment variables
 # Usage examples:
-#   make run_test                          # Run all 10,000 images
-#   make run_test NUM_IMAGES=100           # Test first 100 images
-#   make run_test STOP_ON_FIRST_FAIL=1     # Stop on first failure for debugging
-#   make run_test VERBOSE=1                # Enable verbose output for all tests
+#   make run_test                              # Run all 10,000 images
+#   make run_test NUM_IMAGES=100               # Test first 100 images
+#   make run_test START_IMAGE=1000             # Start from image 1000
+#   make run_test START_IMAGE=1000 NUM_IMAGES=500  # Test images 1000-1499
+#   make run_test STOP_ON_FIRST_FAIL=1         # Stop on first failure for debugging
+#   make run_test VERBOSE=1                    # Enable verbose output for all tests
 
 # Default: test all images
 NUM_IMAGES ?= 10000
 export NUM_IMAGES
+
+# Start from specific image (useful for resuming failed tests)
+START_IMAGE ?= 0
+export START_IMAGE
 
 # Stop on first failure (useful for debugging)
 STOP_ON_FIRST_FAIL ?= 0
@@ -107,11 +113,13 @@ help:
 	@echo "  help           - Show this help"
 	@echo ""
 	@echo "Configuration (environment variables):"
-	@echo "  NUM_IMAGES=N           - Test first N images (default: 10000)"
+	@echo "  NUM_IMAGES=N           - Test N images (default: 10000)"
+	@echo "  START_IMAGE=N          - Start from image N (default: 0)"
 	@echo "  STOP_ON_FIRST_FAIL=1   - Stop on first failure (default: 0)"
 	@echo "  VERBOSE=1              - Enable verbose output (default: 0)"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make run_test NUM_IMAGES=1000"
+	@echo "  make run_test START_IMAGE=5000 NUM_IMAGES=100     # Test images 5000-5099"
 	@echo "  make debug_test"
 	@echo "  make run_test STOP_ON_FIRST_FAIL=1 VERBOSE=1"

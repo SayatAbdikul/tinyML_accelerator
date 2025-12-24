@@ -265,6 +265,7 @@ async def test_full_mnist_dataset(dut):
     
     # Configuration
     NUM_IMAGES = int(os.environ.get('NUM_IMAGES', 10000))  # Default: all images
+    START_IMAGE = int(os.environ.get('START_IMAGE', 0))  # Default: start from first image
     STOP_ON_FIRST_FAIL = os.environ.get('STOP_ON_FIRST_FAIL', '0') == '1'
     VERBOSE = os.environ.get('VERBOSE', '0') == '1'
     
@@ -281,6 +282,7 @@ async def test_full_mnist_dataset(dut):
     cocotb.log.info("=" * 80)
     cocotb.log.info(f"Configuration:")
     cocotb.log.info(f"  - Testing {NUM_IMAGES} images")
+    cocotb.log.info(f"  - Starting from image: {START_IMAGE}")
     cocotb.log.info(f"  - Stop on first fail: {STOP_ON_FIRST_FAIL}")
     cocotb.log.info(f"  - Verbose mode: {VERBOSE}")
     cocotb.log.info(f"  - Results file: {results_file}")
@@ -343,9 +345,15 @@ async def test_full_mnist_dataset(dut):
     
     cocotb.log.info(f"✓ Loaded {len(test_labels)} test images")
     
-    # Limit to requested number
-    num_to_test = min(NUM_IMAGES, len(test_labels))
-    cocotb.log.info(f"✓ Will test {num_to_test} images")
+    # Calculate test range
+    end_image = min(START_IMAGE + NUM_IMAGES, len(test_labels))
+    num_to_test = end_image - START_IMAGE
+    
+    if START_IMAGE >= len(test_labels):
+        cocotb.log.error(f"START_IMAGE ({START_IMAGE}) >= dataset size ({len(test_labels)})")
+        assert False, f"Invalid START_IMAGE: {START_IMAGE}"
+    
+    cocotb.log.info(f"✓ Will test images {START_IMAGE} to {end_image-1} ({num_to_test} images)")
     
     # ========================================================================
     # MAIN TEST LOOP
@@ -354,18 +362,19 @@ async def test_full_mnist_dataset(dut):
     cocotb.log.info("STARTING MAIN TEST LOOP")
     cocotb.log.info("=" * 80)
     
-    for test_idx in range(num_to_test):
+    for loop_idx in range(num_to_test):
+        test_idx = START_IMAGE + loop_idx
         # Progress indicator
-        if test_idx % 100 == 0 and test_idx > 0:
+        if loop_idx % 100 == 0 and loop_idx > 0:
             interim_summary = stats.get_summary()
-            cocotb.log.info(f"\n--- Progress: {test_idx}/{num_to_test} ---")
+            cocotb.log.info(f"\n--- Progress: {test_idx}/{end_image-1} ({loop_idx}/{num_to_test}) ---")
             cocotb.log.info(f"  RTL Accuracy: {interim_summary['rtl_accuracy']:.2f}%")
             cocotb.log.info(f"  Exact matches: {interim_summary['exact_match_rate']:.2f}%")
             cocotb.log.info(f"  Speed: {interim_summary['tests_per_second']:.2f} tests/sec")
         
-        if VERBOSE or test_idx < 5:
+        if VERBOSE or loop_idx < 5:
             cocotb.log.info(f"\n{'='*80}")
-            cocotb.log.info(f"TEST {test_idx + 1}/{num_to_test} - Label: {test_labels[test_idx].item()}")
+            cocotb.log.info(f"TEST {test_idx} (loop {loop_idx + 1}/{num_to_test}) - Label: {test_labels[test_idx].item()}")
             cocotb.log.info("="*80)
         
         # Prepare input
@@ -387,13 +396,13 @@ async def test_full_mnist_dataset(dut):
         await tester.reset()
         
         # Verify memories are still synced after reset
-        if test_idx == 0:  # Check on first test
+        if loop_idx == 0:  # Check on first test
             if not tester.verify_all_memories_synced():
                 cocotb.log.error("Memory desync detected after reset!")
                 assert False, "Memory desync after reset"
         
         # Execute RTL
-        if VERBOSE or test_idx < 5:
+        if VERBOSE or loop_idx < 5:
             cocotb.log.info("Executing RTL...")
         
         success = await tester.execute_all(timeout_cycles=500000)
@@ -406,7 +415,7 @@ async def test_full_mnist_dataset(dut):
             continue
         
         # Verify done pulse (on first few tests)
-        if test_idx < 3:
+        if loop_idx < 3:
             await tester.verify_done_pulse()
         
         # Wait for memory writes to settle
@@ -428,7 +437,7 @@ async def test_full_mnist_dataset(dut):
             continue
         
         # Execute golden model
-        if VERBOSE or test_idx < 5:
+        if VERBOSE or loop_idx < 5:
             cocotb.log.info("Executing golden model...")
         
         try:
@@ -443,7 +452,7 @@ async def test_full_mnist_dataset(dut):
         
         # Compare outputs - STRICT EXACT MATCH REQUIRED
         match, differences, max_error = tester.compare_results(
-            rtl_output, golden_output, verbose=(VERBOSE or test_idx < 3)
+            rtl_output, golden_output, verbose=(VERBOSE or loop_idx < 3)
         )
         
         # Get predictions
@@ -458,7 +467,7 @@ async def test_full_mnist_dataset(dut):
         rtl_match = (rtl_pred == label)
         golden_match = (golden_pred == label)
         
-        if VERBOSE or test_idx < 5 or not match or not rtl_match:
+        if VERBOSE or loop_idx < 5 or not match or not rtl_match:
             cocotb.log.info(f"Results:")
             cocotb.log.info(f"  Label:          {label}")
             cocotb.log.info(f"  RTL prediction: {rtl_pred} {'✓' if rtl_match else '✗'}")
