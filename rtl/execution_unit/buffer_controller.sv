@@ -13,8 +13,9 @@ module buffer_controller #(
     parameter TILE_WIDTH = 256,
     parameter TILE_ELEMS = TILE_WIDTH / DATA_WIDTH,  // 32 elements per tile
     parameter VECTOR_BUFFER_WIDTH = 8192,           // Smaller for vectors
-    parameter MATRIX_BUFFER_WIDTH = 802820,         // Larger for matrices
-    parameter BUFFER_COUNT = 32                     // Number of logical buffers
+    parameter MATRIX_BUFFER_WIDTH = 65536,         // Larger for matrices
+    parameter VECTOR_BUFFER_COUNT = 16,                     // Number of logical buffers
+    parameter MATRIX_BUFFER_COUNT = 2                     // Number of logical buffers
 )(
     input logic clk,
     input logic rst,
@@ -128,7 +129,7 @@ module buffer_controller #(
     // Optimized for smaller vectors (x, bias, intermediate activations)
     buffer_file #(
         .BUFFER_WIDTH(VECTOR_BUFFER_WIDTH),
-        .BUFFER_COUNT(BUFFER_COUNT),
+        .BUFFER_COUNT(VECTOR_BUFFER_COUNT),
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),
         .TILE_SIZE(TILE_ELEMS)
@@ -151,7 +152,7 @@ module buffer_controller #(
     // Optimized for larger weight matrices
     buffer_file #(
         .BUFFER_WIDTH(MATRIX_BUFFER_WIDTH),
-        .BUFFER_COUNT(BUFFER_COUNT),
+        .BUFFER_COUNT(MATRIX_BUFFER_COUNT),
         .TILE_WIDTH(TILE_WIDTH),
         .DATA_WIDTH(DATA_WIDTH),
         .TILE_SIZE(TILE_ELEMS)

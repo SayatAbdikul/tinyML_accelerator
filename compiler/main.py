@@ -52,10 +52,10 @@ if __name__ == "__main__":
 
     dram_offsets = {
         "inputs":  0x700, # giving space for 223 instructions before the inputs
-        "weights": 0x10700, # 128*128=16384 inputs can be saved
-        "biases":  0x13000, # ... weights can be saved
-        "outputs": 0x20000, # ... biases can be saved
-        # 1000 outputs, total 0x100BB8 values in dram
+        "weights": 0x3000, # 10496 inputs can be saved
+        "biases":  0x13000, # 64KB weights can be saved
+        "outputs": 0x20000, # 53248 biases can be saved
+        # 1000 outputs, total 0x203E8 values in dram
     }
 
     # 3. Save weights/biases to DRAM

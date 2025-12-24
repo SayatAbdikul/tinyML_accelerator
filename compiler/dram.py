@@ -9,7 +9,7 @@ import onnx
 from onnx import numpy_helper
 from helper_functions import quantize_tensor_f32_int8
 
-MEM_SIZE = 0x20200  # Total memory size
+MEM_SIZE = 0x203E8  # Total memory size
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
