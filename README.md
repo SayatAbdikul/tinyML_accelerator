@@ -15,11 +15,11 @@ A hardware accelerator for neural network inference with quantized 8-bit integer
 
 ### Run Tests
 ```bash
-# Quick validation (100 images, ~1 minute)
+# Quick validation (100 images)
 cd test/heavy_test
 make quick_test
 
-# Full validation (10,000 images, ~30 minutes)
+# Full validation (10,000 images
 make run_test
 
 # Component-level tests (fast)
