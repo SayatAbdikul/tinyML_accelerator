@@ -127,19 +127,21 @@ public:
         printf("=== NEURAL NETWORK TEST: 784→12→32→10 ===\n");
         printf("Replicating model_assembly.asm instruction sequence\n\n");
         
-        printf("🎯 ASSEMBLY INSTRUCTIONS:\n");
-        printf("Layer 1: LOAD_V 9, 0x700, 784\n");
-        printf("         LOAD_M 1, 0x10700, 12, 784\n");
-        printf("         LOAD_V 4, 0x13001, 12\n");
-        printf("         GEMV 5, 1, 9, 4, 12, 784\n");
-        printf("         RELU 7, 5\n");
-        printf("Layer 2: LOAD_M 2, 0x12bc0, 32, 12\n");
-        printf("         LOAD_V 3, 0x1300d, 32\n");
-        printf("         GEMV 6, 2, 7, 3, 32, 12\n");
-        printf("         RELU 8, 6\n");
-        printf("Layer 3: LOAD_M 1, 0x12d40, 10, 32\n");
-        printf("         LOAD_V 4, 0x1302d, 10\n");
-        printf("         GEMV 5, 1, 8, 4, 10, 32\n");
+        printf("🎯 ASSEMBLY INSTRUCTIONS (model_assembly.asm):\n");
+        printf("  LOAD_V 3, 0x13000, 1\n");
+        printf("  LOAD_V 9, 0x700, 784\n");
+        printf("  LOAD_M 1, 0x3000, 12, 784\n");
+        printf("  LOAD_V 4, 0x13001, 12\n");
+        printf("  GEMV 5, 1, 9, 4, 12, 784\n");
+        printf("  RELU 7, 5, 12\n");
+        printf("  LOAD_M 2, 0x54c0, 32, 12\n");
+        printf("  LOAD_V 3, 0x1300d, 32\n");
+        printf("  GEMV 6, 2, 7, 3, 32, 12\n");
+        printf("  RELU 8, 6, 32\n");
+        printf("  LOAD_M 1, 0x5640, 10, 32\n");
+        printf("  LOAD_V 4, 0x1302d, 10\n");
+        printf("  GEMV 5, 1, 8, 4, 10, 32\n");
+        printf("  STORE 5, 0x20000, 10\n");
         printf("\n");
         
         // Track success of each layer
@@ -147,6 +149,15 @@ public:
         bool layer2_success = true;
         bool layer3_success = true;
         
+        // ========== PRELOAD ==========
+        printf("Step 0: LOAD_V 3, 0x13000, 1 (metadata / constants)\n");
+        Instruction load_meta = {0x01, 3, 1, 0, 0x13000, 0, 0, 0};
+        execute_instruction(load_meta);
+        if (!wait_for_done(200)) {
+            printf("❌ Failed at Step 0\n");
+            return;
+        }
+
         // ========== LAYER 1: 784 → 12 ==========
         printf("╔════════════════════════════════════╗\n");
         printf("║     LAYER 1: 784 → 12 (FC)        ║\n");
@@ -163,8 +174,8 @@ public:
         }
         
         // Step 2: LOAD_M 1, 0x10700, 12, 784
-        printf("\nStep 2: LOAD_M 1, 0x10700, 12, 784 (weight matrix W1 - 12×784)\n");
-        Instruction load_w1 = {0x02, 1, 784, 12, 0x10700, 0, 0, 0};
+        printf("\nStep 2: LOAD_M 1, 0x3000, 12, 784 (weight matrix W1 - 12×784)\n");
+        Instruction load_w1 = {0x02, 1, 784, 12, 0x3000, 0, 0, 0};
         execute_instruction(load_w1);
         if (!wait_for_done(25000)) {
             printf("❌ Failed at Step 2\n");
@@ -210,9 +221,9 @@ public:
         printf("║     LAYER 2: 12 → 32 (FC)         ║\n");
         printf("╚════════════════════════════════════╝\n\n");
         
-        // Step 6: LOAD_M 2, 0x12bc0, 32, 12
-        printf("Step 6: LOAD_M 2, 0x12bc0, 32, 12 (weight matrix W2 - 32×12)\n");
-        Instruction load_w2 = {0x02, 2, 12, 32, 0x12bc0, 0, 0, 0};
+        // Step 6: LOAD_M 2, 0x54c0, 32, 12
+        printf("Step 6: LOAD_M 2, 0x54c0, 32, 12 (weight matrix W2 - 32×12)\n");
+        Instruction load_w2 = {0x02, 2, 12, 32, 0x54c0, 0, 0, 0};
         execute_instruction(load_w2);
         if (!wait_for_done(1500)) {
             printf("❌ Failed at Step 6\n");
@@ -258,9 +269,9 @@ public:
         printf("║   LAYER 3: 32 → 10 (OUTPUT)       ║\n");
         printf("╚════════════════════════════════════╝\n\n");
         
-        // Step 10: LOAD_M 1, 0x12d40, 10, 32
-        printf("Step 10: LOAD_M 1, 0x12d40, 10, 32 (weight matrix W3 - 10×32)\n");
-        Instruction load_w3 = {0x02, 1, 32, 10, 0x12d40, 0, 0, 0};
+        // Step 10: LOAD_M 1, 0x5640, 10, 32
+        printf("Step 10: LOAD_M 1, 0x5640, 10, 32 (weight matrix W3 - 10×32)\n");
+        Instruction load_w3 = {0x02, 1, 32, 10, 0x5640, 0, 0, 0};
         execute_instruction(load_w3);
         if (!wait_for_done(1200)) {
             printf("❌ Failed at Step 10\n");
@@ -289,6 +300,15 @@ public:
             return;
         }
         
+        // Step 13: STORE 5, 0x20000, 10
+        printf("Step 13: STORE 5, 0x20000, 10 (write output vector)\n");
+        Instruction store_out = {0x03, 5, 10, 0, 0x20000, 0, 0, 0};
+        execute_instruction(store_out);
+        if (!wait_for_done(500)) {
+            printf("❌ Failed at Step 13 (STORE)\n");
+            return;
+        }
+
         printf("\n✅ Layer 3 Complete: 32 → 10 (OUTPUT)\n\n");
         
         // ========== SUMMARY ==========
@@ -315,12 +335,13 @@ public:
         printf("  LOAD_M operations: 3\n");
         printf("  GEMV operations:   3\n");
         printf("  RELU operations:   2\n");
-        printf("  Total instructions: 13\n");
+        printf("  STORE operations:  1\n");
+        printf("  Total instructions: 14\n");
         printf("\n");
         
         if (layer1_success && layer2_success && layer3_success) {
             printf("🎉 SUCCESS! Complete neural network executed successfully!\n");
-            printf("   All 13 assembly instructions from model_assembly.asm verified.\n");
+            printf("   All 14 assembly instructions from model_assembly.asm verified.\n");
         } else {
             printf("⚠️  Some layers failed. Check logs above for details.\n");
         }
