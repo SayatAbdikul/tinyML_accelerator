@@ -115,7 +115,7 @@ module load_v #(
                     if (length_cnt + TILE_WIDTH < length * DATA_WIDTH) begin
                         state    <= INIT_READING; // prime for next tile
                         byte_cnt <= '0;           // reset for new tile
-                        // mem_addr already points to the next byte to read
+                        // mem_addr will point to correct next byte after update
                     end else begin
                         state     <= DONE;
                         valid_out <= 1;

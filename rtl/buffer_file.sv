@@ -25,6 +25,7 @@ localparam TILE_COUNT = BUFFER_WIDTH / TILE_WIDTH;
 localparam TILE_INDEX_WIDTH = (TILE_COUNT == 1) ? 1 : $clog2(TILE_COUNT);
 
 // Memory buffers
+(* ram_style = "block", syn_ramstyle = "block_ram" *)
 logic [BUFFER_WIDTH-1:0] buffers [0:BUFFER_COUNT-1];
 
 // Tile indices - separate for each buffer

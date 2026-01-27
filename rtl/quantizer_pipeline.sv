@@ -23,19 +23,33 @@ module quantizer_pipeline (
         end
     end
 
-    // Stage 2: 32x32 multiplier
+    // Stage 2: 32x32 multiplier replacement (Native * operator)
     logic signed [63:0] stage2_product;
     logic stage2_valid;
 
-    wallace_32x32 u_mult (
-        .clk(clk),
-        .rst_n(reset_n),
-        .valid_in(stage1_valid),
-        .a(stage1_value),
-        .b(stage1_scale),
-        .valid_out(stage2_valid), // need to wait 3 cycles to be valid
-        .prod(stage2_product)
-    );
+    reg signed [63:0] mult_pipe [0:3];
+    reg [3:0] valid_pipe;
+    
+    always_ff @(posedge clk or negedge reset_n) begin
+        if(!reset_n) begin
+             valid_pipe <= 0;
+             mult_pipe[0] <= 0;
+             mult_pipe[1] <= 0; 
+             mult_pipe[2] <= 0; 
+             mult_pipe[3] <= 0;
+        end else begin
+             valid_pipe <= {valid_pipe[2:0], stage1_valid};
+             // Signed × Unsigned multiplication: int32 × Q8.24 reciprocal_scale
+             mult_pipe[0] <= $signed(stage1_value) * $signed({1'b0, stage1_scale});
+             mult_pipe[1] <= mult_pipe[0];
+             mult_pipe[2] <= mult_pipe[1];
+             mult_pipe[3] <= mult_pipe[2];
+        end
+    end
+    
+    assign stage2_product = mult_pipe[3];
+    assign stage2_valid = valid_pipe[3];
+
 
     // Stage 3: Rounding
     reg signed [63:0] stage3_rounded;

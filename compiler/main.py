@@ -11,12 +11,17 @@ from compile import generate_assembly
 from model import create_mlp_model
 from golden_model import execute_program
 from dram import save_initializers_to_dram, save_input_to_dram, save_dram_to_file, read_from_dram
+from helper_functions import quantize_tensor_f32_int8
 
 def evaluate_design(seed, torch_input, label):
     
     torch.manual_seed(seed)
     # 1. Save dummy input to DRAM
-    dummy_input = torch_input.to(torch.int8).numpy().squeeze().flatten()
+    # Use proper quantization for input to preserve information
+    input_numpy = torch_input.numpy().squeeze()
+    scale = np.max(np.abs(input_numpy)) / 127 if np.max(np.abs(input_numpy)) > 0 else 1.0
+    dummy_input = quantize_tensor_f32_int8(input_numpy, scale).flatten()
+    
     save_input_to_dram(dummy_input, dram_offsets["inputs"])
     written_input = read_from_dram(dram_offsets["inputs"], len(dummy_input))
     if not np.array_equal(dummy_input, written_input):
@@ -51,11 +56,10 @@ if __name__ == "__main__":
     # 2. DRAM configuration
 
     dram_offsets = {
-        "inputs":  0x700, # giving space for 223 instructions before the inputs
-        "weights": 0x3000, # 10496 inputs can be saved
-        "biases":  0x13000, # 64KB weights can be saved
-        "outputs": 0x20000, # 53248 biases can be saved
-        # 1000 outputs, total 0x203E8 values in dram
+        "inputs":  0xC0,   # 0x00C0-0x04C0: 1KB (1024 input elements)
+        "biases":  0x4C0,  # 0x04C0-0x08C0: 1KB (1024 bias elements)
+        "outputs": 0x8C0,  # 0x08C0-0x00940: 128B (128 output elements)
+        "weights": 0x940,  # 0x0940 onwards: Approx 12.5KB for weights (Fits well within 60KB)
     }
 
     # 3. Save weights/biases to DRAM

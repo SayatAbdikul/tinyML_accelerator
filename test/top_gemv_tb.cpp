@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <cstring>
 
-#define ROWS 64
+#define ROWS 92
 #define COLS 92
 #define TILE 32
 #define DWIDTH 8

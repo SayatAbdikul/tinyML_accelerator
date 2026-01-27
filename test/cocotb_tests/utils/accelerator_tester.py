@@ -12,6 +12,7 @@ if compiler_dir not in sys.path:
     sys.path.insert(0, compiler_dir)
 
 from dram import save_dram_to_file, save_input_to_dram, read_from_dram, get_dram
+from helper_functions import quantize_tensor_f32_int8
 
 
 class TinyMLAcceleratorTester:
@@ -20,14 +21,14 @@ class TinyMLAcceleratorTester:
     def __init__(self, dut):
         self.dut = dut
         self.clock_period = 10  # 10ns = 100MHz
-        self.output_addr = 0x20000  # Default output address from compile.py
+        self.output_addr = 0x8C0  # Updated output address
         self.output_length = 10  # Default output length for MNIST (10 classes)
-        self.input_addr = 0x700  # Input data address (must match compile.py)
+        self.input_addr = 0xC0  # Updated input address
         self.dram_offsets = {
-            "inputs":  0x700,
-            "weights": 0x10700,
-            "biases":  0x13000,
-            "outputs": 0x20000,
+            "inputs":  0xC0,
+            "biases":  0x4C0,
+            "outputs": 0x8C0,
+            "weights": 0x940,
         }
 
     async def reset(self):
@@ -301,10 +302,14 @@ class TinyMLAcceleratorTester:
         """
         Prepare input data by writing it to DRAM at the input address.
         Also writes directly to all RTL memory instances to ensure consistency.
+        Uses improved quantization with dynamic scaling.
         """
         from dram import dram as dram_array_ref
         
-        dummy_input = input_tensor.to(torch.int8).numpy().squeeze().flatten()
+        # Improved quantization logic
+        input_numpy = input_tensor.numpy().squeeze()
+        scale = np.max(np.abs(input_numpy)) / 127 if np.max(np.abs(input_numpy)) > 0 else 1.0
+        dummy_input = quantize_tensor_f32_int8(input_numpy, scale).flatten()
 
         cocotb.log.info(f"Preparing input: shape={input_tensor.shape}, quantized_length={len(dummy_input)}")
 

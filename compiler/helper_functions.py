@@ -81,6 +81,31 @@ def quantize_int32_to_int8(x_int32, scale, zero_point):
     x_clipped = np.clip(x_rounded, -128, 127)
     return x_clipped.astype(np.int8)
 
+def quantize_int32_to_int8_rtl_exact(x_int32, max_abs, zero_point=0):
+    """
+    Bit-exact simulation of RTL quantization.
+    Logic matches scale_calculator.sv and quantizer_pipeline.sv.
+    """
+    if max_abs == 0:
+        return np.zeros_like(x_int32, dtype=np.int8)
+    
+    # 1. Simulate Scale Calculator (scale_calculator.sv)
+    # reciprocal_scale = (127 << 24) // max_abs
+    divider = 2130706432  # 127 << 24
+    reciprocal_scale = int(divider // max_abs)
+    
+    # 2. Simulate Multiplier (quantizer_pipeline.sv)
+    # Use int64 to prevent overflow during multiplication
+    products = x_int32.astype(np.int64) * reciprocal_scale
+    
+    # 3. Simulate Rounding (quantizer_pipeline.sv)
+    # (product + (1 << 23)) >> 24
+    rounded = (products + (1 << 23)) >> 24
+    
+    # 4. Clamp to int8
+    clipped = np.clip(rounded, -128, 127)
+    return clipped.astype(np.int8)
+
 def print_weights_in_order(model_path):
     model = onnx.load(model_path)
     graph = model.graph

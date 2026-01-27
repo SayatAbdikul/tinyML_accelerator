@@ -28,12 +28,12 @@ def generate_assembly(model_path, output_file):
     skip_nodes = set()  # Store node names instead of objects
     
     # Memory address simulation
-    dram_addresses = {
-        "inputs":  0x700, # giving space for 223 instructions before the inputs
-        "weights": 0x3000, # 10496 inputs can be saved
-        "biases":  0x13000, # 64KB weights can be saved
-        "outputs": 0x20000, # 53248 biases can be saved
-        # 1000 outputs, total 0x203E8 values in dram
+    # Memory address simulation (Needs to fit within 0xF000 / 60KB)
+    dram_addresses = { # 0x0000 to 0x00C0 reserved for instructions
+        "inputs":  0xC0,   # 0x00C0-0x04C0: 1KB (1024 input elements)
+        "biases":  0x4C0,  # 0x04C0-0x08C0: 1KB (1024 bias elements)
+        "outputs": 0x8C0,  # 0x08C0-0x00940: 128B (128 output elements)
+        "weights": 0x940,  # 0x0940 onwards: Approx 12.5KB for weights
     }
     
     
@@ -81,9 +81,14 @@ def generate_assembly(model_path, output_file):
                         # the first dimensions to get total rows
                         rows = np.prod(tensor_data["shape"][:-1])
                         cols = tensor_data["shape"][-1]
-                    size = rows * cols
+                    
+                    # Compute padded size for address calculation and LOAD_M
+                    TILE_WIDTH = 32
+                    padded_cols = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
+                    size = rows * padded_cols
+                    
                     tensor_buffer_map[input_name] = mat_buf
-                    asm_instructions.append(f"LOAD_M {mat_buf}, {hex(dram_addresses['weights'] + weight_counter)}, {rows}, {cols}")
+                    asm_instructions.append(f"LOAD_M {mat_buf}, {hex(dram_addresses['weights'] + weight_counter)}, {rows}, {padded_cols}")
                     weight_counter += size
                     # ping-pong the weight buffer between 1 and 2
                     mat_buf = 2 if mat_buf == 1 else 1

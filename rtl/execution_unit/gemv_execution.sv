@@ -258,10 +258,10 @@ module gemv_execution #(
                     
                     // When GEMV completes, copy results and prepare to write back
                     if (gemv_done) begin
-                        // $display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:11]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
-                        //          y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
-                        //          y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9],
-                        //          y_gemv[10], y_gemv[11]);
+                        $display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:11]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
+                                 y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
+                                 y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9],
+                                 y_gemv[10], y_gemv[11]);
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             gemv_result[i] <= y_gemv[i];
                             result[i] <= y_gemv[i];  // Also expose via result output

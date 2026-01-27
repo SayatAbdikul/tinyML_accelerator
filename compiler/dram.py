@@ -8,23 +8,20 @@ import numpy as np
 import onnx
 from onnx import numpy_helper
 from helper_functions import quantize_tensor_f32_int8
+from top_sort import topological_sort
 
-MEM_SIZE = 0x203E8  # Total memory size
+MEM_SIZE = 0xF000  # Total memory size (Reduced to 60KB for FPGA fit)
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
     end_addr = start_addr + len(array)
-    if dram[start_addr] != 0:
-        print(f"DRAM address {hex(start_addr)} is already occupied")
-        raise ValueError("DRAM address already occupied")
+    # Check for overflow but allow overwriting (warning optional or removed for repeated runs)
     if end_addr > len(dram):
         print(f"DRAM overflow: trying to write {len(array)} bytes at address {hex(start_addr)}")
         raise ValueError("DRAM overflow")
+        
     dram[start_addr:end_addr] = array
     # print(f"Written {len(array)} bytes to DRAM at address {hex(start_addr)}")
-    # if len(array) == 100:
-    #     print(f"Data: {array}... (total {len(array)} bytes)")
-    # print(f"DRAM state: {dram[start_addr:end_addr]}")
     return end_addr  # Return next free address
 
 def read_from_dram(start_addr, length):
@@ -41,7 +38,8 @@ def get_dram():
 
 def save_initializers_to_dram(model_path, dram_offsets):
     """Saves the initializers (weights and biases) from an ONNX model to DRAM.
-    Quantizes the tensors to int8 format and writes them to specified DRAM addresses."""
+    Quantizes the tensors to int8 format and writes them to specified DRAM addresses.
+    Ensures that writing follows the topological order of graph execution."""
     global dram
     dram = np.zeros(MEM_SIZE, dtype=np.int8)
     model = onnx.load(model_path)
@@ -52,24 +50,62 @@ def save_initializers_to_dram(model_path, dram_offsets):
 
     weight_map = {}
     bias_map = {}
-
+    
+    # Pre-process initializers into a map for easy lookup
+    initializer_data = {}
     for init in graph.initializer:
-        name = init.name
-        array = numpy_helper.to_array(init)
+        initializer_data[init.name] = init
 
-        # Choose scale/zero_point per tensor or globally
-        scale = np.max(np.abs(array)) / 127 if np.max(np.abs(array)) > 0 else 1.0
+    # Use existing helper or topological sort to traverse in execution order
+    ordered_nodes = topological_sort(graph)
+    visited_initializers = set()
 
-        quant_array = quantize_tensor_f32_int8(array, scale).flatten()
-        # print("quant_array is: ", quant_array)
-        # print("original array is: ", array)
-        if len(array.shape) > 1:  # weight
-            
-            weight_map[name] = weight_ptr
-            weight_ptr = write_to_dram(quant_array, weight_ptr)
-        else:  # bias
-            bias_map[name] = bias_ptr
-            bias_ptr = write_to_dram(quant_array, bias_ptr)
+    # Traverse nodes in topological order
+    for node in ordered_nodes:
+        # mirror compile.py logic: skip Reshape nodes
+        if node.op_type == "Reshape":
+            continue
+
+        for input_name in node.input:
+            if input_name in initializer_data and input_name not in visited_initializers:
+                visited_initializers.add(input_name)
+                init = initializer_data[input_name]
+                array = numpy_helper.to_array(init)
+
+                # Choose scale/zero_point per tensor or globally
+                scale = np.max(np.abs(array)) / 127 if np.max(np.abs(array)) > 0 else 1.0
+
+                if len(array.shape) > 1:  # weight
+                    rows, cols = array.shape
+                    TILE_WIDTH = 32
+                    padded_cols = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
+                    
+                    # Pad rows to TILE_WIDTH
+                    padded_array = np.zeros((rows, padded_cols), dtype=np.int8)
+                    q_array = quantize_tensor_f32_int8(array, scale)
+                    padded_array[:, :cols] = q_array
+                    
+                    # Verify padding
+                    padding_elements = padded_array[:, cols:].flatten()
+                    non_zero_padding = np.count_nonzero(padding_elements)
+                    if non_zero_padding > 0:
+                        print(f"ERROR: Padding contains {non_zero_padding} non-zero elements for {input_name}")
+                    else:
+                        print(f"DEBUG_DRAM: Padding verified zero for {input_name}. Cols={cols}, Padded={padded_cols}")
+                        print(f"DEBUG_DRAM: Last 10 elements of row 0: {padded_array[0, cols-10:cols]}")
+                        print(f"DEBUG_DRAM: First 10 elements of padding row 0: {padded_array[0, cols:cols+10]}")
+
+                    quant_array = padded_array.flatten()
+                    
+                    weight_map[input_name] = weight_ptr
+                    weight_ptr = write_to_dram(quant_array, weight_ptr)
+                else:  # bias
+                    quant_array = quantize_tensor_f32_int8(array, scale).flatten()
+                    bias_map[input_name] = bias_ptr
+                    bias_ptr = write_to_dram(quant_array, bias_ptr)
+
+    # Some initializers might not be inputs to any node in the graph (e.g. unused)
+    # We ignore them as compile.py would also ignore them.
 
     return weight_map, bias_map
 

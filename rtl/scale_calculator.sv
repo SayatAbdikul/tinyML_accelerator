@@ -38,7 +38,8 @@ always @(posedge clk or negedge reset_n) begin
             end
         end else if (active) begin
             // Calculate next state COMBINATORIALLY
-            reg [63:0] next_rem_quot = rem_quot << 1;
+            logic [63:0] next_rem_quot;
+            next_rem_quot = rem_quot << 1;
             
             if (next_rem_quot[63:32] >= divisor) begin
                 next_rem_quot[63:32] = next_rem_quot[63:32] - divisor;

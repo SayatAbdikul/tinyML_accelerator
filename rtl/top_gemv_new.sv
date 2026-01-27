@@ -1,4 +1,4 @@
-module top_gemv #(
+module tile_gemv #(
     parameter DATA_WIDTH = 8,
     parameter MAX_ROWS = 1024,
     parameter MAX_COLUMNS = 1024,
@@ -9,15 +9,11 @@ module top_gemv #(
 
     // Control Signals
     input logic start,
-    output logic w_ready,
 
     // Data Inputs
-    input logic w_valid,
     input logic signed [DATA_WIDTH-1:0] w_tile_row_in [0:TILE_SIZE-1],
-    input logic signed [DATA_WIDTH-1:0] x [0:MAX_COLUMNS-1],
-    input logic signed [DATA_WIDTH-1:0] bias [0:MAX_ROWS-1],
-    input logic [9:0] rows,
-    input logic [9:0] cols,
+    input logic signed [DATA_WIDTH-1:0] x_in [0:TILE_SIZE-1],
+    input logic signed [DATA_WIDTH-1:0] bias_in [0:TILE_SIZE-1],
 
     // Data Outputs
     output logic signed [DATA_WIDTH-1:0] y [0:MAX_ROWS-1],
@@ -35,8 +31,9 @@ module top_gemv #(
     localparam TILE_IDX_WIDTH = $clog2(MAX_COLUMNS/TILE_SIZE + 1);
 
     // Internal registers
-    (* ram_style = "block", syn_ramstyle = "block_ram" *)
-    logic signed [4*DATA_WIDTH-1:0] res [0:MAX_ROWS-1];
+    (* syn_ramstyle = "block_ram" *)
+
+    logic signed [4*DATA_WIDTH-1:0] res [0:TILE_SIZE-1];
     logic [ROW_IDX_WIDTH-1:0] row_idx;
     logic [TILE_IDX_WIDTH-1:0] tile_idx;
     logic signed [DATA_WIDTH-1:0] w_latched [0:TILE_SIZE-1];
@@ -179,7 +176,7 @@ module top_gemv #(
                         quant_out_idx <= '0;
                         
                         // Clear result registers
-                        for (int j = 0; j < MAX_ROWS; j++) begin
+                        for (int j = 0; j < TILE_SIZE; j++) begin
                             res[j] <= '0;
                         end
                         
@@ -195,9 +192,6 @@ module top_gemv #(
                         for (int i = 0; i < TILE_SIZE; i++) begin
                             w_latched[i] <= w_tile_row_in[i];
                         end
-                         
-
-
                         w_ready <= 0;
                         // $display("[TOP_GEMV] Row %0d, Tile %0d: w_tile[0:7]=%d,%d,%d,%d,%d,%d,%d,%d",
                         //          row_idx, tile_idx,
@@ -213,7 +207,6 @@ module top_gemv #(
 
                 ACCUMULATE: begin
                     res[row_idx] <= res[row_idx] + sum_current_row;
-
                     // if(sum_current_row != 0)
                     //     $display("Row %0d, Tile %0d: Accumulated tile %0d for row %0d, sum_current_row = %0d", row_idx, tile_idx, tile_idx, row_idx, sum_current_row);
                     if (row_overflow) begin
@@ -270,7 +263,6 @@ module top_gemv #(
                     end
                 end
 
-                // ...existing code...
                 COMPUTE_SCALE: begin
                     tile_done <= 0;
                     // Wait for scale computation to complete

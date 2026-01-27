@@ -5,7 +5,7 @@ Emulates all the instructions.
 import os
 import numpy as np
 from dram import get_dram
-from helper_functions import quantize_int32_to_int8
+from helper_functions import quantize_int32_to_int8, quantize_int32_to_int8_rtl_exact
 buffers = {}
 output_length = 10
 quantized_output_scale = 0.1
@@ -86,11 +86,16 @@ def gemv(dest, w, x, b, rows, cols):
     """Perform GEMV operation."""
     global flag
     buffers[dest] = [0] * rows  # Initialize destination buffer with zeros
+    
+    # Calculate stride based on padding (must match DRAM/Compile padding logic)
+    TILE_WIDTH = 32
+    stride = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
+
     # print(f"GEMV: dest={dest}, w={w}, x={x}, b={b}, rows={rows}, cols={cols}")
     for i in range(rows):
         sum = np.int32(0)  # Initialize sum as int32 to avoid overflow
         for j in range(cols):
-            sum += np.int32(buffers[w][i * cols + j]) * np.int32(buffers[x][j])
+            sum += np.int32(buffers[w][i * stride + j]) * np.int32(buffers[x][j])
             # Matrix-vector multiplication
             # if flag == 2:  # Print only once
             #     print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
@@ -100,8 +105,18 @@ def gemv(dest, w, x, b, rows, cols):
     # print("The number of unique values in the output buffer is:", np.unique(buffers[dest]).size)
     # print("The output buffer is:", buffers[dest])
     flag += 1  # Set flag to indicate GEMV has been executed
-    quantized_output_scale = np.max(np.abs(buffers[dest])) / 127
-    buffers[dest] = quantize_int32_to_int8(np.array(buffers[dest], dtype=np.int32), quantized_output_scale, quantized_output_zero_point)
+    
+    # Calculate max absolute value in the accumulator for dynamic scaling
+    max_abs = np.max(np.abs(buffers[dest]))
+    
+
+    # Use bit-exact RTL simulation for quantization
+    buffers[dest] = quantize_int32_to_int8_rtl_exact(
+        np.array(buffers[dest], dtype=np.int32), 
+        max_abs, 
+        quantized_output_zero_point
+    )
+    print(f"DEBUG_GOLDEN: Layer output buffer {dest} (first 12): {buffers[dest][:12]}")
 
 def relu(dest, x, length):
     """Apply ReLU activation to specified number of elements."""
@@ -116,7 +131,7 @@ def execute_program(hex_file):
     flag = 0
     
     with open(hex_file, 'r') as file:
-        lines = [line.strip() for _, line in zip(range(0x700), file)]
+        lines = [line.strip() for _, line in zip(range(0xC0), file)]
         instructions = [''.join(lines[i:i+8]) for i in range(0, len(lines), 8)]
         # print(f"Instructions are: {instructions[0:13]}")
         instructions = [int(instruction, 16) for instruction in instructions if instruction]  # Convert hex to int
@@ -127,4 +142,3 @@ def execute_program(hex_file):
         i_decoder(instruction)
 
     return buffers[output_buffer][0:output_length]  # Return the final output buffer (assuming it's always buffer 6)
-    

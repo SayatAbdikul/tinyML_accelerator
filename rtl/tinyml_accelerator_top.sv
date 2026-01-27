@@ -19,7 +19,7 @@
 module tinyml_accelerator_top #(
     parameter DATA_WIDTH = 8,
     parameter TILE_WIDTH = 256,              // Match execution_unit default (256) for TILE_ELEMS consistency
-    parameter ADDR_WIDTH = 24,
+    parameter ADDR_WIDTH = 16,
     parameter MAX_ROWS  = 1024,
     parameter MAX_COLS  = 1024,
     parameter OUT_N     = 10,

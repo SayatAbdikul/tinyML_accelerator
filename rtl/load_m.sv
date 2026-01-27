@@ -95,10 +95,8 @@ module load_m #(
                         state <= NEXT_TILE;
                     end else begin
                         byte_cnt <= byte_cnt + 1;
-                        // Only advance mem_addr if we're reading valid data
-                        if (col_in_row + 1 < cols) begin
-                            mem_addr <= mem_addr + 1;
-                        end
+                        // Always advance mem_addr since memory is padded to tile width
+                        mem_addr <= mem_addr + 1;
                     end
                 end
 
@@ -124,11 +122,10 @@ module load_m #(
                         // All rows complete
                         state <= DONE;
                         valid_out <= 1;
-                        // $display("[LOAD_M] All rows complete");
                     end else begin
-                        // Start next row: update base_addr to point to next row in memory
-                        base_addr <= base_addr + cols;
-                        mem_addr <= base_addr + cols;
+                        // Start next row
+                        // Memory address is already at the start of next row due to padded reading
+                        base_addr <= mem_addr; 
                         col_in_row <= 0;
                         tile_in_row <= 0;
                         state <= INIT_READING;
