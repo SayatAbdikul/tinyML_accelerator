@@ -71,3 +71,17 @@ v_env/
 venv/
 ENV/
 env/
+
+# Generated test output files
+test_output.log
+test/cocotb_tests/test_output.log
+test/heavy_test/test_output.log
+test/heavy_test/sim.log
+test/heavy_test/test_results*.csv
+
+# Additional VCD files
+neural_network.vcd
+
+# Generated config files (optional - uncomment to ignore)
+compiler/accelerator_config.py
+rtl/accelerator_config_pkg.sv
