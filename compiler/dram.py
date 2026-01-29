@@ -9,8 +9,9 @@ import onnx
 from onnx import numpy_helper
 from helper_functions import quantize_tensor_f32_int8
 from top_sort import topological_sort
+from accelerator_config import AcceleratorConfig
 
-MEM_SIZE = 0xF000  # Total memory size (Reduced to 60KB for FPGA fit)
+MEM_SIZE = AcceleratorConfig.MEM_SIZE  # Total memory size (Reduced to 60KB for FPGA fit)
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
@@ -77,7 +78,7 @@ def save_initializers_to_dram(model_path, dram_offsets):
 
                 if len(array.shape) > 1:  # weight
                     rows, cols = array.shape
-                    TILE_WIDTH = 32
+                    TILE_WIDTH = AcceleratorConfig.TILE_ELEMS
                     padded_cols = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
                     
                     # Pad rows to TILE_WIDTH
@@ -91,9 +92,10 @@ def save_initializers_to_dram(model_path, dram_offsets):
                     if non_zero_padding > 0:
                         print(f"ERROR: Padding contains {non_zero_padding} non-zero elements for {input_name}")
                     else:
-                        print(f"DEBUG_DRAM: Padding verified zero for {input_name}. Cols={cols}, Padded={padded_cols}")
-                        print(f"DEBUG_DRAM: Last 10 elements of row 0: {padded_array[0, cols-10:cols]}")
-                        print(f"DEBUG_DRAM: First 10 elements of padding row 0: {padded_array[0, cols:cols+10]}")
+                        # print(f"DEBUG_DRAM: Padding verified zero for {input_name}. Cols={cols}, Padded={padded_cols}")
+                        # print(f"DEBUG_DRAM: Last 10 elements of row 0: {padded_array[0, cols-10:cols]}")
+                        # print(f"DEBUG_DRAM: First 10 elements of padding row 0: {padded_array[0, cols:cols+10]}")
+                        pass
 
                     quant_array = padded_array.flatten()
                     

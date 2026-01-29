@@ -1,8 +1,8 @@
 module top_gemv #(
-    parameter DATA_WIDTH = 8,
-    parameter MAX_ROWS = 1024,
-    parameter MAX_COLUMNS = 1024,
-    parameter TILE_SIZE = 32
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter MAX_ROWS = accelerator_config_pkg::MAX_ROWS,
+    parameter MAX_COLUMNS = accelerator_config_pkg::MAX_COLS,
+    parameter TILE_SIZE = accelerator_config_pkg::TILE_ELEMS
 ) (
     input logic clk,
     input logic rst,

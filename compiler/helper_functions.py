@@ -4,6 +4,7 @@ import onnx
 from onnx import numpy_helper
 from top_sort import topological_sort
 import numpy as np
+from accelerator_config import AcceleratorConfig
 
 def load_initializers(graph):
     """Loads initializers from the ONNX graph and returns a map of their names to data, shape, and dtype."""
@@ -91,7 +92,8 @@ def quantize_int32_to_int8_rtl_exact(x_int32, max_abs, zero_point=0):
     
     # 1. Simulate Scale Calculator (scale_calculator.sv)
     # reciprocal_scale = (127 << 24) // max_abs
-    divider = 2130706432  # 127 << 24
+    max_val = (1 << (AcceleratorConfig.DATA_WIDTH - 1)) - 1
+    divider = max_val << 24 
     reciprocal_scale = int(divider // max_abs)
     
     # 2. Simulate Multiplier (quantizer_pipeline.sv)

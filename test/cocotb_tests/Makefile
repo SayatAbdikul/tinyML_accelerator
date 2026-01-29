@@ -48,6 +48,7 @@ export TOPLEVEL_LANG
 # Source files - selected based on TEST_TARGET
 ifeq ($(TEST_TARGET),top_gemv)
     # For top_gemv testbench, include only necessary supporting modules
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/top_gemv.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/pe.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/quantization.sv
@@ -57,14 +58,17 @@ ifeq ($(TEST_TARGET),top_gemv)
     VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
 else ifeq ($(TEST_TARGET),load_v)
     # For load_v testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/load_v.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/simple_memory.sv
 else ifeq ($(TEST_TARGET),load_m)
     # For load_m testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/load_m.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/simple_memory.sv
 else ifeq ($(TEST_TARGET),gemv_execution)
     # For gemv_execution testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/gemv_execution.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/top_gemv.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/pe.sv
@@ -75,10 +79,12 @@ else ifeq ($(TEST_TARGET),gemv_execution)
     VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
 else ifeq ($(TEST_TARGET),buffer_controller)
     # For buffer_controller testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/buffer_controller.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/buffer_file.sv
 else ifeq ($(TEST_TARGET),execution_unit)
     # For execution unit testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/modular_execution_unit.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/buffer_controller.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/execution_unit/load_execution.sv
@@ -101,6 +107,7 @@ else ifeq ($(TEST_TARGET),execution_unit)
     VERILOG_SOURCES += $(shell pwd)/../../rtl/compressor_3to2.sv
 else
     # For full accelerator testbench
+    VERILOG_SOURCES += $(shell pwd)/../../rtl/accelerator_config_pkg.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/tinyml_accelerator_top.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/fetch_unit.sv
     VERILOG_SOURCES += $(shell pwd)/../../rtl/i_decoder.sv
@@ -156,14 +163,24 @@ prepare:
 	@echo "Checking for dram.hex..."
 	@if [ ! -f ../../compiler/dram.hex ]; then \
 		echo "dram.hex not found. Running compiler to generate it..."; \
-		cd ../../compiler && python3 main.py; \
+		cd ../../compiler && ./venv/bin/python3 main.py; \
 	else \
 		echo "dram.hex found."; \
 	fi
 
 # Run test with preparation
+# Note: Verilator + Cocotb has a known issue where $finish exits before
+# results.xml is written. We work around this by ignoring make errors
+# and checking the output manually.
 run_test: prepare clean
-	$(MAKE) TEST_TARGET=$(TEST_TARGET) SIM=$(SIM) MODULE=$(MODULE) TOPLEVEL=$(TOPLEVEL) 
+	@$(MAKE) TEST_TARGET=$(TEST_TARGET) SIM=$(SIM) MODULE=$(MODULE) TOPLEVEL=$(TOPLEVEL) 2>&1 | tee test_output.log; \
+	if grep -q "FAIL=0" test_output.log && grep -q "PASS=" test_output.log; then \
+		echo "\n✓ All cocotb tests PASSED (results.xml issue ignored)"; \
+		exit 0; \
+	else \
+		echo "\n✗ Tests FAILED - check output above"; \
+		exit 1; \
+	fi 
 
 # Help target
 help:

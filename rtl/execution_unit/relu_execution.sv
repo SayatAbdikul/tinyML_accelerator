@@ -12,9 +12,10 @@
 // execution_unit which incorrectly read from dest.
 
 module relu_execution #(
-    parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 256,
-    parameter TILE_ELEMS = TILE_WIDTH / DATA_WIDTH
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
+    parameter MAX_ROWS = accelerator_config_pkg::MAX_ROWS
 )(
     input logic clk,
     input logic rst,
@@ -38,7 +39,7 @@ module relu_execution #(
     output logic signed [DATA_WIDTH-1:0] vec_write_tile [0:TILE_ELEMS-1],
     
     // Result output (for populating result register in parent module)
-    output logic signed [DATA_WIDTH-1:0] result [0:1023]  // Max 1024 elements
+    output logic signed [DATA_WIDTH-1:0] result [0:MAX_ROWS-1]  // Max MAX_ROWS elements
 );
 
     // FSM states
@@ -56,7 +57,7 @@ module relu_execution #(
     logic [9:0] current_element_offset;
     
     // Result accumulator
-    logic signed [DATA_WIDTH-1:0] result_accumulator [0:1023];
+    logic signed [DATA_WIDTH-1:0] result_accumulator [0:MAX_ROWS-1];
     
     // ReLU input and output for current tile
     logic signed [DATA_WIDTH-1:0] relu_input [0:TILE_ELEMS-1];
@@ -89,7 +90,7 @@ module relu_execution #(
             tile_count <= 0;
             total_tiles_needed <= 0;
             current_element_offset <= 0;
-            for (int i = 0; i < 1024; i++) begin
+            for (int i = 0; i < MAX_ROWS; i++) begin
                 result_accumulator[i] <= 0;
                 result[i] <= 0;
             end
@@ -108,7 +109,7 @@ module relu_execution #(
                         
                         vec_read_enable <= 1;  // Pulse read enable for one cycle
                         tile_count <= 0;
-                        total_tiles_needed <= (length + 10'd31) / 10'd32;
+                        total_tiles_needed <= (length + TILE_ELEMS - 1) / TILE_ELEMS;
                         current_element_offset <= 0;
                         state <= READ_AND_WRITE_TILES;
                         
@@ -148,7 +149,7 @@ module relu_execution #(
                         //         relu_output[4], relu_output[5], relu_output[6], relu_output[7]);
                         
                         tile_count <= tile_count + 1;
-                        current_element_offset <= current_element_offset + 10'd32;
+                        current_element_offset <= current_element_offset + TILE_ELEMS;
                         
                         //$display("[RELU_EXEC] Processed tile %0d/%0d",
                         //         tile_count + 1, total_tiles_needed);
@@ -167,7 +168,7 @@ module relu_execution #(
                     //$display("[RELU_EXEC] ReLU execution complete: %0d tiles processed", tile_count);
                     done <= 1;
                     // Copy results to output
-                    for (int i = 0; i < 1024; i++) begin
+                    for (int i = 0; i < MAX_ROWS; i++) begin
                         result[i] <= result_accumulator[i];
                     end
                     state <= IDLE;

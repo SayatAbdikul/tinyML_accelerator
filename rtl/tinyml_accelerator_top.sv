@@ -17,14 +17,14 @@
 // Connect 'start' high for one cycle to begin processing a new instruction.
 //
 module tinyml_accelerator_top #(
-    parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 256,              // Match execution_unit default (256) for TILE_ELEMS consistency
-    parameter ADDR_WIDTH = 16,
-    parameter MAX_ROWS  = 1024,
-    parameter MAX_COLS  = 1024,
-    parameter OUT_N     = 10,
-    parameter INSTR_WIDTH = 64,
-    parameter HEX_FILE  = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter ADDR_WIDTH = accelerator_config_pkg::ADDR_WIDTH,
+    parameter MAX_ROWS   = accelerator_config_pkg::MAX_ROWS,
+    parameter MAX_COLS   = accelerator_config_pkg::MAX_COLS,
+    parameter OUT_N      = accelerator_config_pkg::OUT_N,
+    parameter INSTR_WIDTH= 64,
+    parameter HEX_FILE   = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
 )(
     input  logic clk,
     input  logic rst,            // Active high

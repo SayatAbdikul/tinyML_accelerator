@@ -6,8 +6,9 @@ import os
 import numpy as np
 from dram import get_dram
 from helper_functions import quantize_int32_to_int8, quantize_int32_to_int8_rtl_exact
+from accelerator_config import AcceleratorConfig
 buffers = {}
-output_length = 10
+output_length = AcceleratorConfig.OUT_N
 quantized_output_scale = 0.1
 quantized_output_zero_point = 0
 output_buffer = 0
@@ -88,7 +89,7 @@ def gemv(dest, w, x, b, rows, cols):
     buffers[dest] = [0] * rows  # Initialize destination buffer with zeros
     
     # Calculate stride based on padding (must match DRAM/Compile padding logic)
-    TILE_WIDTH = 32
+    TILE_WIDTH = AcceleratorConfig.TILE_ELEMS
     stride = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
 
     # print(f"GEMV: dest={dest}, w={w}, x={x}, b={b}, rows={rows}, cols={cols}")
@@ -116,7 +117,7 @@ def gemv(dest, w, x, b, rows, cols):
         max_abs, 
         quantized_output_zero_point
     )
-    print(f"DEBUG_GOLDEN: Layer output buffer {dest} (first 12): {buffers[dest][:12]}")
+
 
 def relu(dest, x, length):
     """Apply ReLU activation to specified number of elements."""
@@ -131,7 +132,7 @@ def execute_program(hex_file):
     flag = 0
     
     with open(hex_file, 'r') as file:
-        lines = [line.strip() for _, line in zip(range(0xC0), file)]
+        lines = [line.strip() for _, line in zip(range(AcceleratorConfig.DRAM_ADDR_INPUTS), file)]
         instructions = [''.join(lines[i:i+8]) for i in range(0, len(lines), 8)]
         # print(f"Instructions are: {instructions[0:13]}")
         instructions = [int(instruction, 16) for instruction in instructions if instruction]  # Convert hex to int

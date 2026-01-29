@@ -3,7 +3,7 @@ import onnx
 from onnx import shape_inference
 import numpy as np
 from helper_functions import build_tensor_shape_map, build_initializer_map, topological_sort, tensor_size
-
+from accelerator_config import AcceleratorConfig
 
 
 def generate_assembly(model_path, output_file):
@@ -30,10 +30,10 @@ def generate_assembly(model_path, output_file):
     # Memory address simulation
     # Memory address simulation (Needs to fit within 0xF000 / 60KB)
     dram_addresses = { # 0x0000 to 0x00C0 reserved for instructions
-        "inputs":  0xC0,   # 0x00C0-0x04C0: 1KB (1024 input elements)
-        "biases":  0x4C0,  # 0x04C0-0x08C0: 1KB (1024 bias elements)
-        "outputs": 0x8C0,  # 0x08C0-0x00940: 128B (128 output elements)
-        "weights": 0x940,  # 0x0940 onwards: Approx 12.5KB for weights
+        "inputs":  AcceleratorConfig.DRAM_ADDR_INPUTS,
+        "biases":  AcceleratorConfig.DRAM_ADDR_BIASES,
+        "outputs": AcceleratorConfig.DRAM_ADDR_OUTPUTS,
+        "weights": AcceleratorConfig.DRAM_ADDR_WEIGHTS,
     }
     
     
@@ -83,7 +83,7 @@ def generate_assembly(model_path, output_file):
                         cols = tensor_data["shape"][-1]
                     
                     # Compute padded size for address calculation and LOAD_M
-                    TILE_WIDTH = 32
+                    TILE_WIDTH = AcceleratorConfig.TILE_ELEMS
                     padded_cols = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
                     size = rows * padded_cols
                     

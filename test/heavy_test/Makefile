@@ -22,7 +22,8 @@ EXTRA_ARGS += --timing  # Enable timing support
 EXTRA_ARGS += -CFLAGS "-std=c++14"
 
 # Source files - include all RTL modules
-VERILOG_SOURCES = $(RTL_DIR)/tinyml_accelerator_top.sv
+VERILOG_SOURCES = $(RTL_DIR)/accelerator_config_pkg.sv
+VERILOG_SOURCES += $(RTL_DIR)/tinyml_accelerator_top.sv
 VERILOG_SOURCES += $(RTL_DIR)/fetch_unit.sv
 VERILOG_SOURCES += $(RTL_DIR)/i_decoder.sv
 VERILOG_SOURCES += $(RTL_DIR)/simple_memory.sv
@@ -82,7 +83,17 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 .PHONY: run_test clean_sim quick_test debug_test
 
 # Run full test suite
-run_test: sim
+# Workaround: Verilator + Cocotb $finish exits before results.xml is written
+run_test:
+	@$(MAKE) sim 2>&1 | tee test_output.log; \
+	if grep -q "TEST SUITE PASSED" test_output.log || (grep -q "FAIL=0" test_output.log && grep -q "PASS=" test_output.log); then \
+		echo "\n✓ All tests PASSED (results.xml issue ignored)"; \
+		exit 0; \
+	else \
+		echo "\n✗ Tests FAILED - check output above"; \
+		exit 1; \
+	fi
+
 
 # Quick test - first 100 images
 quick_test:

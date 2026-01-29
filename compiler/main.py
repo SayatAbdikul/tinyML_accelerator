@@ -12,6 +12,7 @@ from model import create_mlp_model
 from golden_model import execute_program
 from dram import save_initializers_to_dram, save_input_to_dram, save_dram_to_file, read_from_dram
 from helper_functions import quantize_tensor_f32_int8
+from accelerator_config import AcceleratorConfig
 
 def evaluate_design(seed, torch_input, label):
     
@@ -56,10 +57,10 @@ if __name__ == "__main__":
     # 2. DRAM configuration
 
     dram_offsets = {
-        "inputs":  0xC0,   # 0x00C0-0x04C0: 1KB (1024 input elements)
-        "biases":  0x4C0,  # 0x04C0-0x08C0: 1KB (1024 bias elements)
-        "outputs": 0x8C0,  # 0x08C0-0x00940: 128B (128 output elements)
-        "weights": 0x940,  # 0x0940 onwards: Approx 12.5KB for weights (Fits well within 60KB)
+        "inputs":  AcceleratorConfig.DRAM_ADDR_INPUTS,
+        "biases":  AcceleratorConfig.DRAM_ADDR_BIASES,
+        "outputs": AcceleratorConfig.DRAM_ADDR_OUTPUTS,
+        "weights": AcceleratorConfig.DRAM_ADDR_WEIGHTS,
     }
 
     # 3. Save weights/biases to DRAM

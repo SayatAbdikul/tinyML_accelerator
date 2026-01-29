@@ -11,11 +11,11 @@
 // 5. Write results back to destination buffer
 
 module gemv_execution #(
-    parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 256,
-    parameter TILE_ELEMS = TILE_WIDTH / DATA_WIDTH,
-    parameter MAX_ROWS = 1024,
-    parameter MAX_COLS = 1024
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
+    parameter MAX_ROWS = accelerator_config_pkg::MAX_ROWS,
+    parameter MAX_COLS = accelerator_config_pkg::MAX_COLS
 )(
     input logic clk,
     input logic rst,
@@ -148,7 +148,7 @@ module gemv_execution #(
                         vec_read_buffer_id <= x_buffer_id;
                         vec_read_enable <= 1;
                         tile_read_count <= 0;
-                        total_tiles_needed <= (cols + 10'd31) / 10'd32;
+                        total_tiles_needed <= (cols + TILE_ELEMS - 1) / TILE_ELEMS;
                         current_element_offset <= 0;
                         state <= READ_X_TILES;
                         
@@ -171,7 +171,7 @@ module gemv_execution #(
                         end
                         
                         tile_read_count <= tile_read_count + 1;
-                        current_element_offset <= current_element_offset + 10'd32;
+                        current_element_offset <= current_element_offset + TILE_ELEMS;
                         
                         // $display("[GEMV_EXEC] Read x tile %0d/%0d, data[0:7]=%d,%d,%d,%d,%d,%d,%d,%d", 
                         //           tile_read_count + 1, total_tiles_needed,
@@ -182,7 +182,7 @@ module gemv_execution #(
                             // Done reading x, start reading bias
                             vec_read_buffer_id <= b_buffer_id;
                             tile_read_count <= 0;
-                            total_tiles_needed <= (rows + 10'd31) / 10'd32;
+                            total_tiles_needed <= (rows + TILE_ELEMS - 1) / TILE_ELEMS;
                             current_element_offset <= 0;
                             state <= READ_BIAS_TILES;
                             //$display("[GEMV_EXEC] Reading bias from buffer %0d", b_buffer_id);
@@ -208,7 +208,7 @@ module gemv_execution #(
                         end
                         
                         tile_read_count <= tile_read_count + 1;
-                        current_element_offset <= current_element_offset + 10'd32;
+                        current_element_offset <= current_element_offset + TILE_ELEMS;
                         
                         // $display("[GEMV_EXEC] Read bias tile %0d/%0d, data[0:7]=%d,%d,%d,%d,%d,%d,%d,%d", 
                         //          tile_read_count + 1, total_tiles_needed,
@@ -222,7 +222,7 @@ module gemv_execution #(
                             tile_read_count <= 0;
                             read_pending <= 0;  // Reset for weight reads
                             // Total weight tiles = rows * tiles_per_row
-                            total_tiles_needed <= rows * ((cols + 10'd31) / 10'd32);
+                            total_tiles_needed <= rows * ((cols + TILE_ELEMS - 1) / TILE_ELEMS);
                             state <= GEMV_COMPUTE;
                             //$display("[GEMV_EXEC] Starting GEMV compute, reading weights from buffer %0d", w_buffer_id);
                         end
@@ -258,10 +258,10 @@ module gemv_execution #(
                     
                     // When GEMV completes, copy results and prepare to write back
                     if (gemv_done) begin
-                        $display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:11]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
-                                 y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
-                                 y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9],
-                                 y_gemv[10], y_gemv[11]);
+                        // $display("[GEMV_EXEC] GEMV computation complete, y_gemv[0:11]=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", 
+                        //          y_gemv[0], y_gemv[1], y_gemv[2], y_gemv[3], y_gemv[4],
+                        //          y_gemv[5], y_gemv[6], y_gemv[7], y_gemv[8], y_gemv[9],
+                        //          y_gemv[10], y_gemv[11]);
                         for (int i = 0; i < MAX_ROWS; i++) begin
                             gemv_result[i] <= y_gemv[i];
                             result[i] <= y_gemv[i];  // Also expose via result output
@@ -270,7 +270,7 @@ module gemv_execution #(
                         // Prepare to write results back to buffer
                         vec_write_buffer_id <= dest_buffer_id;
                         result_tile_write_count <= 0;
-                        total_tiles_needed <= (rows + 10'd31) / 10'd32;
+                        total_tiles_needed <= (rows + TILE_ELEMS - 1) / TILE_ELEMS;
                         current_element_offset <= 0;
                         state <= PACK_RESULT_TILE;
                         //$display("[GEMV_EXEC] Writing %0d result tiles to buffer %0d",
@@ -303,7 +303,7 @@ module gemv_execution #(
                     //         vec_write_tile[4], vec_write_tile[5], vec_write_tile[6], vec_write_tile[7]);
                     
                     result_tile_write_count <= result_tile_write_count + 1;
-                    current_element_offset <= current_element_offset + 10'd32;
+                    current_element_offset <= current_element_offset + TILE_ELEMS;
                     
                     //$display("[GEMV_EXEC] Writing result tile %0d/%0d",
                     //         result_tile_write_count + 1, total_tiles_needed);

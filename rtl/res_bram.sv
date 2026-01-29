@@ -4,8 +4,8 @@
 
 module res_bram #(
     parameter DATA_WIDTH = 32,      // 4*8 = 32 bits per accumulator
-    parameter DEPTH = 1024,         // MAX_ROWS entries
-    parameter ADDR_WIDTH = 10       // $clog2(1024) = 10
+    parameter DEPTH = accelerator_config_pkg::MAX_ROWS,         // MAX_ROWS entries
+    parameter ADDR_WIDTH = $clog2(accelerator_config_pkg::MAX_ROWS)       // $clog2(MAX_ROWS)
 )(
     input  logic                    clk,
     input  logic                    rst,

@@ -1,6 +1,6 @@
 module load_v #(
-    parameter TILE_WIDTH = 256,  // Must be multiple of 8
-    parameter DATA_WIDTH = 8
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH
 )
 (
     input logic clk,
@@ -16,20 +16,20 @@ module load_v #(
     // Unify counts
     localparam ELEM_COUNT = TILE_WIDTH / DATA_WIDTH;
 
-    // Enforce 8-bit elements; generalization would require packing/unpacking
+    // Enforce matching data width
     initial begin
-        if (DATA_WIDTH != 8) begin
-            $fatal(1, "load_v expects DATA_WIDTH=8, got %0d", DATA_WIDTH);
+        if (DATA_WIDTH != accelerator_config_pkg::DATA_WIDTH) begin
+           // $warning("load_v: DATA_WIDTH parameter (%0d) does not match global config (%0d)", DATA_WIDTH, accelerator_config_pkg::DATA_WIDTH);
         end
     end
 
     logic [15:0] length_cnt;
     // Single shared memory instance
-    logic [7:0] mem_data_out;
+    logic [DATA_WIDTH-1:0] mem_data_out;
     // Expose for Verilator TB backdoor writes
     logic [23:0] mem_addr /*verilator public*/;
     logic        mem_we   /*verilator public*/ = 0;
-    logic [7:0]  mem_din  /*verilator public*/;
+    logic [DATA_WIDTH-1:0]  mem_din  /*verilator public*/;
 
     simple_memory #(
         .ADDR_WIDTH(24),

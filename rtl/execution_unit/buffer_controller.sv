@@ -9,11 +9,11 @@
 // - Support for multiple concurrent buffer IDs
 
 module buffer_controller #(
-    parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 256,
-    parameter TILE_ELEMS = TILE_WIDTH / DATA_WIDTH,  // 32 elements per tile
-    parameter VECTOR_BUFFER_WIDTH = 8192,           // Smaller for vectors
-    parameter MATRIX_BUFFER_WIDTH = 131072,         // Larger for matrices (16KB for fc1)
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
+    parameter VECTOR_BUFFER_WIDTH = accelerator_config_pkg::VECTOR_BUFFER_WIDTH,
+    parameter MATRIX_BUFFER_WIDTH = accelerator_config_pkg::MATRIX_BUFFER_WIDTH,
     parameter VECTOR_BUFFER_COUNT = 16,                     // Number of logical buffers
     parameter MATRIX_BUFFER_COUNT = 2                     // Number of logical buffers
 )(

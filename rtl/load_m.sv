@@ -1,6 +1,6 @@
 module load_m #(
-    parameter TILE_WIDTH = 256,  // Must be multiple of 8
-    parameter DATA_WIDTH = 8
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH
 )
 (
     input logic clk,
@@ -14,8 +14,8 @@ module load_m #(
     output logic valid_out
 );
 
-    localparam NUM_BYTES = TILE_WIDTH / 8;  // 32 bytes per tile
-    logic [7:0] mem_data_out;
+    localparam TILE_ELEMS = TILE_WIDTH / DATA_WIDTH;
+    logic [DATA_WIDTH-1:0] mem_data_out;
     logic [23:0] mem_addr;
     logic [23:0] base_addr;  // Start address of current row in memory
 
@@ -31,7 +31,8 @@ module load_m #(
         .dump(1'b0)
     );
 
-    logic [$clog2(NUM_BYTES)-1:0] byte_cnt;       // Byte position within current tile (0-31)
+    logic [$clog2(TILE_ELEMS)-1:0] elem_cnt;       // Element position within current tile
+
     logic [TILE_WIDTH-1:0] tile;
     logic [9:0] current_row;                       // Current row being processed
     logic [9:0] col_in_row;                        // Current column position within row
@@ -43,7 +44,7 @@ module load_m #(
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             state <= IDLE;
-            byte_cnt <= '0;
+            elem_cnt <= '0;
             mem_addr <= '0;
             base_addr <= '0;
             tile <= '0;
@@ -59,7 +60,7 @@ module load_m #(
             
             case (state)
                 IDLE: begin
-                    byte_cnt <= '0;
+                    elem_cnt <= '0;
                     valid_out <= 0;
                     if (valid_in) begin
                         mem_addr <= dram_addr;
@@ -67,7 +68,7 @@ module load_m #(
                         current_row <= 0;
                         col_in_row <= 0;
                         tile_in_row <= 0;
-                        tiles_per_row <= (cols + 10'd31) / 10'd32;  // Ceiling division
+                        tiles_per_row <= (cols + TILE_ELEMS - 1) / TILE_ELEMS;  // Ceiling division
                         state <= INIT_READING;
                         // $display("[LOAD_M] Starting: rows=%0d, cols=%0d, tiles_per_row=%0d, addr=0x%h", 
                         //          rows, cols, (cols + 10'd31) / 10'd32, dram_addr);
@@ -83,18 +84,18 @@ module load_m #(
                 READING: begin
                     // Capture data - only if within valid column range for this row
                     if (col_in_row < cols) begin
-                        tile[int'(byte_cnt)*8 +: 8] <= mem_data_out;
+                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= mem_data_out;
                     end else begin
-                        tile[int'(byte_cnt)*8 +: 8] <= '0;  // Padding zeros
+                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= '0;  // Padding zeros
                     end
                     
                     col_in_row <= col_in_row + 1;
 
                     // End-of-tile check
-                    if (int'(byte_cnt) == NUM_BYTES-1) begin
+                    if (int'(elem_cnt) == TILE_ELEMS-1) begin
                         state <= NEXT_TILE;
                     end else begin
-                        byte_cnt <= byte_cnt + 1;
+                        elem_cnt <= elem_cnt + 1;
                         // Always advance mem_addr since memory is padded to tile width
                         mem_addr <= mem_addr + 1;
                     end
@@ -103,7 +104,7 @@ module load_m #(
                 NEXT_TILE: begin
                     tile_out <= 1;
                     tile_in_row <= tile_in_row + 1;
-                    byte_cnt <= '0;
+                    elem_cnt <= '0;
 
                     // Check if this row is done
                     if (tile_in_row + 1 >= tiles_per_row) begin

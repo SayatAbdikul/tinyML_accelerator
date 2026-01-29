@@ -1,6 +1,7 @@
 """ loads, evaluates and runs the pretrained model"""
 import torch
 import torch.nn as nn
+from accelerator_config import AcceleratorConfig
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 model = None
@@ -12,7 +13,7 @@ def create_mlp_model():
             self.fc1 = nn.Linear(28*28, 12)
             self.relu = nn.ReLU()
             self.fc2 = nn.Linear(12, 32)
-            self.fc3 = nn.Linear(32, 10)
+            self.fc3 = nn.Linear(32, AcceleratorConfig.OUT_N)
 
         def forward(self, x):
             x = x.view(x.size(0), -1)  # Flatten

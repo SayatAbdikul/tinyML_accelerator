@@ -1,9 +1,9 @@
 module buffer_file #(
-    parameter BUFFER_WIDTH = 1024, // in testing purposes, should be more
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter BUFFER_WIDTH = accelerator_config_pkg::VECTOR_BUFFER_WIDTH, // Default to vector size, override for matrix
     parameter BUFFER_COUNT = 2,
-    parameter TILE_WIDTH = 256,
-    parameter DATA_WIDTH = 8,
-    parameter TILE_SIZE = 32
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter TILE_SIZE = accelerator_config_pkg::TILE_ELEMS
 )(
     input clk,
     input reset_n,
