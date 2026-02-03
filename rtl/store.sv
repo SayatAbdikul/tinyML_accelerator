@@ -17,28 +17,21 @@ module store #(
     input  logic [DATA_WIDTH-1:0]       buf_read_data [0:TILE_ELEMS-1],
     input  logic                        buf_read_done,
 
-    output logic                        done
+    output logic                        done,
+    
+    // Memory Interface
+    output logic                        mem_req,
+    output logic                        mem_we,
+    output logic [ADDR_WIDTH-1:0]       mem_addr,
+    output logic [DATA_WIDTH-1:0]       mem_wdata,
+    input  logic                        mem_ready // Ack/busy
 );
 
     // Simple memory interface
-    logic                               mem_we;
-    logic [ADDR_WIDTH-1:0]              mem_addr;
-    logic [DATA_WIDTH-1:0]              mem_din;
+    // logic                               mem_we; -> Output
+    // logic [ADDR_WIDTH-1:0]              mem_addr; -> Output
+    // logic [DATA_WIDTH-1:0]              mem_din; -> Output as mem_wdata
     logic                               mem_dump;
-
-    simple_memory #(
-        .ADDR_WIDTH(ADDR_WIDTH),
-        .DATA_WIDTH(DATA_WIDTH)
-    ) dram (
-        .clk (clk),
-        .we  (mem_we),
-        .addr(mem_addr),
-        .din (mem_din),
-        /* verilator lint_off PINCONNECTEMPTY */
-        .dout(),
-        /* verilator lint_on PINCONNECTEMPTY */
-        .dump(mem_dump)
-    );
 
     typedef enum logic [2:0] { S_IDLE, S_REQ_TILE, S_WRITE_TILE, S_ADVANCE, S_FINISH } s_state_t;
     s_state_t state;
@@ -65,7 +58,7 @@ module store #(
             mem_we       <= 1'b0;
             mem_dump     <= 1'b0;
             mem_addr     <= '0;
-            mem_din      <= '0;
+            mem_wdata    <= '0;
         end else begin
             // Defaults each cycle
             done        <= 1'b0;
@@ -94,9 +87,10 @@ module store #(
 
                 S_WRITE_TILE: begin
                     // Write elements of current tile until either tile done or length satisfied
+                    // Assuming memory can accept back-to-back writes
                     if (written_bits < length*DATA_WIDTH) begin
                         mem_addr <= base_addr + elem_idx_ext;
-                        mem_din  <= buf_read_data[elem_idx];
+                        mem_wdata  <= buf_read_data[elem_idx];
                         mem_we   <= 1'b1;
                         mem_dump <= 1'b1;
                         written_bits <= written_bits + DATA_WIDTH;
@@ -130,5 +124,7 @@ module store #(
             endcase
         end
     end
+
+    assign mem_req = mem_we; 
 
 endmodule

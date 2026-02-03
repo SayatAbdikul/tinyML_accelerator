@@ -9,11 +9,11 @@
 // - Support for multiple concurrent buffer IDs
 
 module buffer_controller #(
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
-    parameter VECTOR_BUFFER_WIDTH = accelerator_config_pkg::VECTOR_BUFFER_WIDTH,
-    parameter MATRIX_BUFFER_WIDTH = accelerator_config_pkg::MATRIX_BUFFER_WIDTH,
+    parameter DATA_WIDTH = 8,
+    parameter TILE_WIDTH = 256,
+    parameter TILE_ELEMS = 32,
+    parameter VECTOR_BUFFER_WIDTH = 8192,
+    parameter MATRIX_BUFFER_WIDTH = 131072,
     parameter VECTOR_BUFFER_COUNT = 16,                     // Number of logical buffers
     parameter MATRIX_BUFFER_COUNT = 2                     // Number of logical buffers
 )(
@@ -121,12 +121,15 @@ module buffer_controller #(
     end
     
     // Select which buffer to reset (prioritize read operations)
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [4:0] vec_reset_buffer_id, mat_reset_buffer_id;
+    /* verilator lint_on UNUSEDSIGNAL */
     assign vec_reset_buffer_id = vec_read_enable ? vec_read_buffer_id : vec_write_buffer_id;
     assign mat_reset_buffer_id = mat_read_enable ? mat_read_buffer_id : mat_write_buffer_id;
     
     // Vector Buffer File Instance
     // Optimized for smaller vectors (x, bias, intermediate activations)
+    /* verilator lint_off WIDTHTRUNC */
     buffer_file #(
         .BUFFER_WIDTH(VECTOR_BUFFER_WIDTH),
         .BUFFER_COUNT(VECTOR_BUFFER_COUNT),
@@ -147,9 +150,11 @@ module buffer_controller #(
         .reset_indices_enable(vec_reset_indices),
         .reset_indices_buffer(vec_reset_buffer_id)
     );
+    /* verilator lint_on WIDTHTRUNC */
     
     // Matrix Buffer File Instance
     // Optimized for larger weight matrices
+    /* verilator lint_off WIDTHTRUNC */
     buffer_file #(
         .BUFFER_WIDTH(MATRIX_BUFFER_WIDTH),
         .BUFFER_COUNT(MATRIX_BUFFER_COUNT),
@@ -170,6 +175,7 @@ module buffer_controller #(
         .reset_indices_enable(mat_reset_indices),
         .reset_indices_buffer(mat_reset_buffer_id)
     );
+    /* verilator lint_on WIDTHTRUNC */
     
     // Generate read valid signals (1 cycle after read enable)
     always_ff @(posedge clk or posedge rst) begin

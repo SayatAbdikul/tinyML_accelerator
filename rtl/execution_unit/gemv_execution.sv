@@ -11,11 +11,11 @@
 // 5. Write results back to destination buffer
 
 module gemv_execution #(
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
-    parameter MAX_ROWS = accelerator_config_pkg::MAX_ROWS,
-    parameter MAX_COLS = accelerator_config_pkg::MAX_COLS
+    parameter DATA_WIDTH = 8,
+    // parameter TILE_WIDTH = 256, // Unused
+    parameter TILE_ELEMS = 32,
+    parameter MAX_ROWS = 1024,
+    parameter MAX_COLS = 1024
 )(
     input logic clk,
     input logic rst,

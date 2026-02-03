@@ -1,6 +1,6 @@
 module load_m #(
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH
+    parameter TILE_WIDTH = 256,
+    parameter DATA_WIDTH = 8
 )
 (
     input logic clk,
@@ -11,25 +11,18 @@ module load_m #(
     input logic [9:0] cols,       // number of columns per row
     output logic [TILE_WIDTH-1:0] data_out,
     output logic tile_out,
-    output logic valid_out
+    output logic valid_out,
+    
+    // Memory interface
+    output logic mem_req,
+    output logic [23:0] mem_addr,
+    input  logic [DATA_WIDTH-1:0] mem_rdata,
+    input  logic mem_valid
 );
 
     localparam TILE_ELEMS = TILE_WIDTH / DATA_WIDTH;
-    logic [DATA_WIDTH-1:0] mem_data_out;
-    logic [23:0] mem_addr;
-    logic [23:0] base_addr;  // Start address of current row in memory
-
-    simple_memory #(
-        .ADDR_WIDTH(24),
-        .DATA_WIDTH(8)
-    ) memory_inst (
-        .clk(clk),
-        .we(0),
-        .addr(mem_addr),
-        .din(8'b0),
-        .dout(mem_data_out),
-        .dump(1'b0)
-    );
+    // logic [DATA_WIDTH-1:0] mem_data_out; -> moved to input mem_rdata
+    // logic [23:0] mem_addr; -> moved to output
 
     logic [$clog2(TILE_ELEMS)-1:0] elem_cnt;       // Element position within current tile
 
@@ -46,7 +39,7 @@ module load_m #(
             state <= IDLE;
             elem_cnt <= '0;
             mem_addr <= '0;
-            base_addr <= '0;
+            // base_addr <= '0;
             tile <= '0;
             valid_out <= 0;
             tile_out <= 0;
@@ -64,7 +57,7 @@ module load_m #(
                     valid_out <= 0;
                     if (valid_in) begin
                         mem_addr <= dram_addr;
-                        base_addr <= dram_addr;
+                        // base_addr <= dram_addr; // Unused
                         current_row <= 0;
                         col_in_row <= 0;
                         tile_in_row <= 0;
@@ -83,8 +76,9 @@ module load_m #(
 
                 READING: begin
                     // Capture data - only if within valid column range for this row
+                    // Ideally check mem_valid here if arbitration is variable lag
                     if (col_in_row < cols) begin
-                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= mem_data_out;
+                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= mem_rdata;
                     end else begin
                         tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= '0;  // Padding zeros
                     end
@@ -126,7 +120,7 @@ module load_m #(
                     end else begin
                         // Start next row
                         // Memory address is already at the start of next row due to padded reading
-                        base_addr <= mem_addr; 
+                        // base_addr <= mem_addr; 
                         col_in_row <= 0;
                         tile_in_row <= 0;
                         state <= INIT_READING;
@@ -143,4 +137,6 @@ module load_m #(
     end
 
     assign data_out = tile;
+    // Request valid during active reading states
+    assign mem_req = (state == INIT_READING || state == READING) && (state != NEXT_TILE);
 endmodule

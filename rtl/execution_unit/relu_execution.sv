@@ -12,10 +12,10 @@
 // execution_unit which incorrectly read from dest.
 
 module relu_execution #(
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter TILE_ELEMS = accelerator_config_pkg::TILE_ELEMS,
-    parameter MAX_ROWS = accelerator_config_pkg::MAX_ROWS
+    parameter DATA_WIDTH = 8,
+    // parameter TILE_WIDTH = 256, // Unused
+    parameter TILE_ELEMS = 32,
+    parameter MAX_ROWS = 1024
 )(
     input logic clk,
     input logic rst,

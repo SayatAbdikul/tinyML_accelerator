@@ -1,15 +1,20 @@
 module fetch_unit #(
     parameter ADDR_WIDTH  = 24,  // word-addressed (each address is one byte in current design)
     parameter INSTR_WIDTH = 64,
-    parameter DATA_WIDTH  = 8,
-    parameter HEX_FILE    = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
+    parameter DATA_WIDTH  = 8
 )(
     input  logic                     clk,
     input  logic                     rst_n,
     input  logic                     fetch_en_i,
     output logic [ADDR_WIDTH-1:0]    pc_o,
     output logic [INSTR_WIDTH-1:0]   instr_o,
-    output logic                     done
+    output logic                     done,
+
+    // Memory interface
+    output logic                     mem_req,
+    output logic [ADDR_WIDTH-1:0]    mem_addr,
+    input  logic [DATA_WIDTH-1:0]    mem_rdata,
+    input  logic                     mem_valid
 );
 
     typedef enum logic [1:0] { IDLE, FETCH, DONE } state_t;
@@ -19,25 +24,10 @@ module fetch_unit #(
     logic [ADDR_WIDTH-1:0]            pc;
     logic [INSTR_WIDTH-1:0]           instruction;
 
-    // Memory interface
-    logic [ADDR_WIDTH-1:0] mem_addr;
-    logic [DATA_WIDTH-1:0] mem_dout;
-
-    simple_memory #(
-        .ADDR_WIDTH(ADDR_WIDTH),
-        .DATA_WIDTH(DATA_WIDTH),
-        .HEX_FILE  (HEX_FILE)
-    ) memory_inst (
-        .clk (clk),
-        .we  (1'b0),
-        .addr(mem_addr),
-        .din ({DATA_WIDTH{1'b0}}),
-        .dout(mem_dout),
-        .dump(1'b0)
-    );
-
     // Address always current pc (pc points to next byte request)
     assign mem_addr = pc;
+    // Request valid during FETCH state
+    assign mem_req  = (state == FETCH);
 
     // Expose pc
     assign pc_o = pc;
@@ -76,8 +66,17 @@ module fetch_unit #(
 
                 FETCH: begin
                     // Issue next address every cycle
-                    instruction[((INSTR_WIDTH/8 - 1 - int'(byte_cnt))*8) +: 8] <= mem_dout;
-                    //$display("Fetched byte: %h for mem_addr=%0d", mem_dout, mem_addr);
+                    // Wait for valid memory data (assuming 1 cycle latency if simple_memory is synchronous)
+                    // In simple_memory (Bram), read is synchronous. 
+                    // Logic here assumes 1 cycle latency implicitly by state machine pace or by mem_valid.
+                    // If we use Unified Memory with Arbiter, latency might vary.
+                    // Ideally we should wait for mem_valid? 
+                    // For now, assuming fixed latency as before, but data comes from input.
+                    
+                    // Assuming mem_valid is asserted 1 cycle after req (or when data is ready)
+                    // If we are just exposing ports, the external memory wrapper will provide rdata.
+                    instruction[((INSTR_WIDTH/8 - 1 - int'(byte_cnt))*8) +: 8] <= mem_rdata;
+                    //$display("Fetched byte: %h for mem_addr=%0d", mem_rdata, mem_addr);
                     if (byte_cnt < $clog2(INSTR_WIDTH/8)'((INSTR_WIDTH/8)-1)) begin
                         byte_cnt <= byte_cnt + 1'b1;
                         pc <= pc + 1'b1;

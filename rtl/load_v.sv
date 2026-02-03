@@ -1,6 +1,6 @@
 module load_v #(
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH
+    parameter TILE_WIDTH = 256,
+    parameter DATA_WIDTH = 8
 )
 (
     input logic clk,
@@ -10,38 +10,21 @@ module load_v #(
     input logic [9:0] length,  // in elements - increased width to ensure no truncation
     output logic [DATA_WIDTH-1:0] data_out [0:TILE_WIDTH/DATA_WIDTH-1],
     output logic tile_out,
-    output logic valid_out
+    output logic valid_out,
+    
+    // Memory Interface
+    output logic mem_req,
+    output logic [23:0] mem_addr,
+    input  logic [DATA_WIDTH-1:0] mem_rdata,
+    input  logic mem_valid
 );
 
     // Unify counts
     localparam ELEM_COUNT = TILE_WIDTH / DATA_WIDTH;
 
-    // Enforce matching data width
-    initial begin
-        if (DATA_WIDTH != accelerator_config_pkg::DATA_WIDTH) begin
-           // $warning("load_v: DATA_WIDTH parameter (%0d) does not match global config (%0d)", DATA_WIDTH, accelerator_config_pkg::DATA_WIDTH);
-        end
-    end
-
     logic [15:0] length_cnt;
-    // Single shared memory instance
-    logic [DATA_WIDTH-1:0] mem_data_out;
-    // Expose for Verilator TB backdoor writes
-    logic [23:0] mem_addr /*verilator public*/;
-    logic        mem_we   /*verilator public*/ = 0;
-    logic [DATA_WIDTH-1:0]  mem_din  /*verilator public*/;
-
-    simple_memory #(
-        .ADDR_WIDTH(24),
-        .DATA_WIDTH(DATA_WIDTH)
-    ) memory_inst (
-        .clk(clk),
-        .we(mem_we),
-        .addr(mem_addr),
-        .din(mem_din),   // allow TB writes; was 8'b0
-        .dout(mem_data_out),
-        .dump(1'b0)
-    );
+    // logic [DATA_WIDTH-1:0] mem_data_out; -> mem_rdata
+    // logic [23:0] mem_addr; -> output
 
     // Internal state
     // Count 0..ELEM_COUNT-1
@@ -85,7 +68,7 @@ module load_v #(
                 READING: begin
                     // Capture data for the address presented in the previous cycle
                     if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
-                        tile[byte_cnt] <= mem_data_out;
+                        tile[byte_cnt] <= mem_rdata;
                     end else begin
                         tile[byte_cnt] <= '0; // Fill with zeros if out of range
                     end
@@ -136,4 +119,8 @@ module load_v #(
             data_out[i] = tile[i];
         end
     end
+    assign data_out = tile; 
+    // Request valid logic
+    assign mem_req = (state == INIT_READING || state == READING);
+
 endmodule

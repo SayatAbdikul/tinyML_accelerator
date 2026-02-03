@@ -17,7 +17,7 @@
 module modular_execution_unit #(
     parameter DATA_WIDTH = 8,
     parameter TILE_WIDTH = 256,
-    parameter ADDR_WIDTH = 16,
+    parameter ADDR_WIDTH = 24,
     parameter MAX_ROWS = 1024,
     parameter MAX_COLS = 1024
 )(
@@ -35,7 +35,15 @@ module modular_execution_unit #(
     
     // Results (same as original execution_unit)
     output logic signed [DATA_WIDTH-1:0] result [0:MAX_ROWS-1],
-    output logic done
+    output logic done,
+
+    // Unified Memory Interface
+    output logic                        mem_req,
+    output logic                        mem_we,
+    output logic [ADDR_WIDTH-1:0]       mem_addr,
+    output logic [DATA_WIDTH-1:0]       mem_wdata,
+    input  logic [DATA_WIDTH-1:0]       mem_rdata,
+    input  logic                        mem_valid
 );
 
     localparam TILE_ELEMS = TILE_WIDTH / DATA_WIDTH;
@@ -91,6 +99,10 @@ module modular_execution_unit #(
     logic [4:0] load_mat_write_buffer_id;
     logic [TILE_WIDTH-1:0] load_mat_write_tile;
     
+    // Load Memory signals
+    logic                        load_mem_req;
+    logic [ADDR_WIDTH-1:0]       load_mem_addr;
+    
     // ========================================================================
     // GEMV Execution Signals
     // ========================================================================
@@ -124,6 +136,12 @@ module modular_execution_unit #(
     logic store_start, store_done;
     logic store_vec_read_enable;
     logic [4:0] store_vec_read_buffer_id;
+
+    // Store Memory Signals
+    logic                        store_mem_req;
+    logic                        store_mem_we;
+    logic [ADDR_WIDTH-1:0]       store_mem_addr;
+    logic [DATA_WIDTH-1:0]       store_mem_wdata;
     
     // ========================================================================
     // Module Instantiations
@@ -180,13 +198,18 @@ module modular_execution_unit #(
         .vec_write_tile(load_vec_write_tile),
         .mat_write_enable(load_mat_write_enable),
         .mat_write_buffer_id(load_mat_write_buffer_id),
-        .mat_write_tile(load_mat_write_tile)
+        .mat_write_tile(load_mat_write_tile),
+        // Memory Interface
+        .mem_req(load_mem_req),
+        .mem_addr(load_mem_addr),
+        .mem_rdata(mem_rdata),
+        .mem_valid(mem_valid)
     );
     
     // GEMV Execution Module
     gemv_execution #(
         .DATA_WIDTH(DATA_WIDTH),
-        .TILE_WIDTH(TILE_WIDTH),
+        // .TILE_WIDTH(TILE_WIDTH),
         .TILE_ELEMS(TILE_ELEMS),
         .MAX_ROWS(MAX_ROWS),
         .MAX_COLS(MAX_COLS)
@@ -218,7 +241,7 @@ module modular_execution_unit #(
     // ReLU Execution Module
     relu_execution #(
         .DATA_WIDTH(DATA_WIDTH),
-        .TILE_WIDTH(TILE_WIDTH),
+        // .TILE_WIDTH(TILE_WIDTH),
         .TILE_ELEMS(TILE_ELEMS)
     ) relu_exec (
         .clk(clk),
@@ -255,7 +278,13 @@ module modular_execution_unit #(
         .vec_read_enable(store_vec_read_enable),
         .vec_read_buffer_id(store_vec_read_buffer_id),
         .vec_read_tile(buf_vec_read_tile),
-        .vec_read_valid(buf_vec_read_valid)
+        .vec_read_valid(buf_vec_read_valid),
+        // Memory Interface
+        .mem_req(store_mem_req),
+        .mem_we(store_mem_we),
+        .mem_addr(store_mem_addr),
+        .mem_wdata(store_mem_wdata),
+        .mem_ready(1'b1) // Assuming always ready for now or connected to mem_valid if ack needed
     );
     
     // ========================================================================
@@ -274,6 +303,12 @@ module modular_execution_unit #(
         buf_mat_write_tile = 0;
         buf_mat_read_enable = 0;
         buf_mat_read_buffer_id = 0;
+
+        // Default Memory Mux
+        mem_req   = 0;
+        mem_we    = 0;
+        mem_addr  = 0;
+        mem_wdata = 0;
         
         // Route signals based on active operation
         case (state)
@@ -288,6 +323,10 @@ module modular_execution_unit #(
                         buf_mat_write_enable = load_mat_write_enable;
                         buf_mat_write_buffer_id = load_mat_write_buffer_id;
                         buf_mat_write_tile = load_mat_write_tile;
+                        // Memory Mux
+                        mem_req  = load_mem_req;
+                        mem_addr = load_mem_addr;
+                        mem_we   = 0;
                     end
                     5'h04: begin // GEMV about to start
                         buf_vec_read_enable = gemv_vec_read_enable;
@@ -308,6 +347,11 @@ module modular_execution_unit #(
                     5'h03: begin // STORE about to start
                         buf_vec_read_enable = store_vec_read_enable;
                         buf_vec_read_buffer_id = store_vec_read_buffer_id;
+                        // Memory Mux
+                        mem_req   = store_mem_req;
+                        mem_we    = store_mem_we;
+                        mem_addr  = store_mem_addr;
+                        mem_wdata = store_mem_wdata;
                     end
                     default: begin
                         // NOP or unknown - all idle
@@ -323,6 +367,10 @@ module modular_execution_unit #(
                 buf_mat_write_enable = load_mat_write_enable;
                 buf_mat_write_buffer_id = load_mat_write_buffer_id;
                 buf_mat_write_tile = load_mat_write_tile;
+                // Memory Mux
+                mem_req  = load_mem_req;
+                mem_addr = load_mem_addr;
+                mem_we   = 0;
             end
             
             WAIT_GEMV: begin
@@ -349,6 +397,11 @@ module modular_execution_unit #(
                 // Store reads from vector buffer
                 buf_vec_read_enable = store_vec_read_enable;
                 buf_vec_read_buffer_id = store_vec_read_buffer_id;
+                // Memory Mux
+                mem_req   = store_mem_req;
+                mem_we    = store_mem_we;
+                mem_addr  = store_mem_addr;
+                mem_wdata = store_mem_wdata;
             end
             
             default: begin

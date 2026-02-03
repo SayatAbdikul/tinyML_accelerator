@@ -22,8 +22,7 @@ EXTRA_ARGS += --timing  # Enable timing support
 EXTRA_ARGS += -CFLAGS "-std=c++14"
 
 # Source files - include all RTL modules
-VERILOG_SOURCES = $(RTL_DIR)/accelerator_config_pkg.sv
-VERILOG_SOURCES += $(RTL_DIR)/tinyml_accelerator_top.sv
+VERILOG_SOURCES = $(RTL_DIR)/tinyml_accelerator_top.sv
 VERILOG_SOURCES += $(RTL_DIR)/fetch_unit.sv
 VERILOG_SOURCES += $(RTL_DIR)/i_decoder.sv
 VERILOG_SOURCES += $(RTL_DIR)/simple_memory.sv

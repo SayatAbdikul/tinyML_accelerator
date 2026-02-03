@@ -17,12 +17,12 @@
 // Connect 'start' high for one cycle to begin processing a new instruction.
 //
 module tinyml_accelerator_top #(
-    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
-    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
-    parameter ADDR_WIDTH = accelerator_config_pkg::ADDR_WIDTH,
-    parameter MAX_ROWS   = accelerator_config_pkg::MAX_ROWS,
-    parameter MAX_COLS   = accelerator_config_pkg::MAX_COLS,
-    parameter OUT_N      = accelerator_config_pkg::OUT_N,
+    parameter DATA_WIDTH = 8,
+    parameter TILE_WIDTH = 256,
+    parameter ADDR_WIDTH = 24,
+    parameter MAX_ROWS   = 1024,
+    parameter MAX_COLS   = 1024,
+    parameter OUT_N      = 10,
     parameter INSTR_WIDTH= 64,
     parameter HEX_FILE   = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
 )(
@@ -39,6 +39,29 @@ module tinyml_accelerator_top #(
     top_state_t t_state, t_state_n;
 
     // ------------------------------------------------------------
+    // Shared Memory System
+    // ------------------------------------------------------------
+    logic [ADDR_WIDTH-1:0] mem_addr;
+    logic [DATA_WIDTH-1:0] mem_rdata;
+    logic [DATA_WIDTH-1:0] mem_wdata;
+    logic                  mem_we;
+    logic                  mem_req; // For info/arbitration logic if needed
+    
+    // Unified Memory Instance
+    simple_memory #(
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH),
+        .HEX_FILE  (HEX_FILE)
+    ) main_memory (
+        .clk(clk),
+        .we(mem_we),
+        .addr(mem_addr),
+        .din(mem_wdata),
+        .dout(mem_rdata),
+        .dump(1'b0) // Control via top-level param/signal if needed
+    );
+
+    // ------------------------------------------------------------
     // Fetch Unit
     // ------------------------------------------------------------
     logic fetch_en;
@@ -48,18 +71,25 @@ module tinyml_accelerator_top #(
     logic [INSTR_WIDTH-1:0] instr;
     logic fetch_done;
     logic store_instr;
+    logic fetch_mem_req;
+    logic [ADDR_WIDTH-1:0] fetch_mem_addr;
+
     fetch_unit #(
         .ADDR_WIDTH (ADDR_WIDTH),
         .INSTR_WIDTH(INSTR_WIDTH),
-        .DATA_WIDTH (DATA_WIDTH),
-        .HEX_FILE   (HEX_FILE)
+        .DATA_WIDTH (DATA_WIDTH)
     ) fetch_u (
         .clk       (clk),
         .rst_n     (~rst),          // fetch_unit uses active-low reset
         .fetch_en_i(fetch_en),
         .pc_o      (pc),
         .instr_o   (instr),
-        .done      (fetch_done)
+        .done      (fetch_done),
+        // Memory Interface
+        .mem_req   (fetch_mem_req),
+        .mem_addr  (fetch_mem_addr),
+        .mem_rdata (mem_rdata), // Shared read data
+        .mem_valid (1'b1)       // Assume always valid/ready for now (BSRAM latency handled by state machine)
     );
 
     // ------------------------------------------------------------
@@ -69,7 +99,9 @@ module tinyml_accelerator_top #(
     logic [4:0]  d_dest;
     logic [9:0]  d_length_or_cols;
     logic [9:0]  d_rows;
+    /* verilator lint_off UNUSEDSIGNAL */
     logic [23:0] d_addr;
+    /* verilator lint_on UNUSEDSIGNAL */
     logic [4:0]  d_b, d_x, d_w;
 
     i_decoder decoder_u (
@@ -99,6 +131,11 @@ module tinyml_accelerator_top #(
     logic exec_done;
     logic signed [DATA_WIDTH-1:0] exec_result [0:MAX_ROWS-1];
 
+    logic exec_mem_req;
+    logic exec_mem_we;
+    logic [ADDR_WIDTH-1:0] exec_mem_addr;
+    logic [DATA_WIDTH-1:0] exec_mem_wdata;
+
     modular_execution_unit #(
         .DATA_WIDTH (DATA_WIDTH),
         .TILE_WIDTH (TILE_WIDTH),
@@ -118,14 +155,42 @@ module tinyml_accelerator_top #(
         .x_id         (ex_x),
         .w_id         (ex_w),
         .result       (exec_result),
-        .done         (exec_done)
+        .done         (exec_done),
+        // Memory Interface
+        .mem_req      (exec_mem_req),
+        .mem_we       (exec_mem_we),
+        .mem_addr     (exec_mem_addr),
+        .mem_wdata    (exec_mem_wdata),
+        .mem_rdata    (mem_rdata), // Shared read data
+        .mem_valid    (1'b1)       // Assume simple_memory is always ready
     );
 
     // ------------------------------------------------------------
     // Top-level FSM next-state logic
     // ------------------------------------------------------------
     // Track if we hit a zero instruction (program end)
+    /* verilator lint_off UNUSEDSIGNAL */
     logic program_done;
+    /* verilator lint_on UNUSEDSIGNAL */
+    
+    // Memory Arbitration Logic
+    // Since T_FETCH/T_WAIT_FETCH and T_EXECUTE_* are mutually exclusive in this FSM,
+    // we can use a simple priority mux or state-based mux.
+    always_comb begin
+        if (t_state == T_FETCH || t_state == T_WAIT_FETCH) begin
+            // Fetch Unit has access
+            mem_addr  = fetch_mem_addr;
+            mem_req   = fetch_mem_req; // Might need to drive this based on logic, but fetch_u provides it
+            mem_we    = 1'b0; // Fetch is read-only
+            mem_wdata = '0;
+        end else begin
+            // Execution Unit has access (Load/Store)
+            mem_addr  = exec_mem_addr;
+            mem_req   = exec_mem_req;
+            mem_we    = exec_mem_we;
+            mem_wdata = exec_mem_wdata;
+        end
+    end
     
     always_comb begin
         t_state_n = t_state;

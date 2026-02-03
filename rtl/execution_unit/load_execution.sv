@@ -35,7 +35,13 @@ module load_execution #(
     // Buffer controller interface - matrix writes
     output logic mat_write_enable,
     output logic [4:0] mat_write_buffer_id,
-    output logic [TILE_WIDTH-1:0] mat_write_tile
+    output logic [TILE_WIDTH-1:0] mat_write_tile,
+    
+    // Unified Memory Interface
+    output logic mem_req,
+    output logic [ADDR_WIDTH-1:0] mem_addr,
+    input  logic [DATA_WIDTH-1:0] mem_rdata,
+    input  logic mem_valid
 );
 
     // FSM states
@@ -58,6 +64,24 @@ module load_execution #(
     
     // Tile counters for tracking progress
     logic [9:0] tile_count;
+
+    // Memory Logic
+    logic load_v_mem_req;
+    logic [ADDR_WIDTH-1:0] load_v_mem_addr;
+    logic load_m_mem_req;
+    logic [ADDR_WIDTH-1:0] load_m_mem_addr;
+
+    // MUX Memory Requests based on State/Opcode
+    always_comb begin
+        if (state == LOADING_MATRIX || opcode == 5'h02) begin
+            mem_req  = load_m_mem_req;
+            mem_addr = load_m_mem_addr;
+        end else begin
+            // Default to vector load (safe even in IDLE)
+            mem_req  = load_v_mem_req;
+            mem_addr = load_v_mem_addr;
+        end
+    end
     
     // Load_v module instantiation
     // Loads vector data from memory and outputs tiles
@@ -72,7 +96,12 @@ module load_execution #(
         .length(length_or_cols),
         .data_out(load_v_tile),
         .tile_out(load_v_tile_ready),
-        .valid_out(load_v_done)
+        .valid_out(load_v_done),
+        // Memory Interface
+        .mem_req(load_v_mem_req),
+        .mem_addr(load_v_mem_addr),
+        .mem_rdata(mem_rdata), // Shared input
+        .mem_valid(mem_valid)  // Shared input
     );
     
     // Load_m module instantiation
@@ -89,7 +118,12 @@ module load_execution #(
         .cols(length_or_cols),
         .data_out(load_m_tile),
         .tile_out(load_m_tile_ready),
-        .valid_out(load_m_done)
+        .valid_out(load_m_done),
+        // Memory Interface
+        .mem_req(load_m_mem_req),
+        .mem_addr(load_m_mem_addr),
+        .mem_rdata(mem_rdata), // Shared input
+        .mem_valid(mem_valid)  // Shared input
     );
     
     // Control logic for buffer writes

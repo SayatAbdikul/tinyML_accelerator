@@ -24,10 +24,18 @@ module store_execution #(
     output logic done,
     
     // Buffer controller interface - vector reads
+    // Buffer controller interface - vector reads
     output logic vec_read_enable,
     output logic [4:0] vec_read_buffer_id,
     input logic signed [DATA_WIDTH-1:0] vec_read_tile [0:TILE_ELEMS-1],
-    input logic vec_read_valid
+    input logic vec_read_valid,
+    
+    // Memory Interface
+    output logic                        mem_req,
+    output logic                        mem_we,
+    output logic [ADDR_WIDTH-1:0]       mem_addr,
+    output logic [DATA_WIDTH-1:0]       mem_wdata,
+    input  logic                        mem_ready
 );
 
     // Store module control signals
@@ -61,7 +69,13 @@ module store_execution #(
         .buf_read_id(vec_read_buffer_id),
         .buf_read_data(buf_read_data),
         .buf_read_done(vec_read_valid),
-        .done(store_done)
+        .done(store_done),
+        // Memory Interface
+        .mem_req(mem_req),
+        .mem_we(mem_we),
+        .mem_addr(mem_addr),
+        .mem_wdata(mem_wdata),
+        .mem_ready(mem_ready)
     );
     
     // Simple control FSM

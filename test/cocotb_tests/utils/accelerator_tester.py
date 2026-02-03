@@ -128,17 +128,17 @@ class TinyMLAcceleratorTester:
     def read_memory_from_rtl(self, start_addr, length):
         """
         Read memory contents directly from RTL simulation memory.
-        Accesses the store module's DRAM memory array.
+        Accesses the top-level unified memory array.
         """
         try:
-            # Access store module's memory through hierarchy
-            # Path: top -> execution_u -> store_exec -> store_inst -> dram -> memory
-            store_mem = self.dut.execution_u.store_exec.store_inst.dram.memory
+            # Access unified memory in top module
+            # Path: top -> main_memory -> memory
+            main_mem = self.dut.main_memory.memory
 
             # Read memory values
             result = []
             for addr in range(start_addr, start_addr + length):
-                val = store_mem[addr].value.integer
+                val = main_mem[addr].value.integer
                 if val > 127:
                     val = val - 256
                 result.append(val)
@@ -193,31 +193,18 @@ class TinyMLAcceleratorTester:
 
     def write_to_all_rtl_memories(self, address, value):
         """
-        Write a single byte to ALL RTL memory instances at the given address.
-        
-        CRITICAL: The RTL has 4 SEPARATE simple_memory instances that each
-        initialize independently from dram.hex at time 0. They do NOT share state.
-        To ensure consistent data across all units, we must write to each one.
-        
-        Memory instances:
-        1. fetch_u.memory_inst.memory - instruction fetch
-        2. execution_u.load_exec.load_v_inst.memory_inst.memory - vector load
-        3. execution_u.load_exec.load_m_inst.memory_inst.memory - matrix load
-        4. execution_u.store_exec.store_inst.dram.memory - store unit
+        Write a single byte to the unified RTL memory instance at the given address.
         """
         # Convert signed int8 to unsigned for writing
         unsigned_val = value if value >= 0 else value + 256
         
         try:
-            # Write to all 4 memory instances
-            self.dut.fetch_u.memory_inst.memory[address].value = unsigned_val
-            self.dut.execution_u.load_exec.load_v_inst.memory_inst.memory[address].value = unsigned_val
-            self.dut.execution_u.load_exec.load_m_inst.memory_inst.memory[address].value = unsigned_val
-            self.dut.execution_u.store_exec.store_inst.dram.memory[address].value = unsigned_val
+            # Write to unified memory instance
+            self.dut.main_memory.memory[address].value = unsigned_val
         except AttributeError as e:
             # Log error only once for first failure
             if address == 0:
-                cocotb.log.error(f"Failed to write to RTL memories - hierarchy path may be incorrect: {e}")
+                cocotb.log.error(f"Failed to write to RTL memory - hierarchy path may be incorrect: {e}")
                 cocotb.log.error("Available attributes on dut:")
                 try:
                     cocotb.log.error(f"  dut children: {dir(self.dut)[:20]}...")
@@ -225,29 +212,25 @@ class TinyMLAcceleratorTester:
                     pass
             raise
         except Exception as e:
-            cocotb.log.error(f"Failed to write to RTL memories at address 0x{address:06X}: {e}")
+            cocotb.log.error(f"Failed to write to RTL memory at address 0x{address:06X}: {e}")
             raise
     
     def verify_memory_write(self, address, expected_value):
         """
-        Verify that a value was correctly written to all memory instances.
+        Verify that a value was correctly written to the unified memory instance.
         """
         unsigned_expected = expected_value if expected_value >= 0 else expected_value + 256
         
         try:
-            fetch_val = self.dut.fetch_u.memory_inst.memory[address].value.integer
-            load_v_val = self.dut.execution_u.load_exec.load_v_inst.memory_inst.memory[address].value.integer
-            load_m_val = self.dut.execution_u.load_exec.load_m_inst.memory_inst.memory[address].value.integer
-            store_val = self.dut.execution_u.store_exec.store_inst.dram.memory[address].value.integer
+            mem_val = self.dut.main_memory.memory[address].value.integer
             
-            all_match = (fetch_val == load_v_val == load_m_val == store_val == unsigned_expected)
+            match = (mem_val == unsigned_expected)
             
-            if not all_match:
+            if not match:
                 cocotb.log.warning(f"Memory mismatch at 0x{address:06X}: "
                                   f"expected={unsigned_expected}, "
-                                  f"fetch={fetch_val}, load_v={load_v_val}, "
-                                  f"load_m={load_m_val}, store={store_val}")
-            return all_match
+                                  f"actual={mem_val}")
+            return match
         except Exception as e:
             cocotb.log.error(f"Error verifying memory at 0x{address:06X}: {e}")
             return False
