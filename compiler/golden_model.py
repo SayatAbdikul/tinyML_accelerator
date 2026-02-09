@@ -12,10 +12,29 @@ output_length = AcceleratorConfig.OUT_N
 quantized_output_scale = 0.1
 quantized_output_zero_point = 0
 output_buffer = 0
-def load_memory(dram_file):
-    """Load memory from a hex file."""
-    # In testing purposes, we don't use hex file here
-    return get_dram()  # Use the global DRAM state
+def load_memory(dram_file, use_file=True):
+    """Load memory from a hex file or from in-memory DRAM state.
+    
+    Args:
+        dram_file: Path to the hex file to load from
+        use_file: If True, read from file. If False, use in-memory DRAM state.
+    
+    Returns:
+        np.array of int8 values representing memory contents
+    """
+    if not use_file:
+        return get_dram()  # Use the global DRAM state
+    
+    # Load from hex file
+    memory = []
+    with open(dram_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                # Convert hex string to unsigned byte, then view as signed int8
+                val = int(line, 16)
+                memory.append(np.int8(np.uint8(val)))
+    return np.array(memory, dtype=np.int8)
 
 
 def i_decoder(instruction):
@@ -123,8 +142,17 @@ def relu(dest, x, length):
     """Apply ReLU activation to specified number of elements."""
     buffers[dest] = [max(0, val) for val in buffers[x][:length]]  # Apply ReLU to first 'length' elements
 
-def execute_program(hex_file):
-    """Execute the program from a hex file."""
+def execute_program(hex_file, use_in_memory=False):
+    """Execute the program from a hex file.
+    
+    Args:
+        hex_file: Path to the hex file containing the program and data
+        use_in_memory: If True, use in-memory DRAM state instead of reading from file.
+                       Useful for testing within the same Python process.
+    
+    Returns:
+        Output buffer containing inference results
+    """
     # Clear global state for fresh execution
     global buffers, output_buffer, flag
     buffers = {}
@@ -138,8 +166,8 @@ def execute_program(hex_file):
         instructions = [int(instruction, 16) for instruction in instructions if instruction]  # Convert hex to int
         # print(f"Instructions are: {instructions[0:13]}")
     global memory
-    memory = load_memory('dram.hex')
+    memory = load_memory(hex_file, use_file=not use_in_memory)
     for instruction in instructions:
         i_decoder(instruction)
 
-    return buffers[output_buffer][0:output_length]  # Return the final output buffer (assuming it's always buffer 6)
+    return buffers[output_buffer][0:output_length]  # Return the final output buffer
