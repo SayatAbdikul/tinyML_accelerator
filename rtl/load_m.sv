@@ -1,12 +1,13 @@
 module load_m #(
     parameter TILE_WIDTH = 256,
-    parameter DATA_WIDTH = 8
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 24
 )
 (
     input logic clk,
     input logic rst,
     input logic valid_in,
-    input logic [23:0] dram_addr,
+    input logic [ADDR_WIDTH-1:0] dram_addr,
     input logic [9:0] rows,       // number of rows (for row-aware padding)
     input logic [9:0] cols,       // number of columns per row
     output logic [TILE_WIDTH-1:0] data_out,
@@ -15,7 +16,7 @@ module load_m #(
     
     // Memory interface
     output logic mem_req,
-    output logic [23:0] mem_addr,
+    output logic [ADDR_WIDTH-1:0] mem_addr,
     input  logic [DATA_WIDTH-1:0] mem_rdata,
     input  logic mem_valid
 );
@@ -76,22 +77,26 @@ module load_m #(
 
                 READING: begin
                     // Capture data - only if within valid column range for this row
-                    // Ideally check mem_valid here if arbitration is variable lag
-                    if (col_in_row < cols) begin
-                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= mem_rdata;
-                    end else begin
-                        tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= '0;  // Padding zeros
-                    end
-                    
-                    col_in_row <= col_in_row + 1;
-
-                    // End-of-tile check
-                    if (int'(elem_cnt) == TILE_ELEMS-1) begin
-                        state <= NEXT_TILE;
-                    end else begin
-                        elem_cnt <= elem_cnt + 1;
-                        // Always advance mem_addr since memory is padded to tile width
-                        mem_addr <= mem_addr + 1;
+                    // Check mem_valid for correct handshake
+                    if (mem_valid) begin
+                        if (col_in_row < cols) begin
+                            tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= mem_rdata;
+                            // if (current_row == 0 && col_in_row == 0)
+                            //     $display("[DEBUG] LOAD_M: Loaded first byte 0x%h from Mem", mem_rdata);
+                        end else begin
+                            tile[int'(elem_cnt)*DATA_WIDTH +: DATA_WIDTH] <= '0;  // Padding zeros
+                        end
+                        
+                        col_in_row <= col_in_row + 1;
+    
+                        // End-of-tile check
+                        if (int'(elem_cnt) == TILE_ELEMS-1) begin
+                            state <= NEXT_TILE;
+                        end else begin
+                            elem_cnt <= elem_cnt + 1;
+                            // Always advance mem_addr since memory is padded to tile width
+                            mem_addr <= mem_addr + 1;
+                        end
                     end
                 end
 

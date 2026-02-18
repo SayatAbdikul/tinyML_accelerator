@@ -48,7 +48,8 @@ VERILOG_SOURCES += $(RTL_DIR)/execution_unit/relu_execution.sv
 VERILOG_SOURCES += $(RTL_DIR)/execution_unit/store_execution.sv
 
 # Python path setup
-export PYTHONPATH := $(COCOTB_DIR)/utils:$(PYTHONPATH)
+# Python path setup
+export PYTHONPATH := $(TEST_DIR):$(COCOTB_DIR)/utils:$(PYTHONPATH)
 
 # Test configuration via environment variables
 # Usage examples:

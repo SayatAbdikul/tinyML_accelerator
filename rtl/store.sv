@@ -40,6 +40,7 @@ module store #(
     logic [15:0]           written_bits;
     // Use exact index width for TILE_ELEMS entries
     logic [$clog2(TILE_ELEMS)-1:0] elem_idx;
+    logic read_requested;
 
     // Constant mapping of buffer id
     assign buf_read_id = buf_id;
@@ -55,6 +56,7 @@ module store #(
             written_bits <= '0;
             elem_idx     <= '0;
             buf_read_en  <= 1'b0;
+            read_requested <= 1'b0;
             mem_we       <= 1'b0;
             mem_dump     <= 1'b0;
             mem_addr     <= '0;
@@ -72,26 +74,32 @@ module store #(
                         base_addr    <= dram_addr;
                         written_bits <= 16'd0;
                         elem_idx     <= '0;
+                        read_requested <= 1'b0; // Reset read_requested when starting a new operation
                         state        <= S_REQ_TILE;
                     end
                 end
 
                 S_REQ_TILE: begin
-                    // Request a tile from buffer
-                    buf_read_en <= 1'b1;
+                    // Request a tile from buffer - pulse read for exactly 1 cycle
+                    if (!read_requested) begin
+                        buf_read_en <= 1'b1;
+                        read_requested <= 1'b1;
+                    end
                     if (buf_read_done) begin
                         elem_idx <= '0;
+                        read_requested <= 1'b0;
                         state    <= S_WRITE_TILE;
                     end
                 end
 
                 S_WRITE_TILE: begin
                     // Write elements of current tile until either tile done or length satisfied
-                    // Assuming memory can accept back-to-back writes
                     if (written_bits < length*DATA_WIDTH) begin
                         mem_addr <= base_addr + elem_idx_ext;
                         mem_wdata  <= buf_read_data[elem_idx];
                         mem_we   <= 1'b1;
+                        //$display("[STORE_DBG] TileWrite: base=0x%h, idx=%0d, wdata=0x%h (from buf[%0d])", 
+                        //         base_addr, elem_idx, buf_read_data[elem_idx], elem_idx);
                         mem_dump <= 1'b1;
                         written_bits <= written_bits + DATA_WIDTH;
                         if (int'(elem_idx) == TILE_ELEMS-1) begin

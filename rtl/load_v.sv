@@ -1,12 +1,13 @@
 module load_v #(
     parameter TILE_WIDTH = 256,
-    parameter DATA_WIDTH = 8
+    parameter DATA_WIDTH = 8,
+    parameter ADDR_WIDTH = 24
 )
 (
     input logic clk,
     input logic rst,
     input logic valid_in,
-    input logic [23:0] dram_addr,
+    input logic [ADDR_WIDTH-1:0] dram_addr,
     input logic [9:0] length,  // in elements - increased width to ensure no truncation
     output logic [DATA_WIDTH-1:0] data_out [0:TILE_WIDTH/DATA_WIDTH-1],
     output logic tile_out,
@@ -14,7 +15,7 @@ module load_v #(
     
     // Memory Interface
     output logic mem_req,
-    output logic [23:0] mem_addr,
+    output logic [ADDR_WIDTH-1:0] mem_addr,
     input  logic [DATA_WIDTH-1:0] mem_rdata,
     input  logic mem_valid
 );
@@ -66,20 +67,22 @@ module load_v #(
                 end
 
                 READING: begin
-                    // Capture data for the address presented in the previous cycle
-                    if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
-                        tile[byte_cnt] <= mem_rdata;
-                    end else begin
-                        tile[byte_cnt] <= '0; // Fill with zeros if out of range
-                    end
+                    // Capture data only when valid
+                    if (mem_valid) begin
+                        if(length_cnt + byte_cnt*8 < length * DATA_WIDTH) begin
+                            tile[byte_cnt] <= mem_rdata;
+                        end else begin
+                            tile[byte_cnt] <= '0; // Fill with zeros if out of range
+                        end
 
-                    // End-of-tile after ELEM_COUNT captures (0..ELEM_COUNT-1)
-                    if (int'(byte_cnt) == ELEM_COUNT - 1) begin
-                        state <= NEXT_TILE;
-                    end else begin
-                        byte_cnt <= byte_cnt + 1;
-                         // Prepare next read
-                        mem_addr <= mem_addr + 1;
+                        // End-of-tile after ELEM_COUNT captures (0..ELEM_COUNT-1)
+                        if (int'(byte_cnt) == ELEM_COUNT - 1) begin
+                            state <= NEXT_TILE;
+                        end else begin
+                            byte_cnt <= byte_cnt + 1;
+                             // Prepare next read
+                            mem_addr <= mem_addr + 1;
+                        end
                     end
                 end
 
