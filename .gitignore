@@ -85,3 +85,4 @@ neural_network.vcd
 # Generated config files (optional - uncomment to ignore)
 compiler/accelerator_config.py
 rtl/accelerator_config_pkg.sv
+src
