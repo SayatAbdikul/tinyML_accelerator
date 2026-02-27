@@ -1,0 +1,524 @@
+// Modular Execution Unit - Tile-Streaming Architecture
+// Refactored to eliminate large register arrays for FPGA resource optimization
+// 
+// Architecture:
+// - Buffer Controller: Manages all buffer file I/O
+// - Load Execution: Handles LOAD_V and LOAD_M operations
+// - GEMV Execution: Orchestrates matrix-vector multiplication (tile-streaming)
+// - ReLU Execution: Applies activation functions (tile-streaming)
+// - Store Execution: Handles memory writes
+//
+// OPTIMIZATION: Removed all MAX_ROWS-sized register arrays
+// Results are stored in buffers and read back tile-by-tile when needed
+
+module modular_execution_unit #(
+    parameter DATA_WIDTH = 8,
+    parameter TILE_WIDTH = 64,
+    parameter ADDR_WIDTH = 15,
+    parameter MAX_ROWS = 784,
+    parameter MAX_COLS = 784,
+    parameter VECTOR_BUFFER_WIDTH = 8192,
+    parameter VECTOR_BUFFER_COUNT = 8,
+    parameter MATRIX_BUFFER_WIDTH = 32768
+)(
+    input logic clk,
+    input logic rst,
+    
+    // Control interface
+    input logic start,
+    input logic [4:0] opcode,
+    input logic [4:0] dest,
+    input logic [9:0] length_or_cols,
+    input logic [9:0] rows,
+    input logic [ADDR_WIDTH-1:0] addr,
+    input logic [4:0] b_id, x_id, w_id,
+    
+    // Results - last tile written (TILE_ELEMS elements)
+    output logic signed [DATA_WIDTH-1:0] result [0:TILE_ELEMS-1],
+    output logic done,
+
+    // Unified Memory Interface
+    output logic                        mem_req,
+    output logic                        mem_we,
+    output logic [ADDR_WIDTH-1:0]       mem_addr,
+    output logic [DATA_WIDTH-1:0]       mem_wdata,
+    input  logic [DATA_WIDTH-1:0]       mem_rdata,
+    input  logic                        mem_valid
+);
+
+    localparam TILE_ELEMS = TILE_WIDTH / DATA_WIDTH;
+    
+    // Main FSM states
+    typedef enum logic [2:0] {
+        IDLE,
+        DISPATCH,
+        WAIT_LOAD,
+        WAIT_GEMV,
+        WAIT_RELU,
+        WAIT_STORE,
+        COMPLETE
+    } main_state_t;
+    
+    main_state_t state;
+    
+    // ========================================================================
+    // Buffer Controller Signals
+    // ========================================================================
+    
+    // Vector buffer write interface
+    logic buf_vec_write_enable;
+    logic [4:0] buf_vec_write_buffer_id;
+    logic signed [DATA_WIDTH-1:0] buf_vec_write_tile [0:TILE_ELEMS-1];
+    
+    // Vector buffer read interface
+    logic buf_vec_read_enable;
+    logic [4:0] buf_vec_read_buffer_id;
+    logic signed [DATA_WIDTH-1:0] buf_vec_read_tile [0:TILE_ELEMS-1];
+    logic buf_vec_read_valid;
+    
+    // Matrix buffer write interface
+    logic buf_mat_write_enable;
+    logic [4:0] buf_mat_write_buffer_id;
+    logic [TILE_WIDTH-1:0] buf_mat_write_tile;
+    
+    // Matrix buffer read interface
+    logic buf_mat_read_enable;
+    logic [4:0] buf_mat_read_buffer_id;
+    logic signed [DATA_WIDTH-1:0] buf_mat_read_tile [0:TILE_ELEMS-1];
+    logic buf_mat_read_valid;
+    
+    // ========================================================================
+    // Load Execution Signals
+    // ========================================================================
+    
+    logic load_start, load_done;
+    logic load_vec_write_enable;
+    logic [4:0] load_vec_write_buffer_id;
+    logic signed [DATA_WIDTH-1:0] load_vec_write_tile [0:TILE_ELEMS-1];
+    logic load_mat_write_enable;
+    logic [4:0] load_mat_write_buffer_id;
+    logic [TILE_WIDTH-1:0] load_mat_write_tile;
+    
+    // Load Memory signals
+    logic                        load_mem_req;
+    logic [ADDR_WIDTH-1:0]       load_mem_addr;
+    
+    // ========================================================================
+    // GEMV Execution Signals
+    // ========================================================================
+    
+    logic gemv_start, gemv_done;
+    logic gemv_vec_read_enable;
+    logic [4:0] gemv_vec_read_buffer_id;
+    logic gemv_mat_read_enable;
+    logic [4:0] gemv_mat_read_buffer_id;
+    logic gemv_vec_write_enable;
+    logic [4:0] gemv_vec_write_buffer_id;
+    logic signed [DATA_WIDTH-1:0] gemv_vec_write_tile [0:TILE_ELEMS-1];
+    // REMOVED: gemv_result[0:MAX_ROWS-1] - results now stay in buffer
+    logic signed [DATA_WIDTH-1:0] gemv_result_tile [0:TILE_ELEMS-1]; // Just current tile
+    
+    // ========================================================================
+    // ReLU Execution Signals
+    // ========================================================================
+    
+    logic relu_start, relu_done;
+    logic relu_vec_read_enable;
+    logic [4:0] relu_vec_read_buffer_id;
+    logic relu_vec_write_enable;
+    logic [4:0] relu_vec_write_buffer_id;
+    logic signed [DATA_WIDTH-1:0] relu_vec_write_tile [0:TILE_ELEMS-1];
+    // REMOVED: relu_result[0:1023] - results now stay in buffer
+    logic signed [DATA_WIDTH-1:0] relu_result_tile [0:TILE_ELEMS-1]; // Just current tile
+    
+    // ========================================================================
+    // Store Execution Signals
+    // ========================================================================
+    
+    logic store_start, store_done;
+    logic store_vec_read_enable;
+    logic [4:0] store_vec_read_buffer_id;
+
+    // Store Memory Signals
+    logic                        store_mem_req;
+    logic                        store_mem_we;
+    logic [ADDR_WIDTH-1:0]       store_mem_addr;
+    logic [DATA_WIDTH-1:0]       store_mem_wdata;
+    
+    logic clr_cache;
+    
+    // ========================================================================
+    // Module Instantiations
+    // ========================================================================
+    
+    // Buffer Controller
+    buffer_controller #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_WIDTH(TILE_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS),
+        .VECTOR_BUFFER_WIDTH(VECTOR_BUFFER_WIDTH),
+        .VECTOR_BUFFER_COUNT(VECTOR_BUFFER_COUNT),
+        .MATRIX_BUFFER_WIDTH(MATRIX_BUFFER_WIDTH)
+    ) buffer_ctrl (
+        .clk(clk),
+        .rst(rst),
+        .vec_write_enable(buf_vec_write_enable),
+        .vec_write_buffer_id(buf_vec_write_buffer_id),
+        .vec_write_tile(buf_vec_write_tile),
+        .vec_read_enable(buf_vec_read_enable),
+        .vec_read_buffer_id(buf_vec_read_buffer_id),
+        .vec_read_tile(buf_vec_read_tile),
+        .vec_read_valid(buf_vec_read_valid),
+        .mat_write_enable(buf_mat_write_enable),
+        .mat_write_buffer_id(buf_mat_write_buffer_id),
+        .mat_write_tile(buf_mat_write_tile),
+        .mat_read_enable(buf_mat_read_enable),
+        .mat_read_buffer_id(buf_mat_read_buffer_id),
+        .mat_read_tile(buf_mat_read_tile),
+        .mat_read_valid(buf_mat_read_valid),
+        /* verilator lint_off PINCONNECTEMPTY */
+        .vec_write_done(),
+        .vec_read_done(),
+        .mat_write_done(),
+        .mat_read_done(),
+        .clr_cache(clr_cache)
+        /* verilator lint_on PINCONNECTEMPTY */
+    );
+    
+    // Load Execution Module
+    load_execution #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_WIDTH(TILE_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS),
+        .ADDR_WIDTH(ADDR_WIDTH)
+    ) load_exec (
+        .clk(clk),
+        .rst(rst),
+        .start(load_start),
+        .opcode(opcode),
+        .dest_buffer_id(dest),
+        .length_or_cols(length_or_cols),
+        .rows(rows),
+        .addr(addr),
+        .done(load_done),
+        .vec_write_enable(load_vec_write_enable),
+        .vec_write_buffer_id(load_vec_write_buffer_id),
+        .vec_write_tile(load_vec_write_tile),
+        .mat_write_enable(load_mat_write_enable),
+        .mat_write_buffer_id(load_mat_write_buffer_id),
+        .mat_write_tile(load_mat_write_tile),
+        // Memory Interface
+        .mem_req(load_mem_req),
+        .mem_addr(load_mem_addr),
+        .mem_rdata(mem_rdata),
+        .mem_valid(mem_valid)
+    );
+    
+    // GEMV Execution Module (tile-streaming)
+    gemv_execution #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS),
+        .MAX_ROWS(MAX_ROWS),
+        .MAX_COLS(MAX_COLS)
+    ) gemv_exec (
+        .clk(clk),
+        .rst(rst),
+        .start(gemv_start),
+        .dest_buffer_id(dest),
+        .w_buffer_id(w_id),
+        .x_buffer_id(x_id),
+        .b_buffer_id(b_id),
+        .cols(length_or_cols),
+        .rows(rows),
+        .done(gemv_done),
+        .vec_read_enable(gemv_vec_read_enable),
+        .vec_read_buffer_id(gemv_vec_read_buffer_id),
+        .vec_read_tile(buf_vec_read_tile),
+        .vec_read_valid(buf_vec_read_valid),
+        .mat_read_enable(gemv_mat_read_enable),
+        .mat_read_buffer_id(gemv_mat_read_buffer_id),
+        .mat_read_tile(buf_mat_read_tile),
+        .mat_read_valid(buf_mat_read_valid),
+        .vec_write_enable(gemv_vec_write_enable),
+        .vec_write_buffer_id(gemv_vec_write_buffer_id),
+        .vec_write_tile(gemv_vec_write_tile),
+        .result(gemv_result_tile)  // Now just a tile
+    );
+    
+    // ReLU Execution Module (tile-streaming)
+    relu_execution #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS),
+        .MAX_ROWS(MAX_ROWS)
+    ) relu_exec (
+        .clk(clk),
+        .rst(rst),
+        .start(relu_start),
+        .dest_buffer_id(dest),
+        .x_buffer_id(x_id),
+        .length(length_or_cols),
+        .done(relu_done),
+        .vec_read_enable(relu_vec_read_enable),
+        .vec_read_buffer_id(relu_vec_read_buffer_id),
+        .vec_read_tile(buf_vec_read_tile),
+        .vec_read_valid(buf_vec_read_valid),
+        .vec_write_enable(relu_vec_write_enable),
+        .vec_write_buffer_id(relu_vec_write_buffer_id),
+        .vec_write_tile(relu_vec_write_tile),
+        .result(relu_result_tile)  // Now just a tile
+    );
+    
+    // Store Execution Module
+    store_execution #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .TILE_WIDTH(TILE_WIDTH),
+        .TILE_ELEMS(TILE_ELEMS),
+        .ADDR_WIDTH(ADDR_WIDTH)
+    ) store_exec (
+        .clk(clk),
+        .rst(rst),
+        .start(store_start),
+        .src_buffer_id(dest),
+        .length(length_or_cols),
+        .addr(addr),
+        .done(store_done),
+        .vec_read_enable(store_vec_read_enable),
+        .vec_read_buffer_id(store_vec_read_buffer_id),
+        .vec_read_tile(buf_vec_read_tile),
+        .vec_read_valid(buf_vec_read_valid),
+        // Memory Interface
+        .mem_req(store_mem_req),
+        .mem_we(store_mem_we),
+        .mem_addr(store_mem_addr),
+        .mem_wdata(store_mem_wdata),
+        .mem_ready(1'b1)
+    );
+    
+    // ========================================================================
+    // Buffer Controller Multiplexing
+    // ========================================================================
+    
+    always_comb begin
+        // Default: all interfaces idle
+        buf_vec_write_enable = 0;
+        buf_vec_write_buffer_id = 0;
+        buf_vec_write_tile = '{default: 0};
+        buf_vec_read_enable = 0;
+        buf_vec_read_buffer_id = 0;
+        buf_mat_write_enable = 0;
+        buf_mat_write_buffer_id = 0;
+        buf_mat_write_tile = 0;
+        buf_mat_read_enable = 0;
+        buf_mat_read_buffer_id = 0;
+        
+        // Cache clear signal (pulse when starting new operation)
+        clr_cache = 0;
+
+        // Default Memory Mux
+        mem_req   = 0;
+        mem_we    = 0;
+        mem_addr  = 0;
+        mem_wdata = 0;
+        
+        // Route signals based on active operation
+        case (state)
+            IDLE: begin
+                if (start) begin
+                    clr_cache = 1; // RESET buffer controller cache before starting
+                end
+            end
+            
+            DISPATCH: begin
+                case (opcode)
+                    5'h01, 5'h02: begin // LOAD_V or LOAD_M
+                        buf_vec_write_enable = load_vec_write_enable;
+                        buf_vec_write_buffer_id = load_vec_write_buffer_id;
+                        buf_vec_write_tile = load_vec_write_tile;
+                        buf_mat_write_enable = load_mat_write_enable;
+                        buf_mat_write_buffer_id = load_mat_write_buffer_id;
+                        buf_mat_write_tile = load_mat_write_tile;
+                        mem_req  = load_mem_req;
+                        mem_addr = load_mem_addr;
+                        mem_we   = 0;
+                    end
+                    5'h04: begin // GEMV
+                        buf_vec_read_enable = gemv_vec_read_enable;
+                        buf_vec_read_buffer_id = gemv_vec_read_buffer_id;
+                        buf_mat_read_enable = gemv_mat_read_enable;
+                        buf_mat_read_buffer_id = gemv_mat_read_buffer_id;
+                        buf_vec_write_enable = gemv_vec_write_enable;
+                        buf_vec_write_buffer_id = gemv_vec_write_buffer_id;
+                        buf_vec_write_tile = gemv_vec_write_tile;
+                    end
+                    5'h05: begin // RELU
+                        buf_vec_read_enable = relu_vec_read_enable;
+                        buf_vec_read_buffer_id = relu_vec_read_buffer_id;
+                        buf_vec_write_enable = relu_vec_write_enable;
+                        buf_vec_write_buffer_id = relu_vec_write_buffer_id;
+                        buf_vec_write_tile = relu_vec_write_tile;
+                    end
+                    5'h03: begin // STORE
+                        buf_vec_read_enable = store_vec_read_enable;
+                        buf_vec_read_buffer_id = store_vec_read_buffer_id;
+                        mem_req   = store_mem_req;
+                        mem_we    = store_mem_we;
+                        mem_addr  = store_mem_addr;
+                        mem_wdata = store_mem_wdata;
+                    end
+                    default: begin
+                        // NOP - all idle
+                    end
+                endcase
+            end
+            
+            WAIT_LOAD: begin
+                buf_vec_write_enable = load_vec_write_enable;
+                buf_vec_write_buffer_id = load_vec_write_buffer_id;
+                buf_vec_write_tile = load_vec_write_tile;
+                buf_mat_write_enable = load_mat_write_enable;
+                buf_mat_write_buffer_id = load_mat_write_buffer_id;
+                buf_mat_write_tile = load_mat_write_tile;
+                mem_req  = load_mem_req;
+                mem_addr = load_mem_addr;
+                mem_we   = 0;
+            end
+            
+            WAIT_GEMV: begin
+                buf_vec_read_enable = gemv_vec_read_enable;
+                buf_vec_read_buffer_id = gemv_vec_read_buffer_id;
+                buf_mat_read_enable = gemv_mat_read_enable;
+                buf_mat_read_buffer_id = gemv_mat_read_buffer_id;
+                buf_vec_write_enable = gemv_vec_write_enable;
+                buf_vec_write_buffer_id = gemv_vec_write_buffer_id;
+                buf_vec_write_tile = gemv_vec_write_tile;
+            end
+            
+            WAIT_RELU: begin
+                buf_vec_read_enable = relu_vec_read_enable;
+                buf_vec_read_buffer_id = relu_vec_read_buffer_id;
+                buf_vec_write_enable = relu_vec_write_enable;
+                buf_vec_write_buffer_id = relu_vec_write_buffer_id;
+                buf_vec_write_tile = relu_vec_write_tile;
+            end
+            
+            WAIT_STORE: begin
+                buf_vec_read_enable = store_vec_read_enable;
+                buf_vec_read_buffer_id = store_vec_read_buffer_id;
+                mem_req   = store_mem_req;
+                mem_we    = store_mem_we;
+                mem_addr  = store_mem_addr;
+                mem_wdata = store_mem_wdata;
+            end
+            
+            default: begin
+                // All idle
+            end
+        endcase
+    end
+    
+    // ========================================================================
+    // Main Control FSM
+    // ========================================================================
+    
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state <= IDLE;
+            done <= 0;
+            load_start <= 0;
+            gemv_start <= 0;
+            relu_start <= 0;
+            store_start <= 0;
+            
+            for (int i = 0; i < TILE_ELEMS; i++) begin
+                result[i] <= 0;
+            end
+        end else begin
+            // Default signal values
+            done <= 0;
+            load_start <= 0;
+            gemv_start <= 0;
+            relu_start <= 0;
+            store_start <= 0;
+            
+            case (state)
+                IDLE: begin
+                    if (start) begin
+                        state <= DISPATCH;
+                    end
+                end
+                
+                DISPATCH: begin
+                    case (opcode)
+                        5'h00: begin // NOP
+                            state <= COMPLETE;
+                        end
+                        
+                        5'h01, 5'h02: begin // LOAD_V or LOAD_M
+                            load_start <= 1;
+                            state <= WAIT_LOAD;
+                        end
+                        
+                        5'h03: begin // STORE
+                            store_start <= 1;
+                            state <= WAIT_STORE;
+                        end
+                        
+                        5'h04: begin // GEMV
+                            gemv_start <= 1;
+                            state <= WAIT_GEMV;
+                        end
+                        
+                        5'h05: begin // RELU
+                            relu_start <= 1;
+                            state <= WAIT_RELU;
+                        end
+                        
+                        default: begin
+                            state <= COMPLETE;
+                        end
+                    endcase
+                end
+                
+                WAIT_LOAD: begin
+                    if (load_done) begin
+                        state <= COMPLETE;
+                    end
+                end
+                
+                WAIT_GEMV: begin
+                    if (gemv_done) begin
+                        for (int i = 0; i < TILE_ELEMS; i++) begin
+                            result[i] <= gemv_result_tile[i];
+                        end
+                        state <= COMPLETE;
+                    end
+                end
+
+                WAIT_RELU: begin
+                    if (relu_done) begin
+                        for (int i = 0; i < TILE_ELEMS; i++) begin
+                            result[i] <= relu_result_tile[i];
+                        end
+                        state <= COMPLETE;
+                    end
+                end
+                
+                WAIT_STORE: begin
+                    if (store_done) begin
+                        state <= COMPLETE;
+                    end
+                end
+                
+                COMPLETE: begin
+                    done <= 1;
+                    state <= IDLE;
+                end
+                
+                default: begin
+                    state <= IDLE;
+                end
+            endcase
+        end
+    end
+
+endmodule
