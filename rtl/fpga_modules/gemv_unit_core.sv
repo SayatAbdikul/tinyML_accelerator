@@ -268,10 +268,7 @@ module gemv_unit_core #(
                 // Bias is already pre-loaded as initial value — just accumulate MAC result
                 res_din = $signed(res_dout) + sum_current_row;
                 // DEBUG TRACE
-                if (row_idx < 2 && tile_idx < 2) begin
-                     $display("[HW DEBUG] ACCUMULATE: row=%0d, tile=%0d | bias_or_prev=%0d, sum_current=%0d -> new_res=%0d", 
-                              row_idx, tile_idx, $signed(res_dout), $signed(sum_current_row), $signed(res_din));
-                end
+
             end
             READ_ACCUM_2: begin
                 res_rad = row_idx + 1; // 1-cycle latency pipeline read address
@@ -311,11 +308,6 @@ module gemv_unit_core #(
         endcase
     end
 
-    always_ff @(posedge clk) begin
-        if (res_wre && res_wad == 0) begin
-            $display("[GEMV_CORE] POS-EDGE TRIGGER! state=%0d(ACCUM=%0d), res_wre=%b, res_wad=%0d, res_din=%0d", state, ACCUMULATE, res_wre, res_wad, $signed(res_din));
-        end
-    end
     
     // ================ Next State Logic ================
 

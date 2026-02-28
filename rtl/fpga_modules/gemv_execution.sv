@@ -1,13 +1,13 @@
 // GEMV Execution Module - Tile Bridging Architecture
-// Bridges 32-element buffer tiles to 6-element GEMV unit tiles
+// Bridges TILE_ELEMS-element buffer tiles to GEMV unit tiles (GEMV_TILE_SIZE = TILE_ELEMS)
 // Uses local buffer + carry buffer for seamless tile conversion
 //
 // Operation Flow:
 // 1. Pulse gemv_start so GEMV unit enters LOAD_X
-// 2. Stream x vector: load 32-elem buffer tiles, extract 6-elem GEMV tiles
+// 2. Stream x vector: load TILE_ELEMS-elem buffer tiles, extract GEMV tiles
 // 3. Stream bias vector: same bridging pattern
 // 4. Stream weight matrix: same bridging, with per-row tracking
-// 5. Receive y result tiles, pack into 32-elem buffer tiles, write back
+// 5. Receive y result tiles, pack into TILE_ELEMS-elem buffer tiles, write back
 
 module gemv_execution #(
     parameter DATA_WIDTH = 8,
@@ -49,7 +49,7 @@ module gemv_execution #(
     output logic signed [DATA_WIDTH-1:0] result [0:TILE_ELEMS-1]
 );
 
-    localparam GEMV_TILE_SIZE = 32;
+    localparam GEMV_TILE_SIZE = TILE_ELEMS;
 
     // ==================== FSM States ====================
     typedef enum logic [3:0] {
@@ -474,9 +474,8 @@ module gemv_execution #(
                 FEED_W: begin
                     // Weight handshake is combinational (w_valid)
                     if (w_valid) begin
-                        if (w_row == 0 && w_gemv_in_row == 0 && buf_idx == 0)
-                             $display("[DEBUG] GEMV_EXEC: FEED_W first tile local_buf[0]=0x%h, Carry=0x%h, BufIdx=%d", 
-                                      local_buf[0], carry_count, buf_idx);
+
+
                         buf_idx <= new_buf_idx;
                         carry_count <= 0;
                         w_gemv_in_row <= w_gemv_in_row + 1;
