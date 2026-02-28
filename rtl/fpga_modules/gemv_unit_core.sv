@@ -49,7 +49,6 @@ module gemv_unit_core #(
         STORE_X         = 2,     // Write x tile elements to x_mem one at a time
         LOAD_BIAS       = 3,
         STORE_BIAS      = 4,     // Write bias elements to res_mem (accumulator)
-        CLEAR_REMAINING = 5, // Clear accumulator rows beyond num_rows
         READ_X_TILE     = 6,
         LOAD_X_TILE     = 7,     // Read x tile from x_mem for current tile_idx
         WAIT_TILE       = 8, 
@@ -183,8 +182,7 @@ module gemv_unit_core #(
     // Absolute value logic (using BRAM output)
     assign current_abs = ($signed(res_dout) >= 0) ? $signed(res_dout) : -$signed(res_dout);
     
-    // X-Vector RAM (stores x values, 1 element per 32-bit word, sign-extended)
-    // Instantiating Mock Gowin RAM to match physical FPGA implementation later
+    // Instantiatick Gowin RAM to match physical FPGA implementation later
     Gowin_RAM16SDP_Mock x_ram (
         .dout(x_mem_dout), //output [31:0] dout
         .clka(clk), //input clka
@@ -254,11 +252,6 @@ module gemv_unit_core #(
                 // Sign-extend int8 bias to int32 and store as initial accumulator value
                 res_din = {{(3*DATA_WIDTH){bias_latched[bias_store_elem][DATA_WIDTH-1]}}, bias_latched[bias_store_elem]};
             end
-            CLEAR_REMAINING: begin
-                res_wad = row_idx;
-                res_wre = 1;
-                res_din = '0;
-            end
             READ_ACCUM: begin
                 res_rad = row_idx;     // 1-cycle latency pipeline read address
             end
@@ -268,7 +261,10 @@ module gemv_unit_core #(
                 // Bias is already pre-loaded as initial value — just accumulate MAC result
                 res_din = $signed(res_dout) + sum_current_row;
                 // DEBUG TRACE
-
+                if (row_idx < 2 && tile_idx < 2) begin
+                     $display("[HW DEBUG] ACCUMULATE: row=%0d, tile=%0d | bias_or_prev=%0d, sum_current=%0d -> new_res=%0d", 
+                              row_idx, tile_idx, $signed(res_dout), $signed(sum_current_row), $signed(res_din));
+                end
             end
             READ_ACCUM_2: begin
                 res_rad = row_idx + 1; // 1-cycle latency pipeline read address
@@ -333,15 +329,11 @@ module gemv_unit_core #(
             STORE_BIAS: begin
                 if (bias_store_elem == TILE_SIZE - 1) begin
                     if (bias_load_tile_count + 1 >= total_bias_tiles)
-                        next_state = CLEAR_REMAINING;
+                        next_state = READ_X_TILE;
                     else
                         next_state = LOAD_BIAS;
                 end else
                     next_state = STORE_BIAS;
-            end
-
-            CLEAR_REMAINING: begin
-                next_state = (int'(row_idx) >= MAX_ROWS - 1) ? READ_X_TILE : CLEAR_REMAINING;
             end
 
             READ_X_TILE: begin
@@ -372,7 +364,7 @@ module gemv_unit_core #(
             end
 
             READ_MAX: next_state = FIND_MAX;
-            FIND_MAX: next_state = int'(max_idx) < MAX_ROWS - 1 ? READ_MAX : COMPUTE_SCALE;
+            FIND_MAX: next_state = int'(max_idx) < int'(rows) - 1 ? READ_MAX : COMPUTE_SCALE;
             
             COMPUTE_SCALE: next_state = scale_ready ? READ_QUANTIZE : COMPUTE_SCALE;
             
@@ -509,31 +501,16 @@ module gemv_unit_core #(
                         bias_load_tile_count <= bias_load_tile_count + 1;
                         if (bias_load_tile_count + 1 >= total_bias_tiles) begin
                             bias_tile_ready <= 0;
-                            // Start clearing remaining rows
-                            // bias_store_idx now points to first row after bias data
-                            row_idx <= rows[ROW_IDX_WIDTH-1:0]; // Changed from bias_store_idx + 1
+                            // Prepare for FIND_MAX: reset max-tracking state now
+                            // (row_idx=0 already set by IDLE; tile_idx/x_load_elem reset by WAIT_NEXT)
+                            max_idx <= '0;
+                            max_abs_reg <= '0;
                         end else begin
                             bias_tile_ready <= 1; // Ready for next tile
                         end
                     end
                 end
                 
-                // ---- Clear accumulator rows beyond actual bias data ----
-                CLEAR_REMAINING: begin
-                    if (int'(row_idx) < MAX_ROWS - 1)
-                        row_idx <= row_idx + 1;
-                    else begin 
-                        row_idx <= 0;
-                        tile_idx <= '0;
-                        x_load_elem <= 0;
-                        max_idx <= '0;
-                        max_abs_reg <= '0;
-                        quant_in_idx <= '0;
-                        quant_out_idx <= '0;
-                        output_y_idx <= '0;
-                    end
-                end
-
                 READ_X_TILE: begin
                     x_load_elem <= 0;
                 end
@@ -588,7 +565,7 @@ module gemv_unit_core #(
                 end
                 FIND_MAX: begin
                     if (current_abs > max_abs_reg) max_abs_reg <= current_abs;
-                    if (int'(max_idx) < MAX_ROWS - 1) max_idx <= max_idx + 1;
+                    if (int'(max_idx) < int'(rows) - 1) max_idx <= max_idx + 1;
                     else if (max_abs_reg == 0) max_abs_reg <= 1;
                 end
 
