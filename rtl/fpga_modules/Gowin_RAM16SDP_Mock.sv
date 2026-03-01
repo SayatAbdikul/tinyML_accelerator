@@ -1,34 +1,24 @@
-module Gowin_RAM16SDP_Mock (
+// Mock of Gowin_RAM16SDP — matches the port interface used in src/top_gemv.sv
+// Simple dual-port RAM: async read, sync write
+// 1024 x 32-bit (10-bit address)
+module Gowin_RAM16SDP (
     output logic [31:0] dout,
-    input clka,
-    input cea,
-    input reseta,
-    input clkb,
-    input ceb,
-    input resetb,
-    input oce,
-    input [11:0] ada,
-    input [31:0] din,
-    input [11:0] adb
+    input  logic        clk,
+    input  logic        wre,
+    input  logic [9:0]  wad,
+    input  logic [31:0] di,
+    input  logic [9:0]  rad
 );
 
-    // 1024x32 RAM Array inference
     logic [31:0] mem [0:1023];
 
-    // Port B (Read Port - Standard synchronous read)
-    // Most FPGAs have 1-cycle read latency where `dout` is registered
-    // on the clock edge where the address is sampled. 
-    always_ff @(posedge clkb) begin
-        if (ceb) begin
-            dout <= mem[adb[9:0]];
-        end
-    end
+    // Asynchronous read
+    assign dout = mem[rad];
 
-    // Port A (Write Port)
-    always_ff @(posedge clka) begin
-        if (cea) begin
-            mem[ada[9:0]] <= din;
-        end
+    // Synchronous write
+    always_ff @(posedge clk) begin
+        if (wre)
+            mem[wad] <= di;
     end
 
 endmodule

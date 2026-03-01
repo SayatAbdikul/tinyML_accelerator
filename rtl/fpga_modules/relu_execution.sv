@@ -103,7 +103,7 @@ module relu_execution #(
                         
                         vec_read_enable <= 1;  // Pulse read enable for one cycle
                         tile_count <= 0;
-                        total_tiles_needed <= 10'((length + TILE_ELEMS - 1) / TILE_ELEMS);
+                        total_tiles_needed <= (length + TILE_ELEMS - 1) / TILE_ELEMS;
                         current_element_offset <= 0;
                         state <= READ_AND_WRITE_TILES;
                     end
@@ -128,7 +128,7 @@ module relu_execution #(
                         end
                         
                         tile_count <= tile_count + 1;
-                        current_element_offset <= 10'(current_element_offset + TILE_ELEMS);
+                        current_element_offset <= current_element_offset + TILE_ELEMS;
                         
                         if (tile_count + 1 >= total_tiles_needed) begin
                             // All tiles processed

@@ -33,8 +33,8 @@ module modular_execution_unit #(
     input logic [ADDR_WIDTH-1:0] addr,
     input logic [4:0] b_id, x_id, w_id,
     
-    // Results - last tile written (TILE_ELEMS elements)
-    output logic signed [DATA_WIDTH-1:0] result [0:TILE_ELEMS-1],
+    // Results - REDUCED to single tile for status (not full vector)
+    output logic signed [DATA_WIDTH-1:0] result [0:TILE_ELEMS-1],  // Just 32 elements for status
     output logic done,
 
     // Unified Memory Interface
@@ -487,8 +487,9 @@ module modular_execution_unit #(
                 
                 WAIT_GEMV: begin
                     if (gemv_done) begin
+                        // Copy first tile of results for status (not entire vector)
                         for (int i = 0; i < TILE_ELEMS; i++) begin
-                            result[i] <= gemv_result_tile[i];
+                            if (i < 32) result[i] <= gemv_result_tile[i];
                         end
                         state <= COMPLETE;
                     end
@@ -496,8 +497,9 @@ module modular_execution_unit #(
 
                 WAIT_RELU: begin
                     if (relu_done) begin
+                        // Copy first tile of results for status (not entire vector)
                         for (int i = 0; i < TILE_ELEMS; i++) begin
-                            result[i] <= relu_result_tile[i];
+                            if (i < 32) result[i] <= relu_result_tile[i];
                         end
                         state <= COMPLETE;
                     end

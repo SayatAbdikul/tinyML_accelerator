@@ -43,29 +43,23 @@ module gemv_unit_core #(
 );
 
     // FSM States
-    enum int unsigned { 
-        IDLE            = 0, 
+    enum int unsigned {
+        IDLE            = 0,
         LOAD_X          = 1,
-        STORE_X         = 2,     // Write x tile elements to x_mem one at a time
+        STORE_X         = 2,
         LOAD_BIAS       = 3,
         STORE_BIAS      = 4,     // Write bias elements to res_mem (accumulator)
-        READ_X_TILE     = 6,
-        LOAD_X_TILE     = 7,     // Read x tile from x_mem for current tile_idx
-        WAIT_TILE       = 8, 
-        WAIT_PE         = 9,
-        READ_ACCUM      = 10,
-        ACCUMULATE      = 11, 
-        READ_ACCUM_2    = 12,
-        ACCUMULATE_2    = 13, 
-        WAIT_NEXT       = 14, 
-        READ_MAX        = 15,
-        FIND_MAX        = 16, 
-        COMPUTE_SCALE   = 17, 
-        READ_QUANTIZE   = 18,
-        QUANTIZE        = 19, 
-        READ_OUTPUT_Y   = 20,
-        OUTPUT_Y        = 21,
-        DONE_STATE      = 22
+        LOAD_X_TILE     = 6,     // Read x tile from x_mem for current tile_idx
+        WAIT_TILE       = 7,
+        WAIT_PE         = 8,
+        ACCUMULATE      = 9,
+        ACCUMULATE_2    = 10,
+        WAIT_NEXT       = 11,
+        FIND_MAX        = 12,
+        COMPUTE_SCALE   = 13,
+        QUANTIZE        = 14,
+        OUTPUT_Y        = 15,
+        DONE_STATE      = 16
     } state, next_state;
 
     // Index widths
@@ -78,8 +72,6 @@ module gemv_unit_core #(
     logic [TILE_IDX_WIDTH-1:0] tile_idx;
     logic signed [DATA_WIDTH-1:0] w_latched [0:TILE_SIZE-1];
     
-    // Current x tile for PE computation
-    logic signed [DATA_WIDTH-1:0] x_current_tile [0:TILE_SIZE-1];
     
     // PE connections
     logic signed [DATA_WIDTH-1:0] x_in [0:TILE_SIZE-1];
@@ -91,9 +83,19 @@ module gemv_unit_core #(
     logic [COL_IDX_WIDTH-1:0] col_start;
     logic [COL_IDX_WIDTH-1:0] num_current_row;
     
-    // Split accumulations
+    // Split accumulations (combinational, fed into pipeline regs)
     logic signed [4*DATA_WIDTH-1:0] sum_current_row;
     logic signed [4*DATA_WIDTH-1:0] sum_next_row;
+
+    // Pipeline registers: tile geometry (registered in WAIT_TILE, used in ACCUMULATE/WAIT_NEXT)
+    logic [COL_IDX_WIDTH-1:0] num_current_row_reg;
+    logic last_in_row_reg;
+    logic row_overflow_reg;
+    logic pe_valid [0:TILE_SIZE-1]; // per-PE enable mask: pe_valid[j] = (j < num_current_row)
+
+    // Pipeline registers: PE sums (registered in WAIT_PE, used in ACCUMULATE)
+    logic signed [4*DATA_WIDTH-1:0] sum_current_row_reg;
+    logic signed [4*DATA_WIDTH-1:0] sum_next_row_reg;
     
     // Scale computation
     logic signed [4*DATA_WIDTH-1:0] reciprocal_scale;
@@ -114,6 +116,9 @@ module gemv_unit_core #(
     logic [ROW_IDX_WIDTH-1:0] res_rad, res_wad;
     logic res_wre;
     
+    // Current x tile for PE computation
+    logic signed [DATA_WIDTH-1:0] x_current_tile [0:TILE_SIZE-1];
+
     // X-Vector RAM Interface
     logic [31:0] x_mem_dout, x_mem_din;
     logic [9:0] x_mem_wad, x_mem_rad;
@@ -152,25 +157,26 @@ module gemv_unit_core #(
                            ((int'(col_start) + TILE_SIZE <= cols[COL_IDX_WIDTH-1:0]) ? TILE_SIZE[9:0] : cols[COL_IDX_WIDTH-1:0] - col_start) : 
                            0; 
     
-    // x input selection - use current tile
+    // x input selection - use current tile loaded from x_mem
     always_comb begin
         for (int i = 0; i < TILE_SIZE; i++) begin
             x_in[i] = x_current_tile[i];
         end
     end
 
-    // Split PE outputs
+    // Split PE outputs — uses registered pe_valid and row_overflow_reg to keep
+    // pe_out (FF) → adder tree → sum_reg as the only path (no late-arriving tile_idx chain)
     always_comb begin
         sum_current_row = '0;
         sum_next_row = '0;
-        
+
         for (int j = 0; j < TILE_SIZE; j++) begin
             logic signed [4*DATA_WIDTH-1:0] extended_out;
             extended_out = {{(2*DATA_WIDTH){pe_out[j][2*DATA_WIDTH-1]}}, pe_out[j]};
-            if (j < num_current_row) begin
+            if (pe_valid[j]) begin
                 sum_current_row += extended_out;
             end
-            else if (row_overflow) begin
+            else if (row_overflow_reg) begin
                 sum_next_row += extended_out;
             end
         end
@@ -182,35 +188,26 @@ module gemv_unit_core #(
     // Absolute value logic (using BRAM output)
     assign current_abs = ($signed(res_dout) >= 0) ? $signed(res_dout) : -$signed(res_dout);
     
-    // Instantiatick Gowin RAM to match physical FPGA implementation later
-    Gowin_RAM16SDP_Mock x_ram (
-        .dout(x_mem_dout), //output [31:0] dout
-        .clka(clk), //input clka
-        .cea(x_mem_wre), //input cea
-        .reseta(~rst), //input reseta
-        .clkb(clk), //input clkb
-        .ceb(1'b1), //input ceb
-        .resetb(~rst), //input resetb
-        .oce(1'b1), //input oce
-        .ada({2'b0, x_mem_wad}), //input [11:0] ada
-        .din(x_mem_din), //input [31:0] din
-        .adb({2'b0, x_mem_rad}) //input [11:0] adb
+    // ================ BRAM Connections ================
+
+    // X-Vector RAM (stores x values, 1 element per 32-bit word, sign-extended)
+    Gowin_RAM16SDP x_mem (
+        .dout(x_mem_dout),
+        .clk(clk),
+        .wre(x_mem_wre),
+        .wad(x_mem_wad),
+        .di(x_mem_din),
+        .rad(x_mem_rad)
     );
 
     // Accumulator RAM (Shadow RAM) - also stores bias as initial values
-    // Instantiating Mock Gowin RAM to match physical FPGA implementation later
-    Gowin_RAM16SDP_Mock res_ram (
-        .dout(res_dout), //output [31:0] dout
-        .clka(clk), //input clka
-        .cea(res_wre), //input cea
-        .reseta(~rst), //input reseta
-        .clkb(clk), //input clkb
-        .ceb(1'b1), //input ceb
-        .resetb(~rst), //input resetb
-        .oce(1'b1), //input oce
-        .ada({2'b0, res_wad}), //input [11:0] ada
-        .din(res_din), //input [31:0] din
-        .adb({2'b0, res_rad}) //input [11:0] adb
+    Gowin_RAM16SDP res_mem (
+        .dout(res_dout),
+        .clk(clk),
+        .wre(res_wre),
+        .wad(res_wad),
+        .di(res_din),
+        .rad(res_rad)
     );
 
     // X-Vector RAM Control Muxing
@@ -226,11 +223,8 @@ module gemv_unit_core #(
                 x_mem_wre = 1;
                 x_mem_din = {{24{x_latched[x_store_elem][DATA_WIDTH-1]}}, x_latched[x_store_elem]};
             end
-            READ_X_TILE: begin
-                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0];
-            end
             LOAD_X_TILE: begin
-                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem} + 1;
+                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem};
             end
             default: ;
         endcase
@@ -252,58 +246,36 @@ module gemv_unit_core #(
                 // Sign-extend int8 bias to int32 and store as initial accumulator value
                 res_din = {{(3*DATA_WIDTH){bias_latched[bias_store_elem][DATA_WIDTH-1]}}, bias_latched[bias_store_elem]};
             end
-            READ_ACCUM: begin
-                res_rad = row_idx;     // 1-cycle latency pipeline read address
-            end
             ACCUMULATE: begin
+                res_rad = row_idx;
                 res_wad = row_idx;
                 res_wre = 1;
-                // Bias is already pre-loaded as initial value — just accumulate MAC result
-                res_din = $signed(res_dout) + sum_current_row;
-                // DEBUG TRACE
-                if (row_idx < 2 && tile_idx < 2) begin
-                     $display("[HW DEBUG] ACCUMULATE: row=%0d, tile=%0d | bias_or_prev=%0d, sum_current=%0d -> new_res=%0d", 
-                              row_idx, tile_idx, $signed(res_dout), $signed(sum_current_row), $signed(res_din));
-                end
-            end
-            READ_ACCUM_2: begin
-                res_rad = row_idx + 1; // 1-cycle latency pipeline read address
+                // Use registered sum — breaks tile_idx→sum combinational chain
+                res_din = $signed(res_dout) + sum_current_row_reg;
             end
             ACCUMULATE_2: begin
+                res_rad = row_idx + 1;
                 res_wad = row_idx + 1;
                 res_wre = 1;
-                res_din = $signed(res_dout) + sum_next_row;
-            end
-            READ_MAX: begin
-                res_rad = max_idx;
+                res_din = $signed(res_dout) + sum_next_row_reg;
             end
             FIND_MAX: begin
-                res_rad = max_idx + 1;
-            end
-            READ_QUANTIZE: begin
-                res_rad = quant_in_idx;
+                res_rad = max_idx;
             end
             QUANTIZE: begin
-                res_rad = quant_in_idx + 1;
+                res_rad = quant_in_idx;
                 if (quant_valid_out) begin
                     res_wre = 1;
                     res_wad = quant_out_idx;
                     res_din = {{(3*DATA_WIDTH){int8_value[DATA_WIDTH-1]}}, int8_value};
                 end
             end
-            READ_OUTPUT_Y: begin
-                res_rad = output_y_idx;
-            end
             OUTPUT_Y: begin
-                if (y_tile_ready || !y_tile_valid)
-                    res_rad = output_y_idx + 1; // Prepare next early if pipelining
-                else
-                    res_rad = output_y_idx; // Stalled: re-read current element
+                res_rad = output_y_idx;
             end
             default: ;
         endcase
     end
-
     
     // ================ Next State Logic ================
 
@@ -329,15 +301,11 @@ module gemv_unit_core #(
             STORE_BIAS: begin
                 if (bias_store_elem == TILE_SIZE - 1) begin
                     if (bias_load_tile_count + 1 >= total_bias_tiles)
-                        next_state = READ_X_TILE;
+                        next_state = LOAD_X_TILE;
                     else
                         next_state = LOAD_BIAS;
                 end else
                     next_state = STORE_BIAS;
-            end
-
-            READ_X_TILE: begin
-                next_state = LOAD_X_TILE;
             end
 
             LOAD_X_TILE: begin
@@ -345,35 +313,24 @@ module gemv_unit_core #(
             end
 
             WAIT_TILE: next_state = w_valid ? WAIT_PE : WAIT_TILE;
-            WAIT_PE: next_state = READ_ACCUM;
-            
-            READ_ACCUM: next_state = ACCUMULATE;
-            ACCUMULATE: next_state = row_overflow ? READ_ACCUM_2 : WAIT_NEXT;
-            
-            READ_ACCUM_2: next_state = ACCUMULATE_2;
+            WAIT_PE: next_state = ACCUMULATE;
+            ACCUMULATE: next_state = row_overflow_reg ? ACCUMULATE_2 : WAIT_NEXT;
             ACCUMULATE_2: next_state = WAIT_NEXT;
 
             WAIT_NEXT: begin
-                if (last_in_row) begin
+                if (last_in_row_reg) begin
                     if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1)
-                        next_state = READ_X_TILE; // Next row, reload x tile 0
+                        next_state = LOAD_X_TILE; // Next row, reload x tile 0
                     else
-                        next_state = READ_MAX;
+                        next_state = FIND_MAX;
                 end else
-                    next_state = READ_X_TILE; // Same row, next x tile
+                    next_state = LOAD_X_TILE; // Same row, next x tile
             end
 
-            READ_MAX: next_state = FIND_MAX;
-            FIND_MAX: next_state = int'(max_idx) < int'(rows) - 1 ? READ_MAX : COMPUTE_SCALE;
-            
-            COMPUTE_SCALE: next_state = scale_ready ? READ_QUANTIZE : COMPUTE_SCALE;
-            
-            READ_QUANTIZE: next_state = QUANTIZE;
-            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows[ROW_IDX_WIDTH-1:0] - 1 ? QUANTIZE : READ_OUTPUT_Y) : QUANTIZE;
-            
-            READ_OUTPUT_Y: next_state = OUTPUT_Y;
+            FIND_MAX: next_state = int'(max_idx) < int'(rows) - 1 ? FIND_MAX : COMPUTE_SCALE;
+            COMPUTE_SCALE: next_state = scale_ready ? QUANTIZE : COMPUTE_SCALE;
+            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows[ROW_IDX_WIDTH-1:0] - 1 ? QUANTIZE : OUTPUT_Y) : QUANTIZE;
             OUTPUT_Y: next_state = (y_output_tile_count >= total_y_tiles && y_tile_ready) ? DONE_STATE : OUTPUT_Y;
-            
             DONE_STATE: next_state = IDLE;
             default: next_state = IDLE;
         endcase
@@ -423,7 +380,13 @@ module gemv_unit_core #(
                 y_tile_out[i] <= 0;
                 x_latched[i] <= 0;
                 bias_latched[i] <= 0;
+                pe_valid[i] <= 0;
             end
+            num_current_row_reg <= 0;
+            last_in_row_reg <= 0;
+            row_overflow_reg <= 0;
+            sum_current_row_reg <= 0;
+            sum_next_row_reg <= 0;
         end else begin
             case (state)
                 IDLE: begin
@@ -442,11 +405,12 @@ module gemv_unit_core #(
                         x_store_elem <= 0;
                         bias_store_idx <= 0;
                         bias_store_elem <= 0;
+                        x_tile_ready <= 1;
+                        // FIX: Reset output/quantization indices between GEMV invocations
                         output_y_idx <= 0;
                         y_elem_idx <= 0;
                         quant_in_idx <= 0;
                         quant_out_idx <= 0;
-                        x_tile_ready <= 1;
                     end
                 end
                 
@@ -492,17 +456,15 @@ module gemv_unit_core #(
                 STORE_BIAS: begin
                     // Write one bias element per cycle to res_mem (accumulator)
                     // Each element is sign-extended int8 -> int32
-                    if (int'(bias_store_idx) < MAX_ROWS - 1)
-                        bias_store_idx <= bias_store_idx + 1;
-                    
+                    bias_store_idx <= bias_store_idx + 1;
                     bias_store_elem <= bias_store_elem + 1;
                     if (bias_store_elem == TILE_SIZE - 1) begin
-                        bias_store_elem <= 0;
                         bias_load_tile_count <= bias_load_tile_count + 1;
                         if (bias_load_tile_count + 1 >= total_bias_tiles) begin
                             bias_tile_ready <= 0;
-                            // Prepare for FIND_MAX: reset max-tracking state now
-                            // (row_idx=0 already set by IDLE; tile_idx/x_load_elem reset by WAIT_NEXT)
+                            // Prepare for weight processing: reset counters
+                            row_idx <= 0;
+                            tile_idx <= '0;
                             max_idx <= '0;
                             max_abs_reg <= '0;
                         end else begin
@@ -510,13 +472,10 @@ module gemv_unit_core #(
                         end
                     end
                 end
-                
-                READ_X_TILE: begin
-                    x_load_elem <= 0;
-                end
 
                 // ---- Load x tile from x_mem for current tile_idx ----
                 LOAD_X_TILE: begin
+                    // Async read: x_mem_rad is set combinationally, x_mem_dout available same cycle
                     x_current_tile[x_load_elem] <= x_mem_dout[DATA_WIDTH-1:0];
                     x_load_elem <= x_load_elem + 1;
                     if (x_load_elem == TILE_SIZE - 1) begin
@@ -526,24 +485,35 @@ module gemv_unit_core #(
 
                 // ---- Weight processing ----
                 WAIT_TILE: begin
-                    w_ready <= 1; 
+                    w_ready <= 1;
                     tile_done <= 0;
+                    // Idea 1: register tile geometry so ACCUMULATE/WAIT_NEXT see FFs, not
+                    // a long combinational chain from tile_idx through the multiply
+                    num_current_row_reg <= num_current_row;
+                    last_in_row_reg     <= last_in_row;
+                    row_overflow_reg    <= row_overflow;
+                    // Idea 2: register per-PE enable mask — removes j<num_current_row
+                    // comparison from the adder tree in the WAIT_PE critical path
+                    for (int j = 0; j < TILE_SIZE; j++)
+                        pe_valid[j] <= (j < num_current_row);
                     if (w_valid) begin
                         for (int i = 0; i < TILE_SIZE; i++) w_latched[i] <= w_tile_row_in[i];
                         w_ready <= 0;
                     end
                 end
 
-                WAIT_PE: tile_done <= 0;
+                // Idea 3: register sums so ACCUMULATE sees FF+FF→add→BRAM, not the
+                // full pe_out→gate→adder→add→BRAM combinational chain
+                WAIT_PE: begin
+                    tile_done <= 0;
+                    sum_current_row_reg <= sum_current_row;
+                    sum_next_row_reg    <= sum_next_row;
+                end
 
-                READ_ACCUM: tile_done <= 0;
-                
                 ACCUMULATE: begin
-                    tile_done <= !row_overflow;
+                    tile_done <= !row_overflow_reg;
                     // Bias is already pre-loaded in res_mem — no b_extended needed
                 end
-                
-                READ_ACCUM_2: tile_done <= 0;
                 
                 ACCUMULATE_2: begin
                     tile_done <= 1;
@@ -551,7 +521,7 @@ module gemv_unit_core #(
 
                 WAIT_NEXT: begin
                     tile_done <= 0;
-                    if (last_in_row) begin
+                    if (last_in_row_reg) begin
                         tile_idx <= '0;
                         if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1) row_idx <= row_idx + 1;
                     end else begin
@@ -560,9 +530,6 @@ module gemv_unit_core #(
                     x_load_elem <= 0; // Reset for LOAD_X_TILE
                 end
 
-                READ_MAX: begin
-                    // Just wait 1 cycle for BRAM read
-                end
                 FIND_MAX: begin
                     if (current_abs > max_abs_reg) max_abs_reg <= current_abs;
                     if (int'(max_idx) < int'(rows) - 1) max_idx <= max_idx + 1;
@@ -576,9 +543,6 @@ module gemv_unit_core #(
                     end
                 end
 
-                READ_QUANTIZE: begin
-                    // Pipeline cycle
-                end
                 QUANTIZE: begin
                     quant_valid_in <= 0;
                     if (int'(quant_in_idx) < MAX_ROWS) begin
@@ -591,9 +555,6 @@ module gemv_unit_core #(
                     end
                 end
                 
-                READ_OUTPUT_Y: begin
-                    // Pipeline cycle
-                end
                 OUTPUT_Y: begin
                     // Output y values tile by tile
                     if (y_tile_ready || !y_tile_valid) begin
