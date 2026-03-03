@@ -475,8 +475,8 @@ module gemv_execution #(
                     // Weight handshake is combinational (w_valid)
                     if (w_valid) begin
                         if (w_row == 0 && w_gemv_in_row == 0 && buf_idx == 0)
-                             $display("[DEBUG] GEMV_EXEC: FEED_W first tile local_buf[0]=0x%h, Carry=0x%h, BufIdx=%d", 
-                                      local_buf[0], carry_count, buf_idx);
+                            //  $display("[DEBUG] GEMV_EXEC: FEED_W first tile local_buf[0]=0x%h, Carry=0x%h, BufIdx=%d", 
+                            //           local_buf[0], carry_count, buf_idx);
                         buf_idx <= new_buf_idx;
                         carry_count <= 0;
                         w_gemv_in_row <= w_gemv_in_row + 1;

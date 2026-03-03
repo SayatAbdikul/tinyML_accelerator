@@ -546,12 +546,7 @@ module gemv_unit_core #(
                 end
 
                 ACCUMULATE: begin
-                    tile_done <= !row_overflow_reg;
-                    // Bias is already pre-loaded in res_mem — no b_extended needed
-                    if (tile_idx == 0 && int'(row_idx) < 2)
-                        $display("[DBG] ACCUM row=%0d tile=0 res_dout=%0d sum=%0d -> %0d",
-                            row_idx, $signed(res_dout), $signed(sum_current_row_reg),
-                            $signed($signed(res_dout) + sum_current_row_reg));
+                    tile_done <= !row_overflow_reg;                    
                 end
                 
                 ACCUMULATE_2: begin
