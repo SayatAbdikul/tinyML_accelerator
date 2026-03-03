@@ -24,14 +24,18 @@ module store #(
     output logic                        mem_we,
     output logic [ADDR_WIDTH-1:0]       mem_addr,
     output logic [DATA_WIDTH-1:0]       mem_wdata,
+    /* verilator lint_off UNUSEDSIGNAL */
     input  logic                        mem_ready // Ack/busy
+    /* verilator lint_on UNUSEDSIGNAL */
 );
 
     // Simple memory interface
     // logic                               mem_we; -> Output
     // logic [ADDR_WIDTH-1:0]              mem_addr; -> Output
     // logic [DATA_WIDTH-1:0]              mem_din; -> Output as mem_wdata
+    /* verilator lint_off UNUSEDSIGNAL */
     logic                               mem_dump;
+    /* verilator lint_on UNUSEDSIGNAL */
 
     typedef enum logic [2:0] { S_IDLE, S_REQ_TILE, S_WRITE_TILE, S_ADVANCE, S_FINISH } s_state_t;
     s_state_t state;
