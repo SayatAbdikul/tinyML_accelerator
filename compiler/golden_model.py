@@ -111,24 +111,28 @@ def gemv(dest, w, x, b, rows, cols):
     TILE_WIDTH = AcceleratorConfig.TILE_ELEMS
     stride = ((cols + TILE_WIDTH - 1) // TILE_WIDTH) * TILE_WIDTH
 
-    # print(f"GEMV: dest={dest}, w={w}, x={x}, b={b}, rows={rows}, cols={cols}")
-    for i in range(rows):
-        sum = np.int32(0)  # Initialize sum as int32 to avoid overflow
-        for j in range(cols):
-            sum += np.int32(buffers[w][i * stride + j]) * np.int32(buffers[x][j])
-            # Matrix-vector multiplication
-            # if flag == 2:  # Print only once
-            #     print(f"Multiplying w[{i * cols + j}]={buffers[w][i * cols + j]} with x[{j}]={buffers[x][j]} to sum={sum}")
+    if flag < 3:
+        print(f"[DBG_GOLDEN] GEMV start: rows={rows}, cols={cols}")
 
-        sum += buffers[b][i]
-        buffers[dest][i] = np.int32(sum)  # Store the result in the destination buffer
-    # print("The number of unique values in the output buffer is:", np.unique(buffers[dest]).size)
-    # print("The output buffer is:", buffers[dest])
+    for i in range(rows):
+        sum_val = np.int32(0)  # Initialize sum as int32 to avoid overflow
+        for j in range(cols):
+            sum_val += np.int32(buffers[w][i * stride + j]) * np.int32(buffers[x][j])
+            
+        sum_val += np.int32(buffers[b][i])
+        
+        if flag < 3 and i < 2:
+            print(f"[DBG_GOLDEN] ACCUM row={i} bias={buffers[b][i]} final_sum={sum_val}")
+            
+        buffers[dest][i] = np.int32(sum_val)  # Store the result in the destination buffer
+        
     flag += 1  # Set flag to indicate GEMV has been executed
     
     # Calculate max absolute value in the accumulator for dynamic scaling
     max_abs = np.max(np.abs(buffers[dest]))
     
+    if flag <= 3:
+        print(f"[DBG_GOLDEN] COMPUTE_SCALE: max_abs={max_abs}")
 
     # Use bit-exact RTL simulation for quantization
     buffers[dest] = quantize_int32_to_int8_rtl_exact(

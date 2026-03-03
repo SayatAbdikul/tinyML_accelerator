@@ -63,6 +63,7 @@ VERILOG_SOURCES += $(RTL_DIR)/fpga_modules/relu_execution.sv
 VERILOG_SOURCES += $(RTL_DIR)/fpga_modules/store_execution.sv
 VERILOG_SOURCES += $(RTL_DIR)/fpga_modules/gemv_unit_core.sv
 VERILOG_SOURCES += $(RTL_DIR)/fpga_modules/Gowin_RAM16SDP_Mock.sv
+VERILOG_SOURCES += $(RTL_DIR)/fpga_modules/Gowin_SDPB_32.sv
 
 # Python path setup
 export PYTHONPATH := $(TEST_DIR):$(COCOTB_DIR)/utils:$(PYTHONPATH)

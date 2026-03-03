@@ -52,12 +52,17 @@ module gemv_unit_core #(
         LOAD_X_TILE     = 6,     // Read x tile from x_mem for current tile_idx
         WAIT_TILE       = 7,
         WAIT_PE         = 8,
+        READ_ACCUM      = 17,    // Present res_rad=row_idx; BSRAM registers output at clk edge
         ACCUMULATE      = 9,
+        READ_ACCUM_2    = 18,    // Present res_rad=row_idx+1 for overflow row
         ACCUMULATE_2    = 10,
         WAIT_NEXT       = 11,
+        READ_MAX        = 19,    // Present res_rad=max_idx; BSRAM registers output at clk edge
         FIND_MAX        = 12,
         COMPUTE_SCALE   = 13,
+        READ_QUANTIZE   = 20,    // Prime quantize pipeline: present res_rad=quant_in_idx
         QUANTIZE        = 14,
+        READ_OUTPUT_Y   = 21,    // Prime output pipeline: present res_rad=output_y_idx
         OUTPUT_Y        = 15,
         DONE_STATE      = 16
     } state, next_state;
@@ -200,8 +205,11 @@ module gemv_unit_core #(
         .rad(x_mem_rad)
     );
 
-    // Accumulator RAM (Shadow RAM) - also stores bias as initial values
-    Gowin_RAM16SDP res_mem (
+    // Accumulator RAM — BSRAM (Gowin_SDPB_32) with 1-cycle synchronous read latency.
+    // Replaces LUTRAM (Gowin_RAM16SDP) to eliminate the 6-level MUX2 output cascade
+    // (640 x RAM16SDP4 blocks) that dominated the critical path at 47 MHz Fmax.
+    // READ_xxx states inserted into the FSM handle the 1-cycle address-to-data latency.
+    Gowin_SDPB_32 res_mem (
         .dout(res_dout),
         .clk(clk),
         .wre(res_wre),
@@ -231,8 +239,9 @@ module gemv_unit_core #(
     end
 
     // Accumulator RAM Control Muxing
-    // NOTE: Gowin_RAM16SDP has asynchronous read — res_dout reflects res_rad
-    // in the SAME cycle. Each state that uses res_dout must set res_rad itself.
+    // Gowin_SDPB_32 has synchronous (registered) read: res_dout reflects the address
+    // presented on the PREVIOUS clock edge. READ_xxx states present the address one
+    // cycle before the state that consumes res_dout.
     always_comb begin
         res_wre = 0;
         res_wad = 0;
@@ -246,32 +255,49 @@ module gemv_unit_core #(
                 // Sign-extend int8 bias to int32 and store as initial accumulator value
                 res_din = {{(3*DATA_WIDTH){bias_latched[bias_store_elem][DATA_WIDTH-1]}}, bias_latched[bias_store_elem]};
             end
+            READ_ACCUM: begin
+                res_rad = row_idx;          // Present address; BSRAM registers at clock edge
+            end
             ACCUMULATE: begin
-                res_rad = row_idx;
+                // res_dout = mem[row_idx] registered from READ_ACCUM — no res_rad needed
                 res_wad = row_idx;
                 res_wre = 1;
-                // Use registered sum — breaks tile_idx→sum combinational chain
                 res_din = $signed(res_dout) + sum_current_row_reg;
             end
+            READ_ACCUM_2: begin
+                res_rad = row_idx + 1;      // Present overflow row address
+            end
             ACCUMULATE_2: begin
-                res_rad = row_idx + 1;
+                // res_dout = mem[row_idx+1] registered from READ_ACCUM_2
                 res_wad = row_idx + 1;
                 res_wre = 1;
                 res_din = $signed(res_dout) + sum_next_row_reg;
             end
-            FIND_MAX: begin
-                res_rad = max_idx;
+            READ_MAX: begin
+                res_rad = max_idx;          // Present address; BSRAM registers at clock edge
+            end
+            // FIND_MAX: res_dout holds mem[max_idx] registered from READ_MAX — no res_rad needed
+            READ_QUANTIZE: begin
+                res_rad = quant_in_idx;     // Prime pipeline: present address 0 (quant_in_idx=0)
             end
             QUANTIZE: begin
-                res_rad = quant_in_idx;
+                // Pre-fetch next element: quant_in_idx not yet incremented in comb
+                res_rad = quant_in_idx + 1;
                 if (quant_valid_out) begin
                     res_wre = 1;
                     res_wad = quant_out_idx;
                     res_din = {{(3*DATA_WIDTH){int8_value[DATA_WIDTH-1]}}, int8_value};
                 end
             end
+            READ_OUTPUT_Y: begin
+                res_rad = output_y_idx;     // Prime pipeline: present first output address
+            end
             OUTPUT_Y: begin
-                res_rad = output_y_idx;
+                // Pre-fetch next address while capturing current res_dout
+                if (y_tile_ready || !y_tile_valid)
+                    res_rad = output_y_idx + 1; // output_y_idx not yet incremented in comb
+                else
+                    res_rad = output_y_idx;     // Stalled: re-present current address
             end
             default: ;
         endcase
@@ -312,24 +338,29 @@ module gemv_unit_core #(
                 next_state = (x_load_elem == TILE_SIZE - 1) ? WAIT_TILE : LOAD_X_TILE;
             end
 
-            WAIT_TILE: next_state = w_valid ? WAIT_PE : WAIT_TILE;
-            WAIT_PE: next_state = ACCUMULATE;
-            ACCUMULATE: next_state = row_overflow_reg ? ACCUMULATE_2 : WAIT_NEXT;
+            WAIT_TILE:    next_state = w_valid ? WAIT_PE : WAIT_TILE;
+            WAIT_PE:      next_state = READ_ACCUM;     // BSRAM: prime accumulator read
+            READ_ACCUM:   next_state = ACCUMULATE;
+            ACCUMULATE:   next_state = row_overflow_reg ? READ_ACCUM_2 : WAIT_NEXT;
+            READ_ACCUM_2: next_state = ACCUMULATE_2;
             ACCUMULATE_2: next_state = WAIT_NEXT;
 
             WAIT_NEXT: begin
                 if (last_in_row_reg) begin
                     if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1)
-                        next_state = LOAD_X_TILE; // Next row, reload x tile 0
+                        next_state = LOAD_X_TILE;
                     else
-                        next_state = FIND_MAX;
+                        next_state = READ_MAX;         // BSRAM: prime first FIND_MAX read
                 end else
-                    next_state = LOAD_X_TILE; // Same row, next x tile
+                    next_state = LOAD_X_TILE;
             end
 
-            FIND_MAX: next_state = int'(max_idx) < int'(rows) - 1 ? FIND_MAX : COMPUTE_SCALE;
-            COMPUTE_SCALE: next_state = scale_ready ? QUANTIZE : COMPUTE_SCALE;
-            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows[ROW_IDX_WIDTH-1:0] - 1 ? QUANTIZE : OUTPUT_Y) : QUANTIZE;
+            READ_MAX:   next_state = FIND_MAX;
+            FIND_MAX:   next_state = int'(max_idx) < int'(rows) - 1 ? READ_MAX : COMPUTE_SCALE;
+            COMPUTE_SCALE: next_state = scale_ready ? READ_QUANTIZE : COMPUTE_SCALE;
+            READ_QUANTIZE: next_state = QUANTIZE;
+            QUANTIZE: next_state = quant_valid_out ? (quant_out_idx < rows[ROW_IDX_WIDTH-1:0] - 1 ? QUANTIZE : READ_OUTPUT_Y) : QUANTIZE;
+            READ_OUTPUT_Y: next_state = OUTPUT_Y;
             OUTPUT_Y: next_state = (y_output_tile_count >= total_y_tiles && y_tile_ready) ? DONE_STATE : OUTPUT_Y;
             DONE_STATE: next_state = IDLE;
             default: next_state = IDLE;
@@ -506,6 +537,10 @@ module gemv_unit_core #(
                 // full pe_out→gate→adder→add→BRAM combinational chain
                 WAIT_PE: begin
                     tile_done <= 0;
+                end
+
+                READ_ACCUM: begin
+                    // pe_out is now valid after 1-cycle delay from PE
                     sum_current_row_reg <= sum_current_row;
                     sum_next_row_reg    <= sum_next_row;
                 end
@@ -513,6 +548,10 @@ module gemv_unit_core #(
                 ACCUMULATE: begin
                     tile_done <= !row_overflow_reg;
                     // Bias is already pre-loaded in res_mem — no b_extended needed
+                    if (tile_idx == 0 && int'(row_idx) < 2)
+                        $display("[DBG] ACCUM row=%0d tile=0 res_dout=%0d sum=%0d -> %0d",
+                            row_idx, $signed(res_dout), $signed(sum_current_row_reg),
+                            $signed($signed(res_dout) + sum_current_row_reg));
                 end
                 
                 ACCUMULATE_2: begin
@@ -540,6 +579,7 @@ module gemv_unit_core #(
                     if (scale_ready) begin
                         quant_in_idx <= 0;
                         quant_out_idx <= 0;
+                        $display("[DBG] COMPUTE_SCALE done: rows=%0d max_abs=%0d reciprocal=0x%h", rows, $signed(max_abs_reg), reciprocal_scale);
                     end
                 end
 
@@ -549,9 +589,13 @@ module gemv_unit_core #(
                         int32_value <= res_dout;
                         quant_in_idx <= quant_in_idx + 1;
                         quant_valid_in <= (quant_in_idx < rows[ROW_IDX_WIDTH-1:0]);
+                        if (int'(quant_in_idx) < 4)
+                            $display("[DBG] QUANTIZE feed idx=%0d res_dout=%0d", quant_in_idx, $signed(res_dout));
                     end
                     if (quant_valid_out) begin
                         if (int'(quant_out_idx) < MAX_ROWS) quant_out_idx <= quant_out_idx + 1;
+                        if (int'(quant_out_idx) < 4)
+                            $display("[DBG] QUANTIZE out idx=%0d int8=%0d", quant_out_idx, $signed(int8_value));
                     end
                 end
                 
