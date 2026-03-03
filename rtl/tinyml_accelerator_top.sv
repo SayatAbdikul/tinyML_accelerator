@@ -16,13 +16,15 @@
 // The module pulses 'done' for one cycle when an instruction completes execution.
 // Connect 'start' high for one cycle to begin processing a new instruction.
 //
+import accelerator_config_pkg::*;
+
 module tinyml_accelerator_top #(
-    parameter DATA_WIDTH = 8,
-    parameter TILE_WIDTH = 256,
-    parameter ADDR_WIDTH = 16,
-    parameter MAX_ROWS   = 1024,
-    parameter MAX_COLS   = 1024,
-    parameter OUT_N      = 10,
+    parameter DATA_WIDTH = accelerator_config_pkg::DATA_WIDTH,
+    parameter TILE_WIDTH = accelerator_config_pkg::TILE_WIDTH,
+    parameter ADDR_WIDTH = accelerator_config_pkg::ADDR_WIDTH,
+    parameter MAX_ROWS   = accelerator_config_pkg::MAX_ROWS,
+    parameter MAX_COLS   = accelerator_config_pkg::MAX_COLS,
+    parameter OUT_N      = accelerator_config_pkg::OUT_N,
     parameter INSTR_WIDTH= 64,
     parameter HEX_FILE   = "/Users/sayat/Documents/GitHub/tinyML_accelerator/compiler/dram.hex"
 )(
