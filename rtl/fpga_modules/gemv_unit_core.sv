@@ -96,7 +96,8 @@ module gemv_unit_core #(
     logic [COL_IDX_WIDTH-1:0] num_current_row_reg;
     logic last_in_row_reg;
     logic row_overflow_reg;
-    logic pe_valid [0:TILE_SIZE-1]; // per-PE enable mask: pe_valid[j] = (j < num_current_row)
+    // A1: pe_valid removed. x_current_tile[j] is zeroed for j >= num_current_row in LOAD_X_TILE,
+    // so pe_out[j] = w*0 = 0 for out-of-range elements. No adder-tree gating needed.
 
     // Pipeline registers: PE sums (registered in WAIT_PE, used in ACCUMULATE)
     logic signed [4*DATA_WIDTH-1:0] sum_current_row_reg;
@@ -169,21 +170,18 @@ module gemv_unit_core #(
         end
     end
 
-    // Split PE outputs — uses registered pe_valid and row_overflow_reg to keep
-    // pe_out (FF) → adder tree → sum_reg as the only path (no late-arriving tile_idx chain)
+    // A1: Unconditional adder tree — no pe_valid gating.
+    // x_current_tile[j] = 0 for j >= num_current_row (zeroed in LOAD_X_TILE), so
+    // pe_out[j] = w*0 = 0 for invalid elements. sum_next_row is always 0 because
+    // overflow x-padding elements are also zero (x buffer padded to tile boundary).
     always_comb begin
         sum_current_row = '0;
-        sum_next_row = '0;
+        sum_next_row = '0;  // Always 0 after A1
 
         for (int j = 0; j < TILE_SIZE; j++) begin
             logic signed [4*DATA_WIDTH-1:0] extended_out;
             extended_out = {{(2*DATA_WIDTH){pe_out[j][2*DATA_WIDTH-1]}}, pe_out[j]};
-            if (pe_valid[j]) begin
-                sum_current_row += extended_out;
-            end
-            else if (row_overflow_reg) begin
-                sum_next_row += extended_out;
-            end
+            sum_current_row += extended_out;
         end
     end
 
@@ -411,7 +409,6 @@ module gemv_unit_core #(
                 y_tile_out[i] <= 0;
                 x_latched[i] <= 0;
                 bias_latched[i] <= 0;
-                pe_valid[i] <= 0;
             end
             num_current_row_reg <= 0;
             last_in_row_reg <= 0;
@@ -506,8 +503,10 @@ module gemv_unit_core #(
 
                 // ---- Load x tile from x_mem for current tile_idx ----
                 LOAD_X_TILE: begin
-                    // Async read: x_mem_rad is set combinationally, x_mem_dout available same cycle
-                    x_current_tile[x_load_elem] <= x_mem_dout[DATA_WIDTH-1:0];
+                    // A1: Zero-mask elements beyond num_current_row so pe_out = w*0 = 0
+                    // for out-of-range columns. Removes pe_valid gating from adder tree.
+                    x_current_tile[x_load_elem] <= (int'(x_load_elem) < num_current_row)
+                        ? x_mem_dout[DATA_WIDTH-1:0] : '0;
                     x_load_elem <= x_load_elem + 1;
                     if (x_load_elem == TILE_SIZE - 1) begin
                         x_load_elem <= 0;
@@ -518,15 +517,12 @@ module gemv_unit_core #(
                 WAIT_TILE: begin
                     w_ready <= 1;
                     tile_done <= 0;
-                    // Idea 1: register tile geometry so ACCUMULATE/WAIT_NEXT see FFs, not
-                    // a long combinational chain from tile_idx through the multiply
+                    // Register tile geometry so ACCUMULATE/WAIT_NEXT see FFs, not
+                    // a long combinational chain from tile_idx through the multiply.
+                    // A1: pe_valid removed; x zeroing in LOAD_X_TILE handles masking.
                     num_current_row_reg <= num_current_row;
                     last_in_row_reg     <= last_in_row;
                     row_overflow_reg    <= row_overflow;
-                    // Idea 2: register per-PE enable mask — removes j<num_current_row
-                    // comparison from the adder tree in the WAIT_PE critical path
-                    for (int j = 0; j < TILE_SIZE; j++)
-                        pe_valid[j] <= (j < num_current_row);
                     if (w_valid) begin
                         for (int i = 0; i < TILE_SIZE; i++) w_latched[i] <= w_tile_row_in[i];
                         w_ready <= 0;
