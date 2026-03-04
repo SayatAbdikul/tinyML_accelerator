@@ -49,7 +49,9 @@ module gemv_execution #(
     output logic signed [DATA_WIDTH-1:0] result [0:TILE_ELEMS-1]
 );
 
-    localparam GEMV_TILE_SIZE = TILE_ELEMS;
+    // gemv_unit_core uses 3-bit counters (x_load_elem, x_store_elem, etc.) so
+    // TILE_SIZE must be exactly 8.  gemv_execution bridges TILE_ELEMS ↔ 8.
+    localparam GEMV_TILE_SIZE = 8;
 
     // ==================== FSM States ====================
     typedef enum logic [3:0] {
@@ -474,9 +476,8 @@ module gemv_execution #(
                 FEED_W: begin
                     // Weight handshake is combinational (w_valid)
                     if (w_valid) begin
-                        if (w_row == 0 && w_gemv_in_row == 0 && buf_idx == 0)
-                            //  $display("[DEBUG] GEMV_EXEC: FEED_W first tile local_buf[0]=0x%h, Carry=0x%h, BufIdx=%d", 
-                            //           local_buf[0], carry_count, buf_idx);
+                        //  $display("[DEBUG] GEMV_EXEC: FEED_W first tile local_buf[0]=0x%h, Carry=0x%h, BufIdx=%d",
+                        //           local_buf[0], carry_count, buf_idx);
                         buf_idx <= new_buf_idx;
                         carry_count <= 0;
                         w_gemv_in_row <= w_gemv_in_row + 1;

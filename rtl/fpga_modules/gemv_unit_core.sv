@@ -63,6 +63,9 @@ module gemv_unit_core #(
         READ_QUANTIZE   = 20,    // Prime quantize pipeline: present res_rad=quant_in_idx
         QUANTIZE        = 14,
         READ_OUTPUT_Y   = 21,    // Prime output pipeline: present res_rad=output_y_idx
+        SUM_PARTIAL     = 22,    // A2: stage-1 adder — register pairwise pe_out sums
+        PREP_ACCUM      = 23,    // A3: register res_dout+sum_current_row_reg before BSRAM write
+        PREP_MAX        = 24,    // A4: register abs(res_dout) before FIND_MAX comparison
         OUTPUT_Y        = 15,
         DONE_STATE      = 16
     } state, next_state;
@@ -102,7 +105,13 @@ module gemv_unit_core #(
     // Pipeline registers: PE sums (registered in WAIT_PE, used in ACCUMULATE)
     logic signed [4*DATA_WIDTH-1:0] sum_current_row_reg;
     logic signed [4*DATA_WIDTH-1:0] sum_next_row_reg;
-    
+    // A2: stage-1 partial sums (4 pairwise pe_out sums, registered in SUM_PARTIAL)
+    logic signed [4*DATA_WIDTH-1:0] partial_sum_reg [0:TILE_SIZE/2-1];
+    // A3: pre-computed accumulator result (registered in PREP_ACCUM, written in ACCUMULATE)
+    logic signed [4*DATA_WIDTH-1:0] accum_result_reg;
+    // A4: registered abs(res_dout) — breaks BSRAM→abs→compare→max_abs_reg chain in FIND_MAX
+    logic signed [4*DATA_WIDTH-1:0] current_abs_reg;
+
     // Scale computation
     logic signed [4*DATA_WIDTH-1:0] reciprocal_scale;
     logic scale_ready;
@@ -257,10 +266,10 @@ module gemv_unit_core #(
                 res_rad = row_idx;          // Present address; BSRAM registers at clock edge
             end
             ACCUMULATE: begin
-                // res_dout = mem[row_idx] registered from READ_ACCUM — no res_rad needed
+                // A3: accum_result_reg = res_dout + sum_current_row_reg, pre-computed in PREP_ACCUM
                 res_wad = row_idx;
                 res_wre = 1;
-                res_din = $signed(res_dout) + sum_current_row_reg;
+                res_din = accum_result_reg;
             end
             READ_ACCUM_2: begin
                 res_rad = row_idx + 1;      // Present overflow row address
@@ -337,8 +346,10 @@ module gemv_unit_core #(
             end
 
             WAIT_TILE:    next_state = w_valid ? WAIT_PE : WAIT_TILE;
-            WAIT_PE:      next_state = READ_ACCUM;     // BSRAM: prime accumulator read
-            READ_ACCUM:   next_state = ACCUMULATE;
+            WAIT_PE:      next_state = SUM_PARTIAL;    // A2: stage-1 pairwise sums
+            SUM_PARTIAL:  next_state = READ_ACCUM;     // BSRAM: prime accumulator read
+            READ_ACCUM:   next_state = PREP_ACCUM;     // A3: register the add result
+            PREP_ACCUM:   next_state = ACCUMULATE;
             ACCUMULATE:   next_state = row_overflow_reg ? READ_ACCUM_2 : WAIT_NEXT;
             READ_ACCUM_2: next_state = ACCUMULATE_2;
             ACCUMULATE_2: next_state = WAIT_NEXT;
@@ -353,7 +364,8 @@ module gemv_unit_core #(
                     next_state = LOAD_X_TILE;
             end
 
-            READ_MAX:   next_state = FIND_MAX;
+            READ_MAX:   next_state = PREP_MAX;
+            PREP_MAX:   next_state = FIND_MAX;
             FIND_MAX:   next_state = int'(max_idx) < int'(rows) - 1 ? READ_MAX : COMPUTE_SCALE;
             COMPUTE_SCALE: next_state = scale_ready ? READ_QUANTIZE : COMPUTE_SCALE;
             READ_QUANTIZE: next_state = QUANTIZE;
@@ -415,6 +427,10 @@ module gemv_unit_core #(
             row_overflow_reg <= 0;
             sum_current_row_reg <= 0;
             sum_next_row_reg <= 0;
+            for (int p = 0; p < TILE_SIZE/2; p++)
+                partial_sum_reg[p] <= '0;
+            accum_result_reg <= '0;
+            current_abs_reg  <= '0;
         end else begin
             case (state)
                 IDLE: begin
@@ -535,10 +551,25 @@ module gemv_unit_core #(
                     tile_done <= 0;
                 end
 
+                SUM_PARTIAL: begin
+                    // A2 stage 1: 4 pairwise pe_out additions — halves adder depth to ~4 logic levels
+                    for (int p = 0; p < TILE_SIZE/2; p++) begin
+                        partial_sum_reg[p] <=
+                            {{(2*DATA_WIDTH){pe_out[2*p][2*DATA_WIDTH-1]}}, pe_out[2*p]}
+                          + {{(2*DATA_WIDTH){pe_out[2*p+1][2*DATA_WIDTH-1]}}, pe_out[2*p+1]};
+                    end
+                end
+
                 READ_ACCUM: begin
-                    // pe_out is now valid after 1-cycle delay from PE
-                    sum_current_row_reg <= sum_current_row;
-                    sum_next_row_reg    <= sum_next_row;
+                    // A2 stage 2: combine 4 partial sums (→ ~3 logic levels) + prime BSRAM read
+                    sum_current_row_reg <= partial_sum_reg[0] + partial_sum_reg[1]
+                                        + partial_sum_reg[2] + partial_sum_reg[3];
+                    sum_next_row_reg    <= '0;  // Always 0 after A1
+                end
+
+                PREP_ACCUM: begin
+                    // A3: register res_dout+sum — breaks res_dout→add→BSRAM.di carry-chain path
+                    accum_result_reg <= $signed(res_dout) + sum_current_row_reg;
                 end
 
                 ACCUMULATE: begin
@@ -560,8 +591,14 @@ module gemv_unit_core #(
                     x_load_elem <= 0; // Reset for LOAD_X_TILE
                 end
 
+                PREP_MAX: begin
+                    // A4: register abs(res_dout) — isolates BSRAM tC2Q+abs from compare chain
+                    current_abs_reg <= current_abs;
+                end
+
                 FIND_MAX: begin
-                    if (current_abs > max_abs_reg) max_abs_reg <= current_abs;
+                    // A4: current_abs_reg (FF) → 32-bit compare → max_abs_reg (FF)
+                    if (current_abs_reg > max_abs_reg) max_abs_reg <= current_abs_reg;
                     if (int'(max_idx) < int'(rows) - 1) max_idx <= max_idx + 1;
                     else if (max_abs_reg == 0) max_abs_reg <= 1;
                 end
