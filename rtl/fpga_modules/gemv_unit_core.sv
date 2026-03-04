@@ -677,7 +677,6 @@ module gemv_unit_core #(
                     if (scale_ready) begin
                         quant_in_idx <= 0;
                         quant_out_idx <= 0;
-                        $display("[DBG] COMPUTE_SCALE done: rows=%0d max_abs=%0d reciprocal=0x%h", rows, $signed(max_abs_reg), reciprocal_scale);
                     end
                 end
 
@@ -687,13 +686,9 @@ module gemv_unit_core #(
                         int32_value <= res_dout;
                         quant_in_idx <= quant_in_idx + 1;
                         quant_valid_in <= (quant_in_idx < rows[ROW_IDX_WIDTH-1:0]);
-                        if (int'(quant_in_idx) < 4)
-                            $display("[DBG] QUANTIZE feed idx=%0d res_dout=%0d", quant_in_idx, $signed(res_dout));
                     end
                     if (quant_valid_out) begin
                         if (int'(quant_out_idx) < MAX_ROWS) quant_out_idx <= quant_out_idx + 1;
-                        if (int'(quant_out_idx) < 4)
-                            $display("[DBG] QUANTIZE out idx=%0d int8=%0d", quant_out_idx, $signed(int8_value));
                     end
                 end
                 
