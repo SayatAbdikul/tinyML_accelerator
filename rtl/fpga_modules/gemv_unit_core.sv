@@ -257,6 +257,24 @@ module gemv_unit_core #(
                 // A6+B1: present NEXT word address for pipelined BSRAM capture
                 x_mem_rad = {2'b0, tile_idx, 1'b0} + {9'b0, x_load_elem} + 10'd1;
             end
+            // B2: Prefetch next x tile during accumulate pipeline
+            // x_mem is idle from WAIT_PE through WAIT_NEXT — use PREP_ACCUM and
+            // ACCUMULATE to prime and capture word 0, then capture word 1 in
+            // WAIT_NEXT (normal) or READ_ACCUM_2 (overflow path).
+            PREP_ACCUM: begin
+                // Prime word 0 of NEXT tile
+                if (last_in_row_reg)
+                    x_mem_rad = 10'd0;  // Next row starts at tile 0, word 0
+                else
+                    x_mem_rad = {2'b0, tile_idx + 1'b1, 1'b0};  // Next tile, word 0
+            end
+            ACCUMULATE: begin
+                // Prime word 1 of NEXT tile (word 0 data available now)
+                if (last_in_row_reg)
+                    x_mem_rad = 10'd1;  // tile 0, word 1
+                else
+                    x_mem_rad = {2'b0, tile_idx + 1'b1, 1'b0} + 10'd1;  // Next tile, word 1
+            end
             default: ;
         endcase
     end
@@ -373,11 +391,11 @@ module gemv_unit_core #(
             WAIT_NEXT: begin
                 if (last_in_row_reg) begin
                     if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1)
-                        next_state = READ_X_TILE;      // A6: prime BSRAM before LOAD_X_TILE
+                        next_state = WAIT_TILE;        // B2: x_current_tile already prefetched
                     else
                         next_state = READ_MAX;         // BSRAM: prime first FIND_MAX read
                 end else
-                    next_state = READ_X_TILE;          // A6: prime BSRAM before LOAD_X_TILE
+                    next_state = WAIT_TILE;            // B2: x_current_tile already prefetched
             end
 
             READ_X_TILE: next_state = LOAD_X_TILE;
@@ -601,9 +619,25 @@ module gemv_unit_core #(
                 end
 
                 ACCUMULATE: begin
-                    tile_done <= !row_overflow_reg;                    
+                    tile_done <= !row_overflow_reg;
+                    // B2: Capture prefetched word 0 of next tile (primed in PREP_ACCUM)
+                    x_current_tile[0] <= x_mem_dout[0*8 +: 8];
+                    x_current_tile[1] <= x_mem_dout[1*8 +: 8];
+                    x_current_tile[2] <= x_mem_dout[2*8 +: 8];
+                    x_current_tile[3] <= x_mem_dout[3*8 +: 8];
                 end
                 
+                // B2: On overflow path, capture word 1 here (primed in ACCUMULATE,
+                // available after READ_ACCUM_2 clock edge — but READ_ACCUM_2 also
+                // presents res_rad for overflow row, so x_mem_dout is still from
+                // ACCUMULATE's x_mem_rad. Capture it here.)
+                READ_ACCUM_2: begin
+                    x_current_tile[4] <= x_mem_dout[0*8 +: 8];
+                    x_current_tile[5] <= x_mem_dout[1*8 +: 8];
+                    x_current_tile[6] <= x_mem_dout[2*8 +: 8];
+                    x_current_tile[7] <= x_mem_dout[3*8 +: 8];
+                end
+
                 ACCUMULATE_2: begin
                     tile_done <= 1;
                 end
@@ -616,7 +650,15 @@ module gemv_unit_core #(
                     end else begin
                         tile_idx <= tile_idx + 1;
                     end
-                    x_load_elem <= 0; // Reset for LOAD_X_TILE
+                    // B2: Capture prefetched word 1 — only on non-overflow path.
+                    // On overflow path, word 1 was already captured in READ_ACCUM_2
+                    // (by WAIT_NEXT, x_mem_dout reflects stale default addr from ACCUMULATE_2).
+                    if (!row_overflow_reg) begin
+                        x_current_tile[4] <= x_mem_dout[0*8 +: 8];
+                        x_current_tile[5] <= x_mem_dout[1*8 +: 8];
+                        x_current_tile[6] <= x_mem_dout[2*8 +: 8];
+                        x_current_tile[7] <= x_mem_dout[3*8 +: 8];
+                    end
                 end
 
                 PREP_MAX: begin
