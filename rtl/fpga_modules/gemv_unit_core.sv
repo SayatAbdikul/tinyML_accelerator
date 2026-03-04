@@ -66,6 +66,7 @@ module gemv_unit_core #(
         SUM_PARTIAL     = 22,    // A2: stage-1 adder — register pairwise pe_out sums
         PREP_ACCUM      = 23,    // A3: register res_dout+sum_current_row_reg before BSRAM write
         PREP_MAX        = 24,    // A4: register abs(res_dout) before FIND_MAX comparison
+        READ_X_TILE     = 25,    // A6: prime x_mem BSRAM read before LOAD_X_TILE
         OUTPUT_Y        = 15,
         DONE_STATE      = 16
     } state, next_state;
@@ -202,8 +203,11 @@ module gemv_unit_core #(
     
     // ================ BRAM Connections ================
 
-    // X-Vector RAM (stores x values, 1 element per 32-bit word, sign-extended)
-    Gowin_RAM16SDP x_mem (
+    // X-Vector RAM — BSRAM (Gowin_SDPB_32) with 1-cycle synchronous read latency.
+    // A6: Replaces LUTRAM (Gowin_RAM16SDP) to eliminate the 6-level MUX2 output cascade
+    // (128 x RAM16SDP4 blocks) that dominated the critical path at 84 MHz Fmax.
+    // READ_X_TILE state primes the address one cycle before LOAD_X_TILE captures dout.
+    Gowin_SDPB_32 x_mem (
         .dout(x_mem_dout),
         .clk(clk),
         .wre(x_mem_wre),
@@ -226,6 +230,9 @@ module gemv_unit_core #(
     );
 
     // X-Vector RAM Control Muxing
+    // Gowin_SDPB_32 has synchronous (registered) read: x_mem_dout reflects the address
+    // presented on the PREVIOUS clock edge. READ_X_TILE presents addr[0] so LOAD_X_TILE
+    // can capture immediately; LOAD_X_TILE presents addr[x_load_elem+1] for next iteration.
     always_comb begin
         x_mem_wre = 0;
         x_mem_wad = 0;
@@ -238,8 +245,13 @@ module gemv_unit_core #(
                 x_mem_wre = 1;
                 x_mem_din = {{24{x_latched[x_store_elem][DATA_WIDTH-1]}}, x_latched[x_store_elem]};
             end
-            LOAD_X_TILE: begin
+            READ_X_TILE: begin
+                // A6: prime — present addr[0]; BSRAM registers at clock edge
                 x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem};
+            end
+            LOAD_X_TILE: begin
+                // A6: pipelined — present NEXT address for the following cycle's capture
+                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem} + 10'd1;
             end
             default: ;
         endcase
@@ -334,7 +346,7 @@ module gemv_unit_core #(
             STORE_BIAS: begin
                 if (bias_store_elem == TILE_SIZE - 1) begin
                     if (bias_load_tile_count + 1 >= total_bias_tiles)
-                        next_state = LOAD_X_TILE;
+                        next_state = READ_X_TILE;   // A6: prime BSRAM before LOAD_X_TILE
                     else
                         next_state = LOAD_BIAS;
                 end else
@@ -357,13 +369,14 @@ module gemv_unit_core #(
             WAIT_NEXT: begin
                 if (last_in_row_reg) begin
                     if (row_idx < rows[ROW_IDX_WIDTH-1:0] - 1)
-                        next_state = LOAD_X_TILE;
+                        next_state = READ_X_TILE;      // A6: prime BSRAM before LOAD_X_TILE
                     else
                         next_state = READ_MAX;         // BSRAM: prime first FIND_MAX read
                 end else
-                    next_state = LOAD_X_TILE;
+                    next_state = READ_X_TILE;          // A6: prime BSRAM before LOAD_X_TILE
             end
 
+            READ_X_TILE: next_state = LOAD_X_TILE;
             READ_MAX:   next_state = PREP_MAX;
             PREP_MAX:   next_state = FIND_MAX;
             FIND_MAX:   next_state = int'(max_idx) < int'(rows) - 1 ? READ_MAX : COMPUTE_SCALE;
