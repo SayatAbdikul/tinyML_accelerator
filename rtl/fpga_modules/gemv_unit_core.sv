@@ -142,9 +142,9 @@ module gemv_unit_core #(
 
     // X loading/storing registers
     logic signed [DATA_WIDTH-1:0] x_latched [0:TILE_SIZE-1];
-    logic [9:0] x_store_idx;      // Global element index during STORE_X
-    logic [2:0] x_store_elem;     // Element within tile during STORE_X
-    logic [2:0] x_load_elem;      // Element counter during LOAD_X_TILE
+    logic [9:0] x_store_idx;      // B1: Global word index during STORE_X (4 elems/word)
+    logic [0:0] x_store_elem;     // B1: Word counter within tile during STORE_X (0-1)
+    logic [0:0] x_load_elem;      // B1: Word counter during LOAD_X_TILE (0-1)
 
     // Bias storing registers
     logic signed [DATA_WIDTH-1:0] bias_latched [0:TILE_SIZE-1];
@@ -241,17 +241,21 @@ module gemv_unit_core #(
 
         case(state)
             STORE_X: begin
+                // B1: Pack 4 int8 elements per 32-bit word
                 x_mem_wad = x_store_idx;
                 x_mem_wre = 1;
-                x_mem_din = {{24{x_latched[x_store_elem][DATA_WIDTH-1]}}, x_latched[x_store_elem]};
+                if (x_store_elem == 0)
+                    x_mem_din = {x_latched[3], x_latched[2], x_latched[1], x_latched[0]};
+                else
+                    x_mem_din = {x_latched[7], x_latched[6], x_latched[5], x_latched[4]};
             end
             READ_X_TILE: begin
-                // A6: prime — present addr[0]; BSRAM registers at clock edge
-                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem};
+                // A6+B1: prime word addr[0]; tile_idx*2 = word base for packed 4:1 x_mem
+                x_mem_rad = {2'b0, tile_idx, 1'b0} + {9'b0, x_load_elem};
             end
             LOAD_X_TILE: begin
-                // A6: pipelined — present NEXT address for the following cycle's capture
-                x_mem_rad = {3'b0, tile_idx} * TILE_SIZE[9:0] + {7'b0, x_load_elem} + 10'd1;
+                // A6+B1: present NEXT word address for pipelined BSRAM capture
+                x_mem_rad = {2'b0, tile_idx, 1'b0} + {9'b0, x_load_elem} + 10'd1;
             end
             default: ;
         endcase
@@ -332,7 +336,7 @@ module gemv_unit_core #(
             LOAD_X: next_state = x_tile_valid ? STORE_X : LOAD_X;
 
             STORE_X: begin
-                if (x_store_elem == TILE_SIZE - 1) begin
+                if (x_store_elem == 1) begin  // B1: 2 words per tile (4 elems/word)
                     if (x_load_tile_count + 1 >= total_x_tiles)
                         next_state = LOAD_BIAS;
                     else
@@ -354,7 +358,7 @@ module gemv_unit_core #(
             end
 
             LOAD_X_TILE: begin
-                next_state = (x_load_elem == TILE_SIZE - 1) ? WAIT_TILE : LOAD_X_TILE;
+                next_state = (x_load_elem == 1) ? WAIT_TILE : LOAD_X_TILE;  // B1: 2 words per tile
             end
 
             WAIT_TILE:    next_state = w_valid ? WAIT_PE : WAIT_TILE;
@@ -484,10 +488,10 @@ module gemv_unit_core #(
                 end
 
                 STORE_X: begin
-                    // Write one element per cycle to x_mem
+                    // B1: Write one packed word (4 int8 elements) per cycle to x_mem
                     x_store_idx <= x_store_idx + 1;
                     x_store_elem <= x_store_elem + 1;
-                    if (x_store_elem == TILE_SIZE - 1) begin
+                    if (x_store_elem == 1) begin  // B1: 2 words per tile (4 elems/word)
                         x_load_tile_count <= x_load_tile_count + 1;
                         if (x_load_tile_count + 1 >= total_x_tiles) begin
                             x_tile_ready <= 0;
@@ -532,12 +536,23 @@ module gemv_unit_core #(
 
                 // ---- Load x tile from x_mem for current tile_idx ----
                 LOAD_X_TILE: begin
-                    // A1: Zero-mask elements beyond num_current_row so pe_out = w*0 = 0
-                    // for out-of-range columns. Removes pe_valid gating from adder tree.
-                    x_current_tile[x_load_elem] <= (int'(x_load_elem) < num_current_row)
-                        ? x_mem_dout[DATA_WIDTH-1:0] : '0;
+                    // B1+A1: Unpack 4 int8 elements from packed 32-bit BSRAM word
+                    // Zero-mask elements beyond num_current_row (A1)
+                    if (x_load_elem == 0) begin
+                        // Word 0 → elements [0:3]
+                        x_current_tile[0] <= (10'd0 < num_current_row) ? x_mem_dout[0*8 +: 8] : '0;
+                        x_current_tile[1] <= (10'd1 < num_current_row) ? x_mem_dout[1*8 +: 8] : '0;
+                        x_current_tile[2] <= (10'd2 < num_current_row) ? x_mem_dout[2*8 +: 8] : '0;
+                        x_current_tile[3] <= (10'd3 < num_current_row) ? x_mem_dout[3*8 +: 8] : '0;
+                    end else begin
+                        // Word 1 → elements [4:7]
+                        x_current_tile[4] <= (10'd4 < num_current_row) ? x_mem_dout[0*8 +: 8] : '0;
+                        x_current_tile[5] <= (10'd5 < num_current_row) ? x_mem_dout[1*8 +: 8] : '0;
+                        x_current_tile[6] <= (10'd6 < num_current_row) ? x_mem_dout[2*8 +: 8] : '0;
+                        x_current_tile[7] <= (10'd7 < num_current_row) ? x_mem_dout[3*8 +: 8] : '0;
+                    end
                     x_load_elem <= x_load_elem + 1;
-                    if (x_load_elem == TILE_SIZE - 1) begin
+                    if (x_load_elem == 1) begin  // B1: 2 words per tile
                         x_load_elem <= 0;
                     end
                 end
