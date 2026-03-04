@@ -4,342 +4,215 @@ Comprehensive documentation for the TinyML Accelerator hardware design.
 
 ## Overview
 
-The TinyML Accelerator is a specialized hardware accelerator for neural network inference with quantized 8-bit integer arithmetic. It implements a custom instruction set architecture (ISA) with 5 instructions optimized for deep learning operations.
+The TinyML Accelerator is a specialized hardware accelerator for neural network inference with quantized 8-bit integer arithmetic. It implements a custom 5-instruction ISA optimized for MLP operations. The design targets Gowin GW2AR-18 FPGA (Tang Nano 20K) and is validated on MNIST digit classification.
 
 ## Documentation Files
 
 ### Architecture Documentation
-- **[RTL_ARCHITECTURE.md](RTL_ARCHITECTURE.md)** - Complete RTL architecture documentation
-  - System overview
-  - Module hierarchy (22 modules)
-  - Detailed descriptions
+- **[RTL_ARCHITECTURE.md](RTL_ARCHITECTURE.md)** - Detailed RTL architecture documentation
+  - Module hierarchy and descriptions
+  - FSM state diagrams
   - Signal flow diagrams
-  - Performance characteristics
-  - Design patterns
 
 ### Visual Diagrams
 - **[diagrams/](diagrams/)** - Visual architecture diagrams
   - System architecture
   - Module hierarchy tree
-  - Execution unit details
   - GEMV pipeline
   - Memory system
-  - FSM state machines
 
 ### Test Documentation
+- **[../test/TEST_GUIDE.md](../test/TEST_GUIDE.md)** - Test suite overview and workflow
 - **[../test/TESTBENCH_COMPARISON.md](../test/TESTBENCH_COMPARISON.md)** - Testbench comparison
-  - Golden model vs RTL tests
-  - Heavy test vs Cocotb tests
-  - Test methodology comparison
+- **[../test/heavy_test/README.md](../test/heavy_test/README.md)** - Full validation guide
 
-## Quick Start
-
-### View Architecture
-```bash
-# Read architecture documentation
-open docs/RTL_ARCHITECTURE.md
-
-# Generate and view diagrams
-cd docs/diagrams
-./generate_diagrams.sh
-open system_architecture.png
-```
-
-### Module Summary
+## Module Summary
 
 | Category | Modules | Purpose |
 |----------|---------|---------|
-| **Top Level** | tinyml_accelerator_top | Main coordinator |
-| **Control** | fetch_unit, i_decoder | Instruction fetch & decode |
-| **Execution** | modular_execution_unit + 5 sub-modules | Operation execution |
-| **Memory** | simple_memory (5 instances) | Data storage |
-| **Buffers** | buffer_file (2 instances: vector + matrix) | Temporary storage |
-| **Computation** | top_gemv, 32× pe | Matrix-vector multiply |
-| **Quantization** | quantization, scale_calculator | 32→8 bit conversion |
-| **Arithmetic** | wallace_32x32, compressor_3to2 | Fast multiplication |
-| **Activation** | relu | ReLU activation |
-| **Data Movement** | load_v, load_m, store | DRAM ↔ Buffer |
-
-**Total: 22 unique modules** across ~3300 lines of SystemVerilog
-
-## Key Features
-
-### Instruction Set
-1. **LOAD_V** - Load vector from DRAM to buffer
-2. **LOAD_M** - Load matrix from DRAM to buffer
-3. **GEMV** - General matrix-vector multiplication (with quantization)
-4. **RELU** - Apply ReLU activation function
-5. **STORE** - Store buffer to DRAM
-
-### Architecture Highlights
-- **Tiled Computation**: 32-element tiles for efficient memory bandwidth
-- **Parallel Processing**: 32 PEs operating in parallel
-- **Pipelined Quantization**: Multi-stage 32-bit → 8-bit conversion
-- **Modular Design**: Clean separation of concerns
-- **FSM-Based Control**: Hierarchical state machines
-
-### Memory System
-- **5 Separate Memories**: Instructions, Load_V (Inputs), Load_M, Load_V (Biases), Store
-- **Memory Map**:
-  - 0x000000-0x000700: Instructions (1792 bytes)
-  - 0x000700-0x003000: Input vectors (10,496 bytes)
-  - 0x003000-0x013000: Weight matrices (64KB)
-  - 0x013000-0x020000: Bias vectors (~52KB)
-    - 0x020000-0x0203E8: Output buffers (~1000 bytes allocated)
-
-### Buffer System
-- **Vector Buffers**: 16 buffers × 1024 elements each
-- **Matrix Buffers**: 2 buffers × 1024 elements each
-- **Tile-Based Access**: 32 elements (32 bytes) per tile
-
-## Performance
-
-### Throughput
-- **32 MACs/cycle** during GEMV accumulation
-- **32 bytes/cycle** memory bandwidth (tile-based)
-
-### Latency (approximate)
-- **LOAD_V**: ceil(length / 32) cycles
-- **LOAD_M**: ceil(rows × cols / 32) cycles
-- **GEMV**: rows × ceil(cols / 32) + quantization_overhead
-- **RELU**: length cycles (element-wise)
-- **STORE**: ceil(length / 32) cycles
-
-### Resource Utilization
-- **32 × 8×8 Multipliers** (PEs)
-- **~64KB Buffer Memory** (configurable)
-- **4 × 16MB DRAM** (64MB total, configurable)
+| **Top Level** | `fpga_top` / `tinyml_accelerator_top` | System coordinator |
+| **Control** | `fetch_unit`, `i_decoder` | Instruction fetch and decode |
+| **Execution** | `modular_execution_unit` + 5 sub-modules | Operation dispatch |
+| **Memory** | `simple_memory` (1 unified instance) | 32 KB DRAM (Gowin_SP BRAM on FPGA) |
+| **Buffers** | `buffer_file` (vector + matrix instances) | Tile-indexed temporary storage |
+| **Computation** | `gemv_unit_core`, 8x `pe` | Tiled matrix-vector multiply |
+| **Quantization** | `quantizer_pipeline`, `scale_calculator` | INT32 to INT8 conversion |
+| **Arithmetic** | `wallace_32x32`, `compressor_3to2` | 32-bit multiplication |
+| **Activation** | `relu` | ReLU activation |
+| **Data Movement** | `load_v`, `load_m`, `store` | DRAM to/from buffer transfers |
 
 ## Design Hierarchy
 
 ```
 Level 1: System
-  └─ tinyml_accelerator_top
+  └─ fpga_top (FPGA) / tinyml_accelerator_top (Sim)
 
 Level 2: Subsystems
-  ├─ fetch_unit
+  ├─ fetch_unit (+ fetch_unit_fpga for FPGA)
   ├─ i_decoder
+  ├─ simple_memory (unified, 32 KB)
   └─ modular_execution_unit
 
 Level 3: Execution Modules
   ├─ buffer_controller
+  │   └─ buffer_file (vector + matrix)
   ├─ load_execution
+  │   ├─ load_v
+  │   └─ load_m
   ├─ gemv_execution
+  │   └─ gemv_unit_core
+  │       ├─ pe[0:7] (8 processing elements)
+  │       ├─ Gowin_SDPB_32 (x-vector BSRAM, packed 4:1)
+  │       ├─ Gowin_SDPB_32 (accumulator BSRAM)
+  │       ├─ scale_calculator
+  │       │   └─ wallace_32x32
+  │       │       └─ compressor_3to2
+  │       └─ quantizer_pipeline
   ├─ relu_execution
+  │   └─ relu
   └─ store_execution
+      └─ store
 
-Level 4: Computational Units
-  ├─ top_gemv
-  │  ├─ pe[0:31]
-  │  └─ quantization
-  ├─ load_v
-  ├─ load_m
-  ├─ relu
-  └─ store
-
-Level 5: Arithmetic Primitives
-  ├─ wallace_32x32
-  ├─ scale_calculator
-  └─ compressor_3to2
+Level 4: IP Blocks (FPGA)
+  ├─ Gowin_SP (BRAM for unified memory)
+  ├─ Gowin_SDPB_32 (dual-port BSRAM for x_mem and res_mem)
+  └─ DSP blocks (MULT36X36, MULTADDALU18X18)
 ```
 
-## Abstraction Levels
+## Two RTL Trees
 
-### Level 1: Behavioral
+The project maintains two parallel RTL trees:
+
+| Tree | Purpose | Top Module | Key Differences |
+|------|---------|------------|-----------------|
+| `src/` | FPGA synthesis (Gowin EDA) | `fpga_top.sv` | Gowin IP primitives, UART I/O |
+| `rtl/` + `rtl/fpga_modules/` | Simulation (Verilator/cocotb) | `tinyml_accelerator_top.sv` | Mock IP, `$readmemh` memory |
+
+**`src/` is the synthesis source of truth.** After modifying simulation files in `rtl/fpga_modules/`, sync to `src/` (e.g., `cp rtl/fpga_modules/gemv_unit_core.sv src/top_gemv.sv`).
+
+### Simulation Mocks
+- `Gowin_RAM16SDP_Mock.sv` — Simulates Gowin LUTRAM (async read)
+- `Gowin_SDPB_32.sv` (in rtl/fpga_modules/) — Simulates Gowin BSRAM (1-cycle synchronous read)
+
+## DRAM Memory Map
+
+The design uses a unified 32 KB memory with the following layout:
+
+| Region | Address | Size | Contents |
+|--------|---------|------|----------|
+| Instructions | 0x000 | ~192 B | Program code (fetched by fetch_unit) |
+| Inputs | 0x0C0 | ~784 B | Input vector (loaded per image) |
+| Biases | 0x4C0 | ~54 B | Layer biases (fc1, fc2, fc3) |
+| Outputs | 0x8C0 | ~10 B | Inference results |
+| Weights | 0x940 | ~10 KB | Weight matrices (fc1: 12x784, fc2: 32x12, fc3: 10x32) |
+
+Addresses are configured in `compiler/accelerator_config.py`. The compiler generates `dram.hex` which is loaded via UART on FPGA or `$readmemh` in simulation.
+
+## Key Configuration Parameters
+
+| Parameter | FPGA Value | Simulation Value | Notes |
+|-----------|-----------|-----------------|-------|
+| TILE_ELEMS | 8 | 8 (fpga_modules) / 32 (execution_unit) | Elements per tile |
+| TILE_WIDTH | 64 | 64 / 256 | Bits per tile |
+| ADDR_WIDTH | 16 | 16 / 24 | Memory address bits |
+| MAX_ROWS | 784 | 784 / 1024 | Max vector/matrix dimension |
+| GEMV_TILE_SIZE | 8 | 8 | Must equal TILE_ELEMS |
+
+## GEMV Pipeline (gemv_unit_core.sv)
+
+The GEMV core is the most complex module, implementing a multi-stage pipelined FSM:
+
+### Phase 1: Data Loading
+1. **LOAD_X** / **STORE_X** — Receive x-vector tiles, pack 4 int8 per 32-bit BSRAM word (B1)
+2. **LOAD_BIAS** / **STORE_BIAS** — Receive bias tiles, write to accumulator BSRAM
+
+### Phase 2: Weight Processing (per weight tile)
 ```
-Input → [ TinyML Accelerator ] → Output
-```
-
-### Level 2: Architectural
-```
-Fetch → Decode → Execute → Writeback
-         ↓         ↓         ↓
-      [Instruction Decoder]
-                   ↓
-      [Execution Unit with Buffers]
-                   ↓
-            [Memory System]
-```
-
-### Level 3: Microarchitectural
-```
-fetch_unit → i_decoder → modular_execution_unit
-                              ├─ buffer_controller
-                              ├─ load_execution
-                              ├─ gemv_execution (32 PEs)
-                              ├─ relu_execution
-                              └─ store_execution
-                                      ↓
-                              [4× simple_memory]
-```
-
-### Level 4: RTL Implementation
-See [RTL_ARCHITECTURE.md](RTL_ARCHITECTURE.md) for detailed RTL structure
-
-## Design Patterns
-
-### 1. Modular Decomposition
-Each major function is a separate, reusable module
-
-### 2. Hierarchical FSMs
-Multi-level state machines for complex control flow
-
-### 3. Handshake Protocol
-Standardized start/done signals for module coordination
-
-### 4. Parameterization
-Configurable tile sizes, data widths, buffer counts
-
-### 5. Tiled Processing
-Efficient memory bandwidth through tile-based computation
-
-## Verification
-
-### Test Suites
-1. **Golden Model** (Python) - Algorithm reference
-2. **Cocotb Tests** (20 images) - Basic RTL validation
-3. **Heavy Test** (10,000 images) - Production validation
-
-See [../test/TESTBENCH_COMPARISON.md](../test/TESTBENCH_COMPARISON.md) for details.
-
-### Pass Criteria
-- **RTL Accuracy**: ≥85% on MNIST
-- **Exact Match Rate**: ≥95% outputs match golden model
-- **Max Error**: ≤3 quantization units
-
-## File Organization
-
-```
-docs/
-├── README.md                    # This file
-├── RTL_ARCHITECTURE.md          # Complete architecture doc
-└── diagrams/                    # Visual diagrams
-    ├── README.md
-    ├── generate_diagrams.sh
-    ├── *.dot                    # DOT source files
-    └── *.png                    # Generated diagrams
-
-rtl/
-├── tinyml_accelerator_top.sv   # Top level
-├── fetch_unit.sv
-├── i_decoder.sv
-├── buffer_file.sv
-├── simple_memory.sv
-├── top_gemv.sv
-├── pe.sv
-├── quantization.sv
-├── wallace_32x32.sv
-├── compressor_3to2.sv
-├── load_v.sv
-├── load_m.sv
-├── store.sv
-├── relu.sv
-└── execution_unit/             # Execution modules
-    ├── modular_execution_unit.sv
-    ├── buffer_controller.sv
-    ├── load_execution.sv
-    ├── gemv_execution.sv
-    ├── relu_execution.sv
-    └── store_execution.sv
-
-test/
-├── cocotb_tests/               # Basic validation
-├── heavy_test/                 # Comprehensive validation
-└── TESTBENCH_COMPARISON.md
-
-compiler/
-├── golden_model.py             # Python reference
-├── compile.py                  # Compiler
-└── model.py                    # Neural network model
+WAIT_TILE -> WAIT_PE -> SUM_PARTIAL -> READ_ACCUM -> PREP_ACCUM -> ACCUMULATE -> WAIT_NEXT
+     |                                                                              |
+     +<-------- (B2: next x-tile prefetched during PREP_ACCUM/ACCUMULATE) <--------+
 ```
 
-## Getting Started
+### Phase 3: Post-Processing
+1. **FIND_MAX** — Scan accumulator for max absolute value
+2. **COMPUTE_SCALE** — Calculate reciprocal scale (iterative division)
+3. **QUANTIZE** — Apply scale, round, saturate to int8
+4. **OUTPUT_Y** — Stream quantized results back as tiles
 
-### 1. Review Architecture
+### Key Optimizations
+- **B1**: x-vector BSRAM packed 4:1 (2 reads per tile instead of 8)
+- **B2**: Next x-tile prefetched during accumulate pipeline (zero-overhead tile transitions)
+- **A2**: Pipelined adder tree (SUM_PARTIAL stage halves logic depth)
+- **A3**: Registered accumulator write-back (breaks res_dout+sum carry chain)
+- **A6**: x_mem moved from LUTRAM to BSRAM (eliminates 6-level MUX cascade)
+
+## Performance
+
+### FPGA Synthesis (Gowin GW2AR-18)
+- **Fmax**: 89.201 MHz
+- **Cycles/image**: 25,470
+- **Latency**: 0.286 ms/image (~3,500 images/sec)
+- **Logic**: 42% utilization
+- **BSRAM**: 94% (43/46)
+
+### Critical Path
+The critical path is in `buffer_controller -> vector_buffer_inst` (opcode decode -> buffer tile index), not in the GEMV core.
+
+### Validation
+- **MNIST Accuracy**: 95% (10,000 images)
+- **Exact Match**: 100% vs golden model
+- **Max Error**: 0
+
+## Compiler Toolchain
+
+```
+model.py          — Define MLP architecture (784->12->32->10)
+     |
+compile.py        — ONNX model -> assembly instructions
+     |
+assembler.py      — Assembly -> binary machine code
+     |
+dram.py           — Pack instructions + weights + biases into dram.hex
+     |
+golden_model.py   — Python reference for RTL verification
+```
+
+Configuration: `compiler/accelerator_config.py` defines TILE_ELEMS, DRAM addresses, and memory layout.
+
+## FPGA Workflow
+
 ```bash
-# Read architecture documentation
-cat docs/RTL_ARCHITECTURE.md
+# 1. Compile model
+cd compiler && python3 main.py
 
-# Generate visual diagrams
-cd docs/diagrams
-./generate_diagrams.sh
+# 2. Synthesize with Gowin EDA (src/ directory)
+# 3. Program FPGA bitstream
+
+# 4. Load DRAM via UART
+cd memory_tools && ./uart_load_hex ../compiler/dram.hex /dev/ttyUSB1
+
+# 5. Run inference (S1 button) and read results
+./uart_read_max /dev/ttyUSB1
 ```
 
-### 2. Explore RTL
-```bash
-# View top-level module
-cat rtl/tinyml_accelerator_top.sv
+## Test Suites
 
-# View execution unit
-cat rtl/execution_unit/modular_execution_unit.sv
-
-# View GEMV pipeline
-cat rtl/top_gemv.sv
-```
-
-### 3. Run Tests
-```bash
-# Quick test (20 images)
-cd test/cocotb_tests
-make run_test
-
-# Heavy test (10,000 images)
-cd test/heavy_test
-make quick_test  # First 100 images
-make run_test    # Full dataset
-```
-
-## Key Insights
-
-### Memory Architecture
-⚠️ **Critical**: The design uses **4 separate memory instances** with no hardware interconnect. Testbenches must manually synchronize all instances when updating memory during simulation.
-
-### Quantization Strategy
-GEMV automatically quantizes its 32-bit outputs to 8-bit using dynamic scaling:
-1. Find max absolute value across all outputs
-2. Compute scale = 127 / max_abs
-3. Apply scale to each output with saturation
-
-### Tiling Strategy
-- **Tile Size**: 32 elements (matches PE count)
-- **Benefits**: Reduces memory bandwidth, enables parallelism
-- **Trade-off**: Increased control complexity
-
-### Performance Bottlenecks
-1. **GEMV Operation**: Dominates execution time
-2. **Memory Bandwidth**: 32 bytes/cycle may limit large matrices
-3. **Quantization**: Multi-cycle latency for scale computation
+| Test | Location | Framework | Images | Purpose |
+|------|----------|-----------|--------|---------|
+| FPGA Simulation | `test/heavy_test_fpga/` | cocotb + Verilator | 20 | **Primary** — tests FPGA modules |
+| Full Validation | `test/heavy_test/` | cocotb + Verilator | 10,000 | Production validation (sim RTL) |
+| Component Tests | `test/cocotb_tests/` | cocotb | varies | Per-module validation |
+| Unit Tests | `test/new_unit_tests/` | Verilator C++ | N/A | Low-level module tests |
 
 ## Future Enhancements
 
-Potential improvements:
-1. **Pipeline GEMV**: Overlap computation and data loading
-2. **Unified Memory**: Single memory with arbiter instead of 4 separate instances
-3. **Dynamic Precision**: Support multiple quantization bit-widths
-4. **Sparse Matrix Support**: Skip zero multiplications
-5. **Multi-Core**: Parallel execution units for batch processing
-
-## References
-
-- [SystemVerilog IEEE 1800-2017](https://ieeexplore.ieee.org/document/8299595)
-- [Cocotb Documentation](https://docs.cocotb.org/)
-- [Verilator Documentation](https://verilator.org/guide/latest/)
-- [MNIST Dataset](http://yann.lecun.com/exdb/mnist/)
-
-## License
-
-[Project License Information]
-
-## Contributors
-
-[Project Contributors]
-
-## Revision History
-
-| Version | Date | Description |
-|---------|------|-------------|
-| 1.0 | Dec 24, 2025 | Initial comprehensive documentation |
+- **B3**: Stream weights directly from DRAM during GEMV (bypass buffer controller)
+- **B5**: Wider tiles (TILE_SIZE=16) for 2x throughput with minimal BSRAM increase
+- **Buffer controller pipelining**: Register the opcode decode path to improve Fmax
 
 ---
 
-For questions or issues, please refer to the detailed documentation files or contact the development team.
+| Version | Date | Description |
+|---------|------|-------------|
+| 2.0 | Mar 2026 | Updated for FPGA deployment, unified memory, B1/B2 optimizations |
+| 1.0 | Dec 2025 | Initial documentation |
