@@ -64,7 +64,8 @@ def save_initializers_to_dram(model_path, dram_offsets):
     # Traverse nodes in topological order
     for node in ordered_nodes:
         # mirror compile.py logic: skip Reshape nodes
-        if node.op_type == "Reshape":
+        # ALSO skip Conv nodes (handled by save_conv_weights_to_dram)
+        if node.op_type in ["Reshape", "Conv"]:
             continue
 
         for input_name in node.input:
@@ -110,6 +111,54 @@ def save_initializers_to_dram(model_path, dram_offsets):
     # We ignore them as compile.py would also ignore them.
 
     return weight_map, bias_map
+
+
+def save_conv_weights_to_dram(model_path, dram_offsets):
+    """Save Conv2D weights and biases to the DRAM conv_weights region.
+
+    Unlike the FC path in save_initializers_to_dram(), conv weights are stored
+    as flat [out_C * in_C * kH * kW] bytes WITHOUT tile-alignment padding because
+    the direct-convolution engine addresses them with a full row stride.
+
+    Returns:
+        (conv_weight_map, conv_bias_map) – dicts mapping initiailizer name → DRAM address.
+    """
+    global dram
+    model = onnx.load(model_path)
+    graph = model.graph
+
+    conv_weight_ptr = dram_offsets.get("conv_weights", AcceleratorConfig.DRAM_ADDR_CONV_WEIGHTS)
+    bias_ptr        = dram_offsets.get("biases",       AcceleratorConfig.DRAM_ADDR_BIASES)
+
+    conv_weight_map = {}
+    conv_bias_map   = {}
+
+    initializer_data = {init.name: init for init in graph.initializer}
+    ordered_nodes    = topological_sort(graph)
+    visited          = set()
+
+    for node in ordered_nodes:
+        if node.op_type != "Conv":
+            continue
+        for idx, input_name in enumerate(node.input):
+            if input_name not in initializer_data or input_name in visited:
+                continue
+            visited.add(input_name)
+            init  = initializer_data[input_name]
+            array = numpy_helper.to_array(init)
+            scale = np.max(np.abs(array)) / 127 if np.max(np.abs(array)) > 0 else 1.0
+            q_arr = np.clip(np.round(array / scale), -128, 127).astype(np.int8)
+
+            if array.ndim > 1:   # weight tensor [out_C, in_C, kH, kW]
+                flat = q_arr.flatten()
+                conv_weight_map[input_name] = conv_weight_ptr
+                conv_weight_ptr = write_to_dram(flat, conv_weight_ptr)
+            else:                # bias tensor [out_C]
+                flat = q_arr.flatten()
+                conv_bias_map[input_name] = bias_ptr
+                bias_ptr = write_to_dram(flat, bias_ptr)
+
+    return conv_weight_map, conv_bias_map
 
 def save_input_to_dram(input_tensor, addr):
     # print(f"Saving input tensor to DRAM at address {hex(addr)} with shape {input_tensor.shape}")

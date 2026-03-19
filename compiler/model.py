@@ -40,6 +40,57 @@ def create_mlp_model():
     )
 
     # print(f"MLP model successfully exported to '{onnx_filename}'")
+
+
+def create_cnn_model():
+    """Define, export and save a small LeNet-style CNN for MNIST.
+
+    Architecture (all ops supported by the CNN ISA):
+        Input : 1 × 28 × 28
+        Conv1 : 4 filters, 3×3, no-pad, stride 1  → [4, 26, 26]
+        ReLU
+        MaxPool: 2×2, stride 2                     → [4, 13, 13] = 676 elems
+        Conv2 : 8 filters, 3×3, no-pad, stride 1  → [8, 11, 11]
+        ReLU
+        MaxPool: 2×2, stride 2                     → [8,  5,  5] = 200 elems
+        Flatten                                    → 200
+        FC    : 200 → 10
+
+    Weight budget: Conv1=36, Conv2=288, FC=2000  ≈ 2.3 KB
+    """
+    import torch
+    import torch.nn as nn
+
+    class SmallCNN(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.conv1   = nn.Conv2d(1, 4,  kernel_size=3, stride=1, padding=0, bias=True)
+            self.relu    = nn.ReLU()
+            self.pool    = nn.MaxPool2d(kernel_size=2, stride=2)
+            self.conv2   = nn.Conv2d(4, 8,  kernel_size=3, stride=1, padding=0, bias=True)
+            self.fc      = nn.Linear(8 * 5 * 5, AcceleratorConfig.OUT_N, bias=True)
+
+        def forward(self, x):
+            x = self.pool(self.relu(self.conv1(x)))   # → [4, 13, 13]
+            x = self.pool(self.relu(self.conv2(x)))   # → [8,  5,  5]
+            x = x.view(x.size(0), -1)                 # flatten → 200
+            return self.fc(x)
+
+    global model
+    model = SmallCNN()
+    # Use random (untrained) weights so the ONNX export works out-of-the-box.
+    # Replace with model.load_state_dict(torch.load("cnn_weights.pth")) to use trained weights.
+    dummy_input = torch.randn(1, 1, 28, 28)
+    onnx_filename = "cnn_model.onnx"
+    torch.onnx.export(
+        model, dummy_input, onnx_filename,
+        input_names=["input"], output_names=["output"],
+        dynamic_axes={"input": {0: "batch_size"}, "output": {0: "batch_size"}},
+        opset_version=11,   # opset 11 keeps MaxPool simple (no ceil_mode by default)
+    )
+    print(f"SmallCNN exported to '{onnx_filename}'")
+    return model
+
 def evaluate_model(model, test_loader, device='cpu'):
     model.eval()  # Set to evaluation mode
     correct = 0

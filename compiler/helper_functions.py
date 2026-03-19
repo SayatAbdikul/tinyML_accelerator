@@ -53,6 +53,28 @@ def build_initializer_map(graph): # Builds a map of initializer names to their d
         
     return init_map
 
+
+def build_initializer_map_cnn(graph):
+    """Like build_initializer_map, but preserves the full N-D shape.
+
+    Used by compile.py for Conv weights (4-D: [out_C, in_C, kH, kW]) so the
+    compiler can compute w_rows=out_C, w_cols=in_C*kH*kW explicitly.
+    Scalars / 1-D tensors are tagged as 'bias'; everything else as 'weight'.
+    """
+    init_map = {}
+    for init in graph.initializer:
+        arr = numpy_helper.to_array(init)
+        # Quantise with per-tensor max-abs scale (same as build_initializer_map)
+        scale = np.max(np.abs(arr)) / 127 if np.max(np.abs(arr)) > 0 else 1.0
+        q_arr = quantize_tensor_f32_int8(arr, scale)
+        init_map[init.name] = {
+            "data" : q_arr.flatten(),   # always flat for DRAM writes
+            "shape": q_arr.shape,       # original N-D shape preserved
+            "dtype": str(q_arr.dtype),
+            "type" : "bias" if q_arr.ndim <= 1 else "weight",
+        }
+    return init_map
+
 # Helper to calculate tensor size
 def tensor_size(shape):
     """Calculates the size of a tensor given its shape.

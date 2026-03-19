@@ -19,7 +19,8 @@ class AcceleratorConfig:
     OUT_N = 10
     
     # Memory Map
-    DRAM_ADDR_INPUTS = 192
-    DRAM_ADDR_BIASES = 1216
-    DRAM_ADDR_OUTPUTS = 2240
-    DRAM_ADDR_WEIGHTS = 2368
+    DRAM_ADDR_INPUTS      = 192
+    DRAM_ADDR_BIASES      = 1216
+    DRAM_ADDR_OUTPUTS     = 2240
+    DRAM_ADDR_WEIGHTS     = 2368    # FC weights
+    DRAM_ADDR_CONV_WEIGHTS= 12288   # Conv weights  (0x3000, well after FC weights)
