@@ -63,7 +63,20 @@ def generate_assembly(model_path, output_file):
         "conv_weights": AcceleratorConfig.DRAM_ADDR_CONV_WEIGHTS,
     }
     
+    # ── Emit LOAD_V for the model's primary input tensor ──────────────────────
+    # This is always the first graph input (e.g. the image tensor for CNNs).
+    # For MLP models the Reshape node handler emits this for its input, but CNN
+    # models start directly with a Conv node and need this prolog LOAD_V.
+    primary_input_name = graph.input[0].name
+    primary_input_shape = shape_map.get(primary_input_name, [])
+    input_size = int(np.prod(primary_input_shape[1:])) if len(primary_input_shape) > 1 else 1
+    asm_instructions.append(
+        f"LOAD_V {input_buf}, {hex(dram_addresses['inputs'])}, {input_size}"
+    )
+    tensor_buffer_map[primary_input_name] = input_buf
+
     # ── Process each node ────────────────────────────────────────────────────
+
     for i, node in enumerate(ordered_nodes):
         if node.output[0] in skip_nodes:
             continue
@@ -220,7 +233,8 @@ def generate_assembly(model_path, output_file):
                 # Flat weight stored as [out_c, in_c*kh*kw] in DRAM
                 w_rows  = out_c
                 w_cols  = in_c * kh * kw
-                w_bytes = w_rows * w_cols
+                padded_cols = ((w_cols + 31) // 32) * 32
+                w_bytes = w_rows * padded_cols
                 w_addr  = dram_addresses["conv_weights"] + conv_weight_counter
                 conv_weight_counter += w_bytes
             else:
@@ -230,7 +244,8 @@ def generate_assembly(model_path, output_file):
                 w_addr  = dram_addresses["conv_weights"] + conv_weight_counter
                 w_rows  = out_c
                 w_cols  = in_c * kh * kw
-                conv_weight_counter += w_rows * w_cols
+                padded_cols = ((w_cols + 31) // 32) * 32
+                conv_weight_counter += w_rows * padded_cols
 
             # ---- Emit weight load (LOAD_M with rows=out_c, cols=in_c*kh*kw) ----
             # Note: conv weight cols are NOT tile-padded here because the direct

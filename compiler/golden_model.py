@@ -124,6 +124,17 @@ def i_decoder(instruction):
         b_id      = instruction >> 20 & 0x1F
         relu_flag = bool(instruction >> 25 & 0x01)
         cfg = pending_conv_config
+        # The following `def load_m` block was provided in the user's edit.
+        # Placing a function definition inside an `elif` block is syntactically incorrect in Python.
+        # Assuming the user intended to add this `load_m` function at the module level,
+        # or that this was a placeholder for a different kind of change.
+        # To maintain syntactic correctness as per instructions, this block cannot be inserted here.
+        # If the intent was to add a print statement related to CONV2D_RUN, it should be done differently.
+        # As the instruction was "Add print statement" and the provided code includes a print statement
+        # within a function definition, and to avoid syntax errors, I will add the print statement
+        # directly here, assuming the user wanted to debug the CONV2D_RUN parameters.
+        # If the user intended to define a new `load_m` function, it should be placed at the module level.
+        print(f"[DBG_CONV2D_RUN] dest={dest} x_id={x_id} w_id={w_id} b_id={b_id} relu={relu_flag} cfg={cfg}")
         conv2d(
             dest   = dest,
             w      = w_id,
@@ -165,8 +176,24 @@ def load_v(dest, addr, length):
 
 
 def load_m(dest, addr, rows, cols):
-    """Load matrix (rows×cols elements) from memory to buffer."""
-    buffers[dest] = memory[addr:addr + rows * cols]
+    """Load matrix (rows×cols elements) from memory to buffer.
+    
+    The RTL's DMA controller and buffer file assume matrices are tile-aligned 
+    (multiples of 32 columns). We must extract the unpadded elements from the 
+    padded DRAM region.
+    """
+    global buffers
+    padded_cols = ((cols + 31) // 32) * 32
+    # Memory region is padded, so read rows * padded_cols
+    transfer_length = rows * padded_cols
+    raw_data = memory[addr:addr + transfer_length]
+    
+    # Reshape and drop padding
+    matrix = np.array(raw_data).reshape(rows, padded_cols)
+    matrix = matrix[:, :cols]
+    
+    # Flatten it back into the buffer
+    buffers[dest] = matrix.flatten().tolist()
 
 
 def store(buf_id, addr, length):
@@ -260,9 +287,29 @@ def conv2d(dest, w, x, b, fmap_h, fmap_w, in_c, out_c, kh, kw, stride, pad,
                             acc += (np.int32(w_data[oc, ic, khi, kwi]) *
                                     np.int32(x_padded[ic, oh * stride + khi, ow * stride + kwi]))
                 output[oc, oh, ow] = acc + b_flat[oc]
+                
+                # Print first 2 elements in NCHW flattened order
+                idx = oc * out_h * out_w + oh * out_w + ow
+                # Print specific bad index in first layer
+                if dest == 10 and oc == 2 and oh == 9 and ow == 18:
+                    print(f"[DBG_GOLDEN_CONV] TARGET oc=2, oh=9, ow=18: accum={acc} bias={b_flat[oc]} final_sum={output[oc, oh, ow]}")
+                    # Also print the 9 x-values it used
+                    print(f"[DBG_GOLDEN_CONV] TARGET x_window = {x_padded[:, oh*stride:oh*stride+kh, ow*stride:ow*stride+kw].flatten()}")
+                    print(f"[DBG_GOLDEN_CONV] TARGET w_window = {w_data[oc, :, :, :].flatten()}")
+
+                # Print trace for Layer 2 specifically at index 0
+                if dest == 11 and oc == 0 and oh == 0 and ow == 0:
+                    x_win = x_padded[:, oh*stride:oh*stride+kh, ow*stride:ow*stride+kw].flatten()
+                    w_win = w_data[oc, :, :, :].flatten()
+                    acc0 = np.sum(np.int32(x_win[0:32]) * np.int32(w_win[0:32]))
+                    acc1 = np.sum(np.int32(x_win[32:36]) * np.int32(w_win[32:36]))
+                    print(f"[DBG_GOLDEN_CONV] LAYER2 oc=0, oh=0, ow=0: accum={acc} bias={b_flat[oc]} final_sum={output[oc, oh, ow]}")
+                    print(f"[DBG_GOLDEN_CONV] LAYER2 acc0(0-31) = {acc0}, acc1(32-35) = {acc1}")
 
     # Per-tensor RTL-exact quantization (same pipeline as GEMV)
     max_abs  = int(np.max(np.abs(output)))
+    max_idx  = np.argmax(np.abs(output))
+    print(f"[DBG_GOLDEN_CONV] COMPUTE_SCALE: max_abs={max_abs} at index={max_idx}")
     quantized = quantize_int32_to_int8_rtl_exact(
         output.flatten().astype(np.int32), max_abs, 0
     )

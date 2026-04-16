@@ -116,9 +116,9 @@ def save_initializers_to_dram(model_path, dram_offsets):
 def save_conv_weights_to_dram(model_path, dram_offsets):
     """Save Conv2D weights and biases to the DRAM conv_weights region.
 
-    Unlike the FC path in save_initializers_to_dram(), conv weights are stored
-    as flat [out_C * in_C * kH * kW] bytes WITHOUT tile-alignment padding because
-    the direct-convolution engine addresses them with a full row stride.
+    Unlike the FC path in save_initializers_to_dram(), conv weights are conceptually
+    [out_C * in_C * kH * kW], but RTL `conv2d_execution` fetching `w_tile_reg` uses 32-element 
+    `buffer_file.sv` tile-reads. Thus, `cols` (in_C*kH*kW) MUST be padded to multiples of 32!
 
     Returns:
         (conv_weight_map, conv_bias_map) – dicts mapping initiailizer name → DRAM address.
@@ -150,7 +150,19 @@ def save_conv_weights_to_dram(model_path, dram_offsets):
             q_arr = np.clip(np.round(array / scale), -128, 127).astype(np.int8)
 
             if array.ndim > 1:   # weight tensor [out_C, in_C, kH, kW]
-                flat = q_arr.flatten()
+                out_c = q_arr.shape[0]
+                cols = np.prod(q_arr.shape[1:])
+                q_arr_2d = q_arr.reshape((out_c, cols))
+                
+                # Pad the columns to a multiple of TILE_SIZE=32
+                pad_cols = (32 - (cols % 32)) % 32
+                if pad_cols > 0:
+                    q_arr_padded = np.pad(q_arr_2d, ((0, 0), (0, pad_cols)), mode='constant')
+                else:
+                    q_arr_padded = q_arr_2d
+                    
+                flat = q_arr_padded.flatten()
+                print(f"[DRAM] Writing conv weight {input_name}: shape={q_arr.shape}, padded_to={pad_cols}, bytes={len(flat)}, start_addr={conv_weight_ptr}")
                 conv_weight_map[input_name] = conv_weight_ptr
                 conv_weight_ptr = write_to_dram(flat, conv_weight_ptr)
             else:                # bias tensor [out_C]
@@ -161,8 +173,28 @@ def save_conv_weights_to_dram(model_path, dram_offsets):
     return conv_weight_map, conv_bias_map
 
 def save_input_to_dram(input_tensor, addr):
-    # print(f"Saving input tensor to DRAM at address {hex(addr)} with shape {input_tensor.shape}")
-    write_to_dram(input_tensor, addr)
+    """Write a model input tensor to DRAM.
+    
+    Accepts a PyTorch tensor or numpy array of any shape (e.g. (28,28),
+    (1,28,28), (1,1,28,28)).  Flattens to 1D, then quantizes floats to INT8
+    using max-abs per-tensor scaling before writing.
+    """
+    import numpy as np
+    if hasattr(input_tensor, 'numpy'):
+        arr = input_tensor.numpy()
+    else:
+        arr = np.array(input_tensor)
+    arr = arr.flatten().astype(np.float32)
+    
+    # Quantize float32 → int8 (match training normalization scale)
+    max_abs = np.max(np.abs(arr))
+    if max_abs > 0:
+        scale = max_abs / 127.0
+        q_arr = np.clip(np.round(arr / scale), -128, 127).astype(np.int8)
+    else:
+        q_arr = np.zeros(len(arr), dtype=np.int8)
+    
+    write_to_dram(q_arr, addr)
 
 def save_dram_to_file(filename="dram.hex"):
     """Saves the current state of DRAM to a hex file."""
