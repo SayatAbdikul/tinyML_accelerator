@@ -1,0 +1,27 @@
+{
+  "image_sha256": "e827c0f351a90f43ec9b0285fc997bf7e93706f37b8fbeabdaf2e39930129dcd",
+  "split_sha256": "fc57a65876dae96143e22296c334e4a82cd3dba2b99b8299b28fc337d41fb2b0",
+  "reference": "independent centered-input integer graph oracle",
+  "target": "software-v2",
+  "results": [
+    {
+      "sample_id": "vww/non_person/COCO_train2014_000000000009.jpg",
+      "layers": 58,
+      "integer_values_compared": 491266,
+      "mismatches": 0
+    },
+    {
+      "sample_id": "vww/non_person/COCO_train2014_000000085728.jpg",
+      "layers": 58,
+      "integer_values_compared": 491266,
+      "mismatches": 0
+    },
+    {
+      "sample_id": "vww/person/COCO_train2014_000000085110.jpg",
+      "layers": 58,
+      "integer_values_compared": 491266,
+      "mismatches": 0
+    }
+  ],
+  "status": "passed"
+}

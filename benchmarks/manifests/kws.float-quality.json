@@ -1,0 +1,9 @@
+{
+  "count": 4890,
+  "correct": 4507,
+  "accuracy": 0.9216768916155419,
+  "arithmetic": "original float model",
+  "split_sha256": "66f6b5cd75410e7b7b5d483dab8e48c363256822a066689fe895041c7941b8ac",
+  "runtime": "TensorFlow 2.16.2",
+  "official_benchmark_certified": false
+}

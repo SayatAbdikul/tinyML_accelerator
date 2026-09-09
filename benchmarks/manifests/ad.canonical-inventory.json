@@ -1,0 +1,671 @@
+{
+  "source_onnx_sha256": "e42c5b9fa478e8d302620d4a9ef4f67722b138c1b1da4ee82a67d7ca1dea3b67",
+  "canonical_onnx_sha256": "7e47c78993bfe84d5a3e2e70036b72c97e58ba4331084160c3aeb23625f80357",
+  "classifier_boundary": null,
+  "operators": [
+    {
+      "name": "functional_1/dense/MatMul_Gemm__6",
+      "op": "Gemm",
+      "inputs": [
+        "input_1",
+        "functional_1/batch_normalization/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 81920
+    },
+    {
+      "name": "functional_1/activation/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_1/MatMul_Gemm__7",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation/Relu:0",
+        "functional_1/batch_normalization_1/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_1/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_1/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_1/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_1/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_1/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_2/MatMul_Gemm__8",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_1/Relu:0",
+        "functional_1/batch_normalization_2/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_2/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_2/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_2/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_2/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_2/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_3/MatMul_Gemm__9",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_2/Relu:0",
+        "functional_1/batch_normalization_3/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_3/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_3/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_3/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_3/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_3/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_4/MatMul_Gemm__10",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_3/Relu:0",
+        "functional_1/batch_normalization_4/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_4/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_4/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 1024
+    },
+    {
+      "name": "functional_1/activation_4/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_4/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_4/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_5/MatMul_Gemm__11",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_4/Relu:0",
+        "functional_1/batch_normalization_5/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_5/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_5/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 1024
+    },
+    {
+      "name": "functional_1/activation_5/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_5/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_5/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_6/MatMul_Gemm__12",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_5/Relu:0",
+        "functional_1/batch_normalization_6/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_6/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_6/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_6/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_6/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_6/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_7/MatMul_Gemm__13",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_6/Relu:0",
+        "functional_1/batch_normalization_7/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_7/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_7/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_7/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_7/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_7/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_8/MatMul_Gemm__14",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_7/Relu:0",
+        "functional_1/batch_normalization_8/batchnorm/mul_1:0/folded_mul_weight",
+        "functional_1/batch_normalization_8/batchnorm/add_1:0/folded_add_bias"
+      ],
+      "outputs": [
+        "functional_1/batch_normalization_8/batchnorm/add_1:0"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 16384
+    },
+    {
+      "name": "functional_1/activation_8/Relu",
+      "op": "Relu",
+      "inputs": [
+        "functional_1/batch_normalization_8/batchnorm/add_1:0"
+      ],
+      "outputs": [
+        "functional_1/activation_8/Relu:0"
+      ],
+      "attributes": {},
+      "macs": 0
+    },
+    {
+      "name": "functional_1/dense_9/MatMul_Gemm__15",
+      "op": "Gemm",
+      "inputs": [
+        "functional_1/activation_8/Relu:0",
+        "dense_9/canonical_w",
+        "dense_9/canonical_b"
+      ],
+      "outputs": [
+        "dense_9"
+      ],
+      "attributes": {
+        "transB": 1
+      },
+      "macs": 81920
+    }
+  ],
+  "tensors": [
+    {
+      "name": "input_1",
+      "shape": [
+        1,
+        640
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 2560
+    },
+    {
+      "name": "functional_1/batch_normalization/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_1/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_1/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_2/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_2/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_3/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_3/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_4/batchnorm/add_1:0",
+      "shape": [
+        1,
+        8
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 32
+    },
+    {
+      "name": "functional_1/activation_4/Relu:0",
+      "shape": [
+        1,
+        8
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 32
+    },
+    {
+      "name": "functional_1/batch_normalization_5/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_5/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_6/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_6/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_7/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_7/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_8/batchnorm/add_1:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/activation_8/Relu:0",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 512
+    },
+    {
+      "name": "dense_9",
+      "shape": [
+        1,
+        640
+      ],
+      "dtype": "FLOAT",
+      "constant": false,
+      "logical_bytes": 2560
+    },
+    {
+      "name": "functional_1/batch_normalization/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        640
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 327680
+    },
+    {
+      "name": "functional_1/batch_normalization/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_1/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_1/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_2/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_2/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_3/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_3/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_4/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        8,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 4096
+    },
+    {
+      "name": "functional_1/batch_normalization_4/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        8
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 32
+    },
+    {
+      "name": "functional_1/batch_normalization_5/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        8
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 4096
+    },
+    {
+      "name": "functional_1/batch_normalization_5/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_6/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_6/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_7/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_7/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "functional_1/batch_normalization_8/batchnorm/mul_1:0/folded_mul_weight",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 65536
+    },
+    {
+      "name": "functional_1/batch_normalization_8/batchnorm/add_1:0/folded_add_bias",
+      "shape": [
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 512
+    },
+    {
+      "name": "dense_9/canonical_w",
+      "shape": [
+        640,
+        128
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 327680
+    },
+    {
+      "name": "dense_9/canonical_b",
+      "shape": [
+        640
+      ],
+      "dtype": "float32",
+      "constant": true,
+      "logical_bytes": 2560
+    }
+  ],
+  "total_macs": 264192,
+  "constant_bytes": 1063456,
+  "storage_scope": "canonical float tensors; excludes physical banking and v2 quantization metadata",
+  "unknown_required_operators": []
+}

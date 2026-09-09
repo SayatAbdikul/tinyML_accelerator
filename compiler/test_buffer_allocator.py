@@ -143,7 +143,7 @@ def test_passthrough_set_includes_expected_ops():
     starts allocating new buffers for what should be aliases."""
     assert "Reshape" in PASSTHROUGH_OPS
     assert "Flatten" in PASSTHROUGH_OPS
-    assert "BatchNormalization" in PASSTHROUGH_OPS
+    assert "BatchNormalization" not in PASSTHROUGH_OPS
 
 
 # ── Branching graph (three same-class tensors live simultaneously) ──────────

@@ -1,4 +1,9 @@
-"""Lower an ONNX graph to the accelerator's assembly language.
+"""Historical v1 ONNX lowering, retained for regression reproduction.
+
+The normal generate_assembly entry rejects uncalibrated emission. New work uses
+static_pipeline.calibrate/compile_static and program_image.write_image. The
+explicit generate_legacy_assembly function below retains v1 arithmetic and its
+known limitations; it is not a numerically correct ONNX deployment path.
 
 Walks the graph in topological order and emits one of the opcodes
 defined in isa_spec.OPCODES (LOAD_V/LOAD_M/STORE/GEMV/RELU/CONV2D_CFG/
@@ -49,9 +54,19 @@ def get_node_attr(node, name, default=None):
     return default
 
 
-def generate_assembly(model_path, output_file,
+def generate_assembly(*args, **kwargs):
+    """Reject uncalibrated emission; current RTL has historical v1 arithmetic."""
+    raise ValueError(
+        "generate_assembly cannot emit a numerically correct calibrated image for "
+        "the current RTL. Use static_pipeline.calibrate/compile_static and "
+        "program_image.write_image for software-v2. For historical regression "
+        "reproduction only, explicitly call generate_legacy_assembly."
+    )
+
+
+def generate_legacy_assembly(model_path, output_file,
                       weight_map=None, bias_map=None, conv_weight_map=None):
-    """Lower an ONNX graph to assembly.
+    """Reproduce historical v1 assembly; not a calibrated ONNX compiler.
 
     Args:
         model_path:         path to ONNX model
@@ -402,19 +417,7 @@ def generate_assembly(model_path, output_file,
 
 
 if __name__ == "__main__":
-    import sys
-    from dram import save_all_initializers_to_dram
-    model_path  = sys.argv[1] if len(sys.argv) > 1 else "mlp_model.onnx"
-    output_file = sys.argv[2] if len(sys.argv) > 2 else "assembly_code.asm"
-    # Run the DRAM walker first — it owns initializer layout and returns the
-    # name → address maps that generate_assembly looks up.
-    dram_offsets = {
-        "weights":      AcceleratorConfig.DRAM_ADDR_WEIGHTS,
-        "biases":       AcceleratorConfig.DRAM_ADDR_BIASES,
-        "conv_weights": AcceleratorConfig.DRAM_ADDR_CONV_WEIGHTS,
-    }
-    weight_map, bias_map, conv_weight_map = save_all_initializers_to_dram(
-        model_path, dram_offsets)
-    generate_assembly(model_path, output_file,
-                      weight_map, bias_map, conv_weight_map)
-    print(f"Assembly code generated and saved to {output_file}")
+    raise SystemExit(
+        "Use python compiler/static_cli.py MODEL.onnx CALIBRATION.npz OUTPUT.uq2 "
+        "for calibrated software-v2. Current FPGA RTL migration is pending H03."
+    )

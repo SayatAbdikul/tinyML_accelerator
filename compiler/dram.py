@@ -1,4 +1,9 @@
-""" dram.py - A module for managing DRAM in a custom architecture.
+"""Historical v1 DRAM utilities, retained for reproduction tests.
+New calibrated images use program_image.py: typed, aligned segments with INT32
+bias and preserved static quantization metadata. The v1 walker below independently
+normalizes biases and must not be used to claim ONNX numerical equivalence.
+
+dram.py - A module for managing DRAM in a custom architecture.
 This module provides functions to read and write data to a simulated DRAM,
 save initializers from an ONNX model, and manage memory operations.
 It includes functions to handle quantization of tensors, write to DRAM,
@@ -15,6 +20,8 @@ MEM_SIZE = AcceleratorConfig.MEM_SIZE  # Total memory size (Reduced to 60KB for 
 dram = np.zeros(MEM_SIZE, dtype=np.int8)
 
 def write_to_dram(array, start_addr):
+    if not isinstance(start_addr, (int, np.integer)) or start_addr < 0:
+        raise ValueError('DRAM address must be a nonnegative integer')
     end_addr = start_addr + len(array)
     # Check for overflow but allow overwriting (warning optional or removed for repeated runs)
     if end_addr > len(dram):
@@ -26,6 +33,9 @@ def write_to_dram(array, start_addr):
     return end_addr  # Return next free address
 
 def read_from_dram(start_addr, length):
+    if (not isinstance(start_addr, (int, np.integer)) or not isinstance(length, (int, np.integer))
+            or start_addr < 0 or length < 0):
+        raise ValueError('DRAM address and length must be nonnegative integers')
     end_addr = start_addr + length
     if end_addr > len(dram):
         print(f"DRAM overflow: trying to read {length} bytes from address {hex(start_addr)}")

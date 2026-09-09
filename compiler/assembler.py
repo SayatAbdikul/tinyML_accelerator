@@ -41,6 +41,8 @@ def assemble_line(line):
         raise ValueError(f"Unknown instruction: {name}")
 
     if op.name == "NOP":
+        if len(parts) != 1:
+            raise ValueError('NOP expects no arguments')
         return f"{0:016X}"
 
     args = [int(x, 0) for x in parts[1:]]

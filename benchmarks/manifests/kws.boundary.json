@@ -1,0 +1,7 @@
+{
+  "accelerator_output": "StatefulPartitionedCall/StatefulPartitionedCall/functional_1/dense/MatMul_Gemm__6:0",
+  "source_output": "StatefulPartitionedCall:0",
+  "host_operation": "argmax over logits; first index on ties",
+  "probability_output_supported": false,
+  "removed_operator": "terminal Softmax"
+}

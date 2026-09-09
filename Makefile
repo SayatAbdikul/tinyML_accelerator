@@ -20,7 +20,7 @@ help:
 	@echo "  ci             Fast tier (no simulator). Runs all compiler-side"
 	@echo "                 pytest plus tools/generate_i_decoder.py --check."
 	@echo "                 This is what GitHub Actions runs."
-	@echo "  test-compiler  Compiler-side pytest (44 cases, ~3-5 sec)"
+	@echo "  test-compiler  Historical compiler and static INT8 v2 regressions"
 	@echo "  check-isa      Verify rtl/i_decoder.sv matches compiler/isa_spec.py"
 	@echo "  config         Regenerate rtl/accelerator_config_pkg.sv from SimProfile"
 	@echo "  heavy-test     Full MLP MNIST cocotb test (requires Verilator)"
@@ -40,6 +40,7 @@ test-compiler:
 	    test_accelerator_config.py \
 	    test_unified_walker.py \
 	    test_buffer_allocator.py \
+	    test_static_pipeline.py \
 	    -q --tb=short
 
 check-isa:

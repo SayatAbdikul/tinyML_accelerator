@@ -108,7 +108,7 @@ def test_generate_assembly_requires_maps():
     (which is the exact bug class that motivated P2)."""
     onnx_path = _onnx_model_path(model_module.create_mlp_model)
     with pytest.raises(ValueError, match="generate_assembly requires"):
-        compile_module.generate_assembly(onnx_path, "out.asm")
+        compile_module.generate_legacy_assembly(onnx_path, "out.asm")
 
 
 @require_mlp_weights
@@ -121,7 +121,7 @@ def test_assembly_addresses_match_walker_maps_mlp():
         onnx_path, _dram_offsets())
 
     asm_path = "mlp.asm"
-    compile_module.generate_assembly(onnx_path, asm_path,
+    compile_module.generate_legacy_assembly(onnx_path, asm_path,
                                      weight_map, bias_map, conv_weight_map)
 
     # Every map address must appear in the assembly. (LOAD_V for the input
@@ -143,7 +143,7 @@ def test_assembly_addresses_match_walker_maps_cnn():
         onnx_path, _dram_offsets())
 
     asm_path = "cnn.asm"
-    compile_module.generate_assembly(onnx_path, asm_path,
+    compile_module.generate_legacy_assembly(onnx_path, asm_path,
                                      weight_map, bias_map, conv_weight_map)
 
     asm_addrs = {addr for _, addr in _parse_load_addrs(asm_path)}
@@ -178,7 +178,7 @@ def test_unknown_initializer_raises():
     del truncated_bias_map[a_bias]
 
     with pytest.raises(KeyError, match="Bias"):
-        compile_module.generate_assembly(onnx_path, "out.asm",
+        compile_module.generate_legacy_assembly(onnx_path, "out.asm",
                                          weight_map, truncated_bias_map,
                                          conv_weight_map)
 
@@ -260,7 +260,7 @@ def test_address_mutation_propagates():
     weight_map[weight_name] = 0xDEAD0
 
     asm_path = "shifted.asm"
-    compile_module.generate_assembly(onnx_path, asm_path,
+    compile_module.generate_legacy_assembly(onnx_path, asm_path,
                                      weight_map, bias_map, conv_weight_map)
 
     addrs = {addr for _, addr in _parse_load_addrs(asm_path)}

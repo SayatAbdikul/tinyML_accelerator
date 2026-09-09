@@ -1,0 +1,7 @@
+{
+  "accelerator_output": "Add__87:0",
+  "source_output": "Identity",
+  "host_operation": "argmax over logits; first index on ties",
+  "probability_output_supported": false,
+  "removed_operator": "terminal Softmax"
+}

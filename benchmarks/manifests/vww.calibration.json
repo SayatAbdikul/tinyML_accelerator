@@ -1,0 +1,269 @@
+{
+  "schema": 2,
+  "model_sha256": "4b72ae9de81a9f0eca20061f0ba08b5d86c25f760e160b3beefbe6e85ef23097",
+  "method": "minmax-including-zero",
+  "sample_ids": [
+    "vww/person/COCO_val2014_000000333756.jpg",
+    "vww/person/COCO_val2014_000000279895.jpg",
+    "vww/person/COCO_train2014_000000113212.jpg",
+    "vww/person/COCO_val2014_000000467821.jpg",
+    "vww/person/COCO_train2014_000000263440.jpg",
+    "vww/person/COCO_val2014_000000531803.jpg",
+    "vww/person/COCO_train2014_000000370727.jpg",
+    "vww/person/COCO_train2014_000000249435.jpg",
+    "vww/person/COCO_train2014_000000416860.jpg",
+    "vww/person/COCO_val2014_000000205523.jpg",
+    "vww/person/COCO_train2014_000000432502.jpg"
+  ],
+  "sample_sha256": [
+    "7a245da4b78b8ff85f8bd57ad5193f352c60ef5640326200b4d88a3c7bf1ef0b",
+    "f01db1a4d138a835192ead63d2a9f984da61dae6d8ae4c7cfd33465e1be2c247",
+    "dcdc8102edd9b3c0c29ac3b7aea5409da0d0bdeba605354519b2b6edc9085a32",
+    "5ae5ee529569a04f6f00ca449a73d5f52fd5c4a3d7cb725a2d016b0e85a6a641",
+    "0ec39e38be4641ff39682dbd77a9f7a66bdcbea965a08177267f35eee67063e5",
+    "383fb3691c403d29dd4b79b0a68586c05ac9d2d1babafe43a6baaf7c37e13626",
+    "cf451836a8bcd08fb63bf7e521178e01dbfcba8e494f88b283905315f22c9cdc",
+    "1d70901392990f10fe85ac84e1629a909eafca3b4e747e0a5fbfc970dce00363",
+    "ba5e3faf97e9369e571f3d6d8841693fa6ec0c5baa4af01c2d941f27a3673774",
+    "5367d6cbe82338926b183a3fd797941477a992c04d350ee752c0ca0bbde02c31",
+    "8b2b0a92742705ed72f4a3c084f563491c82b8873b22817a73c39565a56c89a5"
+  ],
+  "ranges": {
+    "input_1": [
+      0.0,
+      1.0
+    ],
+    "model/activation/Relu;model/batch_normalization/FusedBatchNormV3;model/conv2d/BiasAdd/ReadVariableOp/resource;model/conv2d/BiasAdd;model/depthwise_conv2d/depthwise;model/conv2d/Conv2D1__89:0": [
+      0.0,
+      1.0
+    ],
+    "model/activation/Relu;model/batch_normalization/FusedBatchNormV3;model/conv2d/BiasAdd/ReadVariableOp/resource;model/conv2d/BiasAdd;model/depthwise_conv2d/depthwise;model/conv2d/Conv2D1": [
+      -4.1920390129089355,
+      6.9052205085754395
+    ],
+    "Relu__5:0": [
+      0.0,
+      6.9052205085754395
+    ],
+    "model/activation_1/Relu;model/batch_normalization_1/FusedBatchNormV3;model/depthwise_conv2d/depthwise;model/depthwise_conv2d/BiasAdd;model/depthwise_conv2d/BiasAdd/ReadVariableOp/resource1": [
+      -12.504539489746094,
+      11.718648910522461
+    ],
+    "Relu__8:0": [
+      0.0,
+      11.718648910522461
+    ],
+    "model/activation_2/Relu;model/batch_normalization_2/FusedBatchNormV3;model/conv2d_1/BiasAdd/ReadVariableOp/resource;model/conv2d_1/BiasAdd;model/depthwise_conv2d_1/depthwise;model/conv2d_1/Conv2D1": [
+      -9.07046127319336,
+      10.994955062866211
+    ],
+    "Relu__11:0": [
+      0.0,
+      10.994955062866211
+    ],
+    "model/activation_3/Relu;model/batch_normalization_3/FusedBatchNormV3;model/depthwise_conv2d_1/depthwise;model/depthwise_conv2d_1/BiasAdd;model/depthwise_conv2d_1/BiasAdd/ReadVariableOp/resource1": [
+      -12.277684211730957,
+      9.38856029510498
+    ],
+    "Relu__14:0": [
+      0.0,
+      9.38856029510498
+    ],
+    "model/activation_4/Relu;model/batch_normalization_4/FusedBatchNormV3;model/conv2d_2/BiasAdd/ReadVariableOp/resource;model/conv2d_2/BiasAdd;model/depthwise_conv2d_3/depthwise;model/conv2d_2/Conv2D1": [
+      -9.547442436218262,
+      8.620016098022461
+    ],
+    "Relu__17:0": [
+      0.0,
+      8.620016098022461
+    ],
+    "model/activation_5/Relu;model/batch_normalization_5/FusedBatchNormV3;model/depthwise_conv2d_2/depthwise;model/depthwise_conv2d_2/BiasAdd;model/depthwise_conv2d_3/depthwise;model/depthwise_conv2d_2/BiasAdd/ReadVariableOp/resource1": [
+      -15.09538459777832,
+      12.010470390319824
+    ],
+    "Relu__20:0": [
+      0.0,
+      12.010470390319824
+    ],
+    "model/activation_6/Relu;model/batch_normalization_6/FusedBatchNormV3;model/conv2d_3/BiasAdd/ReadVariableOp/resource;model/conv2d_3/BiasAdd;model/depthwise_conv2d_3/depthwise;model/conv2d_3/Conv2D1": [
+      -8.832023620605469,
+      12.81554889678955
+    ],
+    "Relu__23:0": [
+      0.0,
+      12.81554889678955
+    ],
+    "model/activation_7/Relu;model/batch_normalization_7/FusedBatchNormV3;model/depthwise_conv2d_3/depthwise;model/depthwise_conv2d_3/BiasAdd;model/depthwise_conv2d_3/BiasAdd/ReadVariableOp/resource1": [
+      -12.368682861328125,
+      9.488792419433594
+    ],
+    "Relu__26:0": [
+      0.0,
+      9.488792419433594
+    ],
+    "model/activation_8/Relu;model/batch_normalization_8/FusedBatchNormV3;model/conv2d_4/BiasAdd/ReadVariableOp/resource;model/conv2d_4/BiasAdd;model/depthwise_conv2d_5/depthwise;model/conv2d_4/Conv2D1": [
+      -6.7433624267578125,
+      9.089195251464844
+    ],
+    "Relu__29:0": [
+      0.0,
+      9.089195251464844
+    ],
+    "model/activation_9/Relu;model/batch_normalization_9/FusedBatchNormV3;model/depthwise_conv2d_4/depthwise;model/depthwise_conv2d_4/BiasAdd;model/depthwise_conv2d_5/depthwise;model/depthwise_conv2d_4/BiasAdd/ReadVariableOp/resource1": [
+      -11.45421314239502,
+      8.245770454406738
+    ],
+    "Relu__32:0": [
+      0.0,
+      8.245770454406738
+    ],
+    "model/activation_10/Relu;model/batch_normalization_10/FusedBatchNormV3;model/conv2d_5/BiasAdd/ReadVariableOp/resource;model/conv2d_5/BiasAdd;model/depthwise_conv2d_5/depthwise;model/conv2d_5/Conv2D1": [
+      -6.843904495239258,
+      9.422758102416992
+    ],
+    "Relu__35:0": [
+      0.0,
+      9.422758102416992
+    ],
+    "model/activation_11/Relu;model/batch_normalization_11/FusedBatchNormV3;model/depthwise_conv2d_5/depthwise;model/depthwise_conv2d_5/BiasAdd;model/depthwise_conv2d_5/BiasAdd/ReadVariableOp/resource1": [
+      -8.432785034179688,
+      8.515299797058105
+    ],
+    "Relu__38:0": [
+      0.0,
+      8.515299797058105
+    ],
+    "model/activation_12/Relu;model/batch_normalization_12/FusedBatchNormV3;model/conv2d_6/BiasAdd/ReadVariableOp/resource;model/conv2d_6/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_6/Conv2D1": [
+      -6.640583515167236,
+      9.267897605895996
+    ],
+    "Relu__41:0": [
+      0.0,
+      9.267897605895996
+    ],
+    "model/activation_13/Relu;model/batch_normalization_13/FusedBatchNormV3;model/depthwise_conv2d_6/depthwise;model/depthwise_conv2d_6/BiasAdd;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_6/BiasAdd/ReadVariableOp/resource1": [
+      -14.024070739746094,
+      9.333257675170898
+    ],
+    "Relu__44:0": [
+      0.0,
+      9.333257675170898
+    ],
+    "model/activation_14/Relu;model/batch_normalization_14/FusedBatchNormV3;model/conv2d_7/BiasAdd/ReadVariableOp/resource;model/conv2d_7/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_7/Conv2D1": [
+      -10.293560028076172,
+      7.884707450866699
+    ],
+    "Relu__47:0": [
+      0.0,
+      7.884707450866699
+    ],
+    "model/activation_15/Relu;model/batch_normalization_15/FusedBatchNormV3;model/depthwise_conv2d_7/depthwise;model/depthwise_conv2d_7/BiasAdd;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_7/BiasAdd/ReadVariableOp/resource1": [
+      -6.6026177406311035,
+      12.996269226074219
+    ],
+    "Relu__50:0": [
+      0.0,
+      12.996269226074219
+    ],
+    "model/activation_16/Relu;model/batch_normalization_16/FusedBatchNormV3;model/conv2d_8/BiasAdd/ReadVariableOp/resource;model/conv2d_8/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_8/Conv2D1": [
+      -7.961419105529785,
+      7.31313419342041
+    ],
+    "Relu__53:0": [
+      0.0,
+      7.31313419342041
+    ],
+    "model/activation_17/Relu;model/batch_normalization_17/FusedBatchNormV3;model/depthwise_conv2d_8/depthwise;model/depthwise_conv2d_8/BiasAdd;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_8/BiasAdd/ReadVariableOp/resource1": [
+      -6.9907941818237305,
+      9.572181701660156
+    ],
+    "Relu__56:0": [
+      0.0,
+      9.572181701660156
+    ],
+    "model/activation_18/Relu;model/batch_normalization_18/FusedBatchNormV3;model/conv2d_9/BiasAdd/ReadVariableOp/resource;model/conv2d_9/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_9/Conv2D1": [
+      -9.142934799194336,
+      6.701040744781494
+    ],
+    "Relu__59:0": [
+      0.0,
+      6.701040744781494
+    ],
+    "model/activation_19/Relu;model/batch_normalization_19/FusedBatchNormV3;model/depthwise_conv2d_9/depthwise;model/depthwise_conv2d_9/BiasAdd;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_9/BiasAdd/ReadVariableOp/resource1": [
+      -10.11336898803711,
+      11.919756889343262
+    ],
+    "Relu__62:0": [
+      0.0,
+      11.919756889343262
+    ],
+    "model/activation_20/Relu;model/batch_normalization_20/FusedBatchNormV3;model/conv2d_10/BiasAdd/ReadVariableOp/resource;model/conv2d_10/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_10/Conv2D1": [
+      -7.533036708831787,
+      6.103926658630371
+    ],
+    "Relu__65:0": [
+      0.0,
+      6.103926658630371
+    ],
+    "model/activation_21/Relu;model/batch_normalization_21/FusedBatchNormV3;model/depthwise_conv2d_10/depthwise;model/depthwise_conv2d_10/BiasAdd;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_10/BiasAdd/ReadVariableOp/resource1": [
+      -3.716097116470337,
+      12.595361709594727
+    ],
+    "Relu__68:0": [
+      0.0,
+      12.595361709594727
+    ],
+    "model/activation_22/Relu;model/batch_normalization_22/FusedBatchNormV3;model/conv2d_11/BiasAdd/ReadVariableOp/resource;model/conv2d_11/BiasAdd;model/depthwise_conv2d_11/depthwise;model/conv2d_11/Conv2D1": [
+      -5.962096214294434,
+      5.3878607749938965
+    ],
+    "Relu__71:0": [
+      0.0,
+      5.3878607749938965
+    ],
+    "model/activation_23/Relu;model/batch_normalization_23/FusedBatchNormV3;model/depthwise_conv2d_11/depthwise;model/depthwise_conv2d_11/BiasAdd;model/depthwise_conv2d_11/BiasAdd/ReadVariableOp/resource1": [
+      -2.247591018676758,
+      7.846301555633545
+    ],
+    "Relu__74:0": [
+      0.0,
+      7.846301555633545
+    ],
+    "model/activation_24/Relu;model/batch_normalization_24/FusedBatchNormV3;model/conv2d_12/BiasAdd/ReadVariableOp/resource;model/conv2d_12/BiasAdd;model/conv2d_13/Conv2D;model/conv2d_12/Conv2D1": [
+      -9.701529502868652,
+      7.671870231628418
+    ],
+    "Relu__77:0": [
+      0.0,
+      7.671870231628418
+    ],
+    "model/activation_25/Relu;model/batch_normalization_25/FusedBatchNormV3;model/depthwise_conv2d_12/depthwise;model/depthwise_conv2d_12/BiasAdd;model/conv2d_13/Conv2D;model/depthwise_conv2d_12/BiasAdd/ReadVariableOp/resource1": [
+      -6.7928643226623535,
+      9.23330307006836
+    ],
+    "Relu__80:0": [
+      0.0,
+      9.23330307006836
+    ],
+    "model/activation_26/Relu;model/batch_normalization_26/FusedBatchNormV3;model/conv2d_13/BiasAdd/ReadVariableOp/resource;model/conv2d_13/BiasAdd;model/conv2d_13/Conv2D1": [
+      -5.587749004364014,
+      5.9420647621154785
+    ],
+    "Relu__83:0": [
+      0.0,
+      5.9420647621154785
+    ],
+    "model/average_pooling2d/AvgPool": [
+      0.0,
+      1.5979353189468384
+    ],
+    "model/flatten/Reshape": [
+      0.0,
+      1.5979353189468384
+    ],
+    "Add__87:0": [
+      -2.3487496376037598,
+      2.583958387374878
+    ]
+  }
+}

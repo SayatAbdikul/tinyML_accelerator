@@ -1,0 +1,27 @@
+{
+  "image_sha256": "15f92f11da70da7b185223c8a63968503e12fb669e052de54c36dddd3d8406f9",
+  "split_sha256": "66f6b5cd75410e7b7b5d483dab8e48c363256822a066689fe895041c7941b8ac",
+  "reference": "independent centered-input integer graph oracle",
+  "target": "software-v2",
+  "results": [
+    {
+      "sample_id": "kws/accuracy/_silence_/1024.wav#0",
+      "layers": 22,
+      "integer_values_compared": 144630,
+      "mismatches": 0
+    },
+    {
+      "sample_id": "kws/accuracy/off/0c40e715_nohash_2.wav#0",
+      "layers": 22,
+      "integer_values_compared": 144630,
+      "mismatches": 0
+    },
+    {
+      "sample_id": "kws/accuracy/yes/ffb86d3c_nohash_0.wav#0",
+      "layers": 22,
+      "integer_values_compared": 144630,
+      "mismatches": 0
+    }
+  ],
+  "status": "passed"
+}

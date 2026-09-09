@@ -1,0 +1,9 @@
+{
+  "count": 4890,
+  "correct": 4514,
+  "accuracy": 0.9231083844580777,
+  "split_sha256": "66f6b5cd75410e7b7b5d483dab8e48c363256822a066689fe895041c7941b8ac",
+  "calibration_disjoint": true,
+  "target": "software-v2",
+  "official_benchmark_certified": false
+}

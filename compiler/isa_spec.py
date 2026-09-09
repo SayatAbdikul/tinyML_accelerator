@@ -223,8 +223,6 @@ def encode(op_name: str, **field_values) -> int:
     op = OPCODE_BY_NAME.get(op_name)
     if op is None:
         raise ValueError(f"Unknown opcode: {op_name}")
-    if op.name == "NOP":
-        return 0
     expected = {f.name for f in op.fields}
     given = set(field_values)
     if expected != given:
@@ -236,7 +234,11 @@ def encode(op_name: str, **field_values) -> int:
         )
     word = op.value & 0x1F
     for f in op.fields:
-        v = int(field_values[f.name])
+        import operator
+        try:
+            v = operator.index(field_values[f.name])
+        except TypeError as exc:
+            raise ValueError(f'{op_name}.{f.name} must be an integer') from exc
         if v < 0 or v > f.mask:
             raise ValueError(
                 f"{op_name}.{f.name}={v} out of range [0, {f.mask}] (width {f.width})"

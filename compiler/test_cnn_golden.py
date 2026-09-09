@@ -165,7 +165,7 @@ def test_maxpool_math():
 # =========================================================================
 # TEST 4: SmallCNN end-to-end integration via compiler + golden model
 # =========================================================================
-def test_smallcnn_end_to_end(tmp_path):
+def test_smallcnn_end_to_end(tmp_path, monkeypatch):
     """
     1. Export the SmallCNN to ONNX.
     2. Run compile.py to generate ASM.
@@ -188,6 +188,7 @@ def test_smallcnn_end_to_end(tmp_path):
     onnx_file = str(tmp_path / "cnn_model.onnx")
     asm_file = str(tmp_path / "assembly.asm")
 
+    monkeypatch.chdir(tmp_path)
     cnn = model.create_cnn_model()
     # model.create_cnn_model() already saves to 'cnn_model.onnx' in the cwd.
 
@@ -202,7 +203,7 @@ def test_smallcnn_end_to_end(tmp_path):
         dram.save_all_initializers_to_dram("cnn_model.onnx", dram_offsets)
 
     # 3. Compile ONNX -> ASM, looking up addresses in the maps.
-    compile.generate_assembly("cnn_model.onnx", asm_file,
+    compile.generate_legacy_assembly("cnn_model.onnx", asm_file,
                               fc_weight_map, bias_map_all, conv_weight_map)
 
     # Verify the assembly has CNN instructions

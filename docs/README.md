@@ -4,9 +4,18 @@ Comprehensive documentation for the Ushqyn hardware accelerator.
 
 ## Overview
 
-Ushqyn (Ұшқын — Kazakh for *spark*) is a specialized hardware accelerator for neural-network inference with quantized 8-bit integer arithmetic. It implements a custom **8-instruction ISA** covering both MLP and small-CNN workloads. The simulation RTL has been validated bit-exactly against a Python golden model on a trained SmallCNN; the FPGA build runs a 3-layer MLP on MNIST on the Gowin GW2AR-18 (Tang Nano 20K) at 89 MHz.
+Ushqyn (Ұшқын — Kazakh for *spark*) is a specialized hardware accelerator for neural-network inference with quantized 8-bit integer arithmetic. It implements a custom **8-instruction ISA** covering both MLP and small-CNN workloads. The simulation RTL has been validated bit-exactly against a Python golden model on a trained SmallCNN; historical FPGA reports describe a 3-layer MLP implementation, with 89.201 MHz synthesis timing and 37.502 MHz routed timing at a 27-MHz constraint. The current hierarchy fails device resource checks. Current board execution has not been verified.
 
 ## What's where
+
+### Research planning
+
+- **[Phase 0–1 status](research/PHASE_0_1_STATUS.md)** — completed software work, actual Gowin results, quality measurements, and open gates.
+- **[Numerical contract](specs/quantization.md)** — version-2 software arithmetic and image format; FPGA migration remains phase 2.
+- **[Benchmark reproduction](../benchmarks/README.md)** — pinned models/data and exact evaluation commands.
+- **[RESEARCH_ASSESSMENT.md](RESEARCH_ASSESSMENT.md)** — September 2026 source audit, verified limitations, and research positioning; distinguishes current evidence from the historical status below.
+- **[RESEARCH_ROADMAP.md](RESEARCH_ROADMAP.md)** — 32-week plan for one full-time researcher, with equal audio/vision emphasis, measurable targets, experiment design, and publication gates.
+- **[RESEARCH_BACKLOG.md](RESEARCH_BACKLOG.md)** — 40 implementation tasks with dependencies, acceptance criteria, and the first ten working days.
 
 ### Architecture documentation
 - **[RTL_ARCHITECTURE.md](RTL_ARCHITECTURE.md)** — Detailed RTL architecture

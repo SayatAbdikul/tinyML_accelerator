@@ -1,0 +1,29 @@
+{
+  "workload": "kws",
+  "target": "software-v2",
+  "image_sha256": "15f92f11da70da7b185223c8a63968503e12fb669e052de54c36dddd3d8406f9",
+  "image_bytes": 222512,
+  "source_onnx_sha256": "1347e8af44d1753b0ccdedca5c0996f8dde81b7351a31fa63cfd38f8ee96cff0",
+  "logits_onnx_sha256": "d27761fb4e26005ca4c55e25b1f554515af0a4aaad6af089e56975f990b963aa",
+  "canonical_model_sha256": "6599b4b8373a807b6d894a4e155be3556e973f036ecbbff4afe837f6ac071ed9",
+  "calibration_report_sha256": "f412b08359c605782cc3a40720ec5a72c0f03bc11ec2653d5a2675f88da68361",
+  "data_manifest_sha256": "074cc6a727403f026803e67c49e050f3e3dce0df46343f61b24c138846e12e9e",
+  "scripts_sha256": {
+    "compiler/canonicalize.py": "0ada3515d0e0af4d41aedc320628a21e32e50814e53c176a17a71a938ab47e5d",
+    "compiler/classifier_boundary.py": "bd06595e8728f69153e6da88049214853592a533880075fd366c0cdf801edd93",
+    "compiler/integer_reference.py": "b42d259a19c1a9c4da19a057d12b863e85076e2b07ffac94f844f585f09d273e",
+    "compiler/program_image.py": "fcd0c16ef046c78b7e36ce40862a3cf898df064ab4162c7d5015720528b0c0c3",
+    "compiler/quantization.py": "2541fd1c2e902c2a328e27a4b949df52b85bf47ab5f4f60ccf49ba9370ea590e",
+    "compiler/static_pipeline.py": "569cc481e2cb1fe825e00e51b594c1386865e857f60f46359e7824b0660611f3"
+  },
+  "evaluation_script_sha256": "6a25a6bb7029feafcb9ae62c861f24b0ad7d2665044e914562b01f46ce2ad031",
+  "float_evaluation_script_sha256": "8f03d587d765050019ea7c5ab2df83660cfd3e30204ff0f3b3be5ceceb5a112f",
+  "conversion_environment_lock_sha256": "b6b0518dd808123583887d12d14ce3caba292260dd0b0f9013501d7de8f32bef",
+  "compiler_environment_lock_sha256": "d235ccc64d04289b4b70872e0384d0f3d27d3e9174cc20d5d952b9ba139064ae",
+  "image_rebuild_byte_identical": true,
+  "result_reports_sha256": {
+    "kws.integer-parity.json": "15cc561ab682d7457abef71052f6efd7e92d8f64c9496292f9baeedaa3a44d0f",
+    "kws.static-quality.json": "cb42d0fa3f645bdf5bdeb699a26e4fe0322e0b6e9702767fb8167188035eb682",
+    "kws.float-quality.json": "a73991541fa80aab45f0c8d65c0e1582e8434a65fcfd48712d48697be1d603fd"
+  }
+}

@@ -71,7 +71,7 @@ PRIMARY_INPUT_BUFFER = 9
 MATRIX_ID_OFFSET = 16
 
 # Passthrough ops emit no instruction; their output aliases their input.
-PASSTHROUGH_OPS = frozenset({"Reshape", "Flatten", "BatchNormalization"})
+PASSTHROUGH_OPS = frozenset({"Reshape", "Flatten"})
 
 # Op types whose initializer inputs are weights / biases the accelerator
 # needs to LOAD_M / LOAD_V into a buffer. Other ops (Squeeze, Cast, Shape,

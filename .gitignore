@@ -74,3 +74,5 @@ test/*/*.pyc
 
 # Ignore src/ generated directory
 src/
+# Local benchmark reproduction payloads (hash manifests are tracked)
+/work/
