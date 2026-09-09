@@ -1,0 +1,49 @@
+bias_1 ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 2
+LOAD_M 16, 0x940, 2, 32
+LOAD_V 0, 0x4c0, 2
+GEMV 1, 16, 9, 0, 2, 2
+STORE 1, 0x8c0, 2
+bias_1 float= [[0.1 1. ]] accelerator= [127   1] argmax= 1 0
+bias_100 ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 2
+LOAD_M 16, 0x940, 2, 32
+LOAD_V 0, 0x4c0, 2
+GEMV 1, 16, 9, 0, 2, 2
+STORE 1, 0x8c0, 2
+bias_100 float= [[  0.1 100. ]] accelerator= [127   1] argmax= 1 0
+large_relu ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 1024
+MAXPOOL 0, 9, 32, 32, 1, 2, 2
+STORE 0, 0x8c0, 256
+BN ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 2
+LOAD_M 16, 0x940, 2, 32
+LOAD_V 0, 0x4c0, 2
+GEMV 1, 16, 9, 0, 2, 2
+STORE 1, 0x8c0, 2
+BN float= [[-0.948678  0.474339]] accelerator= [127  64] argmax= 1 0
+add ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 2
+LOAD_M 16, 0x940, 2, 32
+LOAD_V 0, 0x4c0, 2
+GEMV 1, 16, 9, 0, 2, 2
+conv_no_bias ASM: ; Custom Architecture Assembly Code
+; Generated from ONNX model
+
+LOAD_V 9, 0xc0, 4
+LOAD_M 16, 0x3000, 1, 1
+CONV2D_CFG 0, 2, 2, 1, 1, 1, 1, 1, 0
+CONV2D_RUN 0, 9, 16, 0, 0
+STORE 0, 0x8c0, 4
+conv_no_bias KeyError 0

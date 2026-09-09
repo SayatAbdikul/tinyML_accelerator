@@ -1,0 +1,26 @@
+..........................................................               [100%]
+=============================== warnings summary ===============================
+compiler/test_cnn_golden.py::test_smallcnn_end_to_end
+compiler/test_unified_walker.py::test_assembly_addresses_match_walker_maps_cnn
+  /private/tmp/tinyml-baseline-3aa5fe8/compiler/model.py:85: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
+    torch.onnx.export(
+
+compiler/test_cnn_golden.py: 2698 warnings
+compiler/test_unified_walker.py: 11570 warnings
+  /Users/sayat/Documents/GitHub/tinyML_accelerator/.venv/lib/python3.13/site-packages/onnxscript/converter.py:464: DeprecationWarning: Expression.__init__ got an unexpected keyword argument 'lineno'. Support for arbitrary keyword arguments is deprecated and will be removed in Python 3.15.
+    expr = ast.Expression(expr, lineno=expr.lineno, col_offset=expr.col_offset)
+
+compiler/test_cnn_golden.py: 2698 warnings
+compiler/test_unified_walker.py: 11570 warnings
+  /Users/sayat/Documents/GitHub/tinyML_accelerator/.venv/lib/python3.13/site-packages/onnxscript/converter.py:464: DeprecationWarning: Expression.__init__ got an unexpected keyword argument 'col_offset'. Support for arbitrary keyword arguments is deprecated and will be removed in Python 3.15.
+    expr = ast.Expression(expr, lineno=expr.lineno, col_offset=expr.col_offset)
+
+compiler/test_unified_walker.py::test_generate_assembly_requires_maps
+compiler/test_unified_walker.py::test_assembly_addresses_match_walker_maps_mlp
+compiler/test_unified_walker.py::test_unknown_initializer_raises
+compiler/test_unified_walker.py::test_address_mutation_propagates
+  /private/tmp/tinyml-baseline-3aa5fe8/compiler/model.py:35: UserWarning: # 'dynamic_axes' is not recommended when dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument instead if export is unsuccessful.
+    torch.onnx.export(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+58 passed, 28542 warnings in 7.48s

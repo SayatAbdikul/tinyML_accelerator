@@ -1,0 +1,29 @@
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+Traceback (most recent call last):
+  File "/Users/sayat/Documents/GitHub/tinyML_accelerator/tools/research/convert_benchmark.py", line 57, in <module>
+    a=p.parse_args();convert(a.source,a.output,a.report)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sayat/Documents/GitHub/tinyML_accelerator/tools/research/convert_benchmark.py", line 40, in convert
+    for a,b in zip(actual,expected):np.testing.assert_allclose(a,b,atol=1e-5,rtol=1e-4)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/tinyml-conversion-env/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 1504, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/opt/homebrew/Cellar/python@3.11/3.11.11/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/tinyml-conversion-env/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 797, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=0.0001, atol=1e-05
+
+Mismatched elements: 12 / 12 (100%)
+Max absolute difference: 0.00420697
+Max relative difference: 0.05849403
+ x: array([[4.642792e-02, 3.879450e-02, 8.260597e-03, 1.265381e-02,
+        2.553747e-02, 4.591752e-02, 5.900419e-03, 7.612833e-02,
+        4.862860e-02, 7.193192e-03, 6.110803e-04, 6.839465e-01]],
+      dtype=float32)
+ y: array([[4.826356e-02, 3.961311e-02, 8.175507e-03, 1.318748e-02,
+        2.488620e-02, 4.467382e-02, 5.785798e-03, 7.192136e-02,
+        4.907339e-02, 7.167669e-03, 5.967671e-04, 6.866554e-01]],
+      dtype=float32)

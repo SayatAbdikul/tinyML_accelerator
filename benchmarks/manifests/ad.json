@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "workload": "ad",
+  "priority": "secondary",
+  "upstream": "https://github.com/mlcommons/tiny",
+  "revision": "4addd0fa08d216e20637637874e084895f289da4",
+  "files": [
+    {
+      "path": "benchmark/evaluation/datasets/ad01/y_labels.csv",
+      "sha256": "4ecd91868e197ee0a6739d4bd7abde73eac2fa31e9a88d6bc6aedefa136ff2a4",
+      "bytes": 13004
+    },
+    {
+      "path": "benchmark/runner/datasets.py",
+      "sha256": "a09de931c4a858e3080846a4e715698bad5f6539b04f29eb32b68f0676234ab6",
+      "bytes": 3058
+    },
+    {
+      "path": "benchmark/runner/device_manager.py",
+      "sha256": "3029294ef82f5dbc3d50840c5f94ab88f248c666fc262b3bbfc3fd4212dbaccc",
+      "bytes": 7388
+    },
+    {
+      "path": "benchmark/runner/device_under_test.py",
+      "sha256": "4a83c8d330ef1858693986c677445db4b410714445e623718d518cf1c358ae8e",
+      "bytes": 4326
+    },
+    {
+      "path": "benchmark/runner/interface_device.py",
+      "sha256": "69057dbecc26db44ab7ee47a79fc4cae68d4d12a14d1030e72deebe52e1f46bb",
+      "bytes": 88
+    },
+    {
+      "path": "benchmark/runner/io_manager.py",
+      "sha256": "a80dcf8f6358587fc4fc431dd2b6a89c545127bf619ad9ae576bfbe0bbb74a34",
+      "bytes": 2150
+    },
+    {
+      "path": "benchmark/runner/io_manager_enhanced.py",
+      "sha256": "11316a0d7f3a64d97569bd5c3918c76b033a8f994dbeff22f75b8cd86111bf9a",
+      "bytes": 1154
+    },
+    {
+      "path": "benchmark/runner/main.py",
+      "sha256": "6e38df8e1260d606c7f1a97e07d313cdf8391fdee0b7c5bb518b1b39b6faff94",
+      "bytes": 16453
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager.py",
+      "sha256": "0e258385052a83bfba1e5cf3d6187647ef6fadb3f568c690149991b500edabad",
+      "bytes": 2997
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_js220.py",
+      "sha256": "95ba561853a3200cdc7a2ed7dc32e47e268a8541afc8762187bbd64f77bec186",
+      "bytes": 10587
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_lpm.py",
+      "sha256": "2481d057924a8f057c4e5dc9aa395e4a8f3a2b98af25f0b5c1c6b1aa5b6563dc",
+      "bytes": 21558
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_stlinkv3pwr.py",
+      "sha256": "afabf5dcb13c8475067671a99cb9f6bab3978435d267fa8e865c6cdb4a46b7c2",
+      "bytes": 4189
+    },
+    {
+      "path": "benchmark/runner/runner_utils.py",
+      "sha256": "d55d4fecf21e7ea7239931337fcd0277db0e9ea9d8033f1a98577d045e809268",
+      "bytes": 1223
+    },
+    {
+      "path": "benchmark/runner/script.py",
+      "sha256": "135143af6d88a693d8dba63a5fbff96a3668d03c65da086aca3faf9ab7237218",
+      "bytes": 20069
+    },
+    {
+      "path": "benchmark/runner/serial_device.py",
+      "sha256": "dac40f7647389abc59f3e6221a60ab21e14f7be4406f69da78f51bfff93ce03c",
+      "bytes": 4422
+    },
+    {
+      "path": "benchmark/runner/stream_wav_uart.py",
+      "sha256": "94da2eac0bb9f2d38cb462ec0ad3593ddae6e2553af7c92124ace86e9ef7174b",
+      "bytes": 11276
+    },
+    {
+      "path": "benchmark/runner/streaming_ww_utils.py",
+      "sha256": "3757b52b4a198724d24ba862064db805cb357402937dfdf70c250f943c56c420",
+      "bytes": 9061
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/00_train.py",
+      "sha256": "8c3b50c012a95e33eb77c15c501182ce325a06810a53f03dcbc5dd31b600ead9",
+      "bytes": 8007
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/01_test.py",
+      "sha256": "d5cab6e459f94aa33fa571e1ed415f49ba813f4f74bc40e1c882d01552f53bc8",
+      "bytes": 6534
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/02_convert.py",
+      "sha256": "1c09b3361c6526f3dc969e26afa5aadd8bc11430251bf30d69dc951658959ac9",
+      "bytes": 7814
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/03_tflite_test.py",
+      "sha256": "dba082e38c1c8ecec4abab6f234dce88db5447e0a56e1fb4132edff409c385af",
+      "bytes": 7797
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/README.md",
+      "sha256": "ef6e1ce27920e801bed8a74625baeffc74d11f95505bf3ba4ae0804811b7efd4",
+      "bytes": 9303
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/baseline.yaml",
+      "sha256": "6c346f4e997252bdda1241ba304d9cfd7cfbc18f3a3b92146d8124513c94bff0",
+      "bytes": 388
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/calibration.txt",
+      "sha256": "f6b2a371295165c1b977aa6289d93bba7b50f2c1161267886426f0280a58dd3f",
+      "bytes": 67200
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/common.py",
+      "sha256": "061f809bb231f41549acbbfec6573e056e456c9f8644c309c13026481e768d72",
+      "bytes": 15522
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/convert_dataset.py",
+      "sha256": "3df28c0957e820c1138bc7b37649365be6f6045da323cafedecebc4292a5d0d2",
+      "bytes": 2936
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/eval_functions_eembc.py",
+      "sha256": "64be48b7cfe4ca1157f01227f3122ee1760c8c5509c6875cacaab8ff931b22d1",
+      "bytes": 8694
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/keras_model.py",
+      "sha256": "261eb19019522a0aed6bde1a9528165e0cb69395625b4073544a30878b8563a4",
+      "bytes": 2022
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/requirements.txt",
+      "sha256": "f5c447dcd191f184abb3fdaded7f17cd1b8658c83a6e1abe5eee3bc4a927d3fb",
+      "bytes": 223
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/README.md",
+      "sha256": "8cf6be7cd59946344e2a16b43920a204fb0573308acaef83f76adac5ac07dbe2",
+      "bytes": 1543
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ToyCar/baseline_tf23/model/model_ToyCar.tflite",
+      "sha256": "c66636f4d7f8af8b10518e7be750a22c9d8d46ec97326b40b0d94c097e0aad9b",
+      "bytes": 1067648
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ToyCar/baseline_tf23/model/model_ToyCar_quant.tflite",
+      "sha256": "195e33efc7592a463fb6c5d6501613f8b9519e65596816161282e8d8dde033a5",
+      "bytes": 275728
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ToyCar/baseline_tf23/model/model_ToyCar_quant_fullint.tflite",
+      "sha256": "861f3de4465a176099248090583ae5b6be00bc6f0c6bac16ce3bda004a7fa9c2",
+      "bytes": 277248
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ToyCar/baseline_tf23/model/model_ToyCar_quant_fullint_micro.tflite",
+      "sha256": "861f3de4465a176099248090583ae5b6be00bc6f0c6bac16ce3bda004a7fa9c2",
+      "bytes": 277248
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ToyCar/baseline_tf23/model/model_ToyCar_quant_fullint_micro_intio.tflite",
+      "sha256": "87cf24194ef93d1d9b11a591d805526b98008e351655d29883c825c9c106ba24",
+      "bytes": 276976
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ad01.h5",
+      "sha256": "651a62de1b7facd68d1269373992a2d09ffd28e6a816935d4834fcc558bde512",
+      "bytes": 3411016
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ad01_fp32.tflite",
+      "sha256": "c66636f4d7f8af8b10518e7be750a22c9d8d46ec97326b40b0d94c097e0aad9b",
+      "bytes": 1067648
+    },
+    {
+      "path": "benchmark/training/anomaly_detection/trained_models/ad01_int8.tflite",
+      "sha256": "87cf24194ef93d1d9b11a591d805526b98008e351655d29883c825c9c106ba24",
+      "bytes": 276976
+    }
+  ],
+  "evaluator_rules": {
+    "path": "benchmark/MLPerfTiny_Rules.adoc",
+    "sha256": "9072947fba3d9940120c98845b9278d7b8ae4c5f918384faddc200ecf1369d3a"
+  },
+  "dataset": {
+    "name": "ToyADMOS ToyCar",
+    "local_split_sha256": null,
+    "status": "not materialized or verified",
+    "index": {
+      "path": "benchmark/evaluation/datasets/ad01/y_labels.csv",
+      "sha256": "4ecd91868e197ee0a6739d4bd7abde73eac2fa31e9a88d6bc6aedefa136ff2a4",
+      "status": "index pinned; referenced sample contents unavailable locally"
+    }
+  },
+  "calibration": {
+    "sample_ids_sha256": null,
+    "sample_content_sha256": null,
+    "status": "not materialized; upstream calibration recipe files are pinned above"
+  },
+  "conversion_parity": {
+    "status": "passed-synthetic-source-framework-parity",
+    "report": "ad.parity.json",
+    "absolute_tolerance": 1e-05,
+    "relative_tolerance": 0.0001,
+    "scope": "16 deterministic probes; source-framework parity, not full-dataset tensor parity"
+  },
+  "quality_target": {
+    "metric": "ROC-AUC",
+    "minimum": 0.85
+  },
+  "quality_measured": null,
+  "canonical_inventory": "ad.canonical-inventory.json"
+}

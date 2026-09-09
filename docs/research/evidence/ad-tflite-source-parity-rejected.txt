@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/Users/sayat/Documents/GitHub/tinyML_accelerator/tools/research/validate_keras_parity.py", line 18, in <module>
+    np.testing.assert_allclose(actual,expected,atol=1e-5,rtol=1e-4);errors.append(float(np.max(np.abs(actual-expected))))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/tinyml-conversion-env/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 1504, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/opt/homebrew/Cellar/python@3.11/3.11.11/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/tinyml-conversion-env/lib/python3.11/site-packages/numpy/testing/_private/utils.py", line 797, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=0.0001, atol=1e-05
+
+Mismatched elements: 636 / 640 (99.4%)
+Max absolute difference: 0.604239
+Max relative difference: 8.044394
+ x: array([[-3.473032e+01, -1.902163e+01, -1.032249e+01, -5.725540e+00,
+        -2.971237e+00,  1.662046e+00, -6.780781e-01, -2.236562e+00,
+        -5.790784e+00, -6.768463e+00, -8.189786e+00, -7.507138e+00,...
+ y: array([[-34.453606, -19.046509, -10.253221,  -5.854589,  -3.260422,
+          1.564724,  -0.503736,  -1.988216,  -5.503734,  -6.504832,
+         -7.985512,  -7.533767,  -7.050872,  -5.403455,  -7.264298,...

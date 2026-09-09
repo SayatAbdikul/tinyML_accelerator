@@ -1,0 +1,30 @@
+{
+  "archives": [
+    {
+      "name": "speech_commands_v2_training",
+      "url": "https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_v0.02.tar.gz",
+      "download_name": "speech_commands_v0.02.tar.gz",
+      "bytes": 2428923189,
+      "sha256": "af14739ee7dc311471de98f5f9d2c9191b18aedfe957f4a6ff791c709868ff58",
+      "scope": "KWS calibration source"
+    },
+    {
+      "name": "speech_commands_v2_test",
+      "url": "https://storage.googleapis.com/download.tensorflow.org/data/speech_commands_test_set_v0.02.tar.gz",
+      "download_name": "speech_commands_test_set_v0.02.tar.gz",
+      "bytes": 112563277,
+      "sha256": "cc2a00c1147c2254e9be3fa0f779d8c17421dc349b86366567a8edfa9acd51df",
+      "scope": "complete canonical 4890-file KWS test"
+    },
+    {
+      "name": "vww_96",
+      "url": "https://www.silabs.com/public/files/github/machine_learning/benchmarks/datasets/vw_coco2014_96.tar.gz",
+      "download_name": "vw_coco2014_96.tar.gz",
+      "bytes": 234810765,
+      "sha256": "f8746b9e44f8a7a4293f73be9ba6e8da9239fe69798d42364aae62b915cfab58",
+      "scope": "VWW training-recipe first 10% per-class validation and upstream calibration"
+    }
+  ],
+  "extraction": "extract into separate empty directories; verify SHA256 before extracting",
+  "official_mlperf_submission_certified": false
+}

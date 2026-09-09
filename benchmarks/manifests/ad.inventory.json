@@ -1,0 +1,839 @@
+{
+  "sha256": "87cf24194ef93d1d9b11a591d805526b98008e351655d29883c825c9c106ba24",
+  "bytes": 276976,
+  "format": "TFLite",
+  "layout": "NHWC; weight layout is operator-specific",
+  "inputs": [
+    0
+  ],
+  "outputs": [
+    30
+  ],
+  "tensors": [
+    {
+      "id": 0,
+      "name": "input_1",
+      "shape": [
+        1,
+        640
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.3910152316093445
+        ],
+        "zero_points": [
+          89
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 1,
+      "name": "functional_1/dense/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.0001473638549214229
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 2,
+      "name": "functional_1/dense_1/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.0007432879647240043
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 3,
+      "name": "functional_1/dense_2/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.00189421814866364
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 4,
+      "name": "functional_1/dense_3/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.0009890998480841517
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 5,
+      "name": "functional_1/dense_4/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        8
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 32,
+      "quantization": {
+        "scales": [
+          0.00019696503295563161
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 6,
+      "name": "functional_1/dense_5/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.000666476902551949
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 7,
+      "name": "functional_1/dense_6/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.0006140193436294794
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 8,
+      "name": "functional_1/dense_7/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.0004105987900402397
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 9,
+      "name": "functional_1/dense_8/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        128
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 512,
+      "quantization": {
+        "scales": [
+          0.00019948332919739187
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 10,
+      "name": "functional_1/dense_9/BiasAdd/ReadVariableOp/resource",
+      "shape": [
+        640
+      ],
+      "dtype": "INT32",
+      "buffer_bytes": 2560,
+      "quantization": {
+        "scales": [
+          0.0004848275857511908
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 11,
+      "name": "functional_1/dense/MatMul",
+      "shape": [
+        128,
+        640
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 81920,
+      "quantization": {
+        "scales": [
+          0.0003768749884329736
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 12,
+      "name": "functional_1/dense_1/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.015028326772153378
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 13,
+      "name": "functional_1/dense_2/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.05350039526820183
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 14,
+      "name": "functional_1/dense_3/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.07203541696071625
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 15,
+      "name": "functional_1/dense_4/MatMul",
+      "shape": [
+        8,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 1024,
+      "quantization": {
+        "scales": [
+          0.008344634436070919
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 16,
+      "name": "functional_1/dense_5/MatMul",
+      "shape": [
+        128,
+        8
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 1024,
+      "quantization": {
+        "scales": [
+          0.0267344880849123
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 17,
+      "name": "functional_1/dense_6/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.019335433840751648
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 18,
+      "name": "functional_1/dense_7/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.01280274149030447
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 19,
+      "name": "functional_1/dense_8/MatMul",
+      "shape": [
+        128,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 16384,
+      "quantization": {
+        "scales": [
+          0.007049884181469679
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 20,
+      "name": "functional_1/dense_9/MatMul",
+      "shape": [
+        640,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 81920,
+      "quantization": {
+        "scales": [
+          0.0195566825568676
+        ],
+        "zero_points": [
+          0
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 21,
+      "name": "functional_1/activation/Relu;functional_1/dense/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.04945912957191467
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 22,
+      "name": "functional_1/activation_1/Relu;functional_1/dense_1/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.035405684262514114
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 23,
+      "name": "functional_1/activation_2/Relu;functional_1/dense_2/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.01373074296861887
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 24,
+      "name": "functional_1/activation_3/Relu;functional_1/dense_3/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.02360379323363304
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 25,
+      "name": "functional_1/activation_4/Relu;functional_1/dense_4/BiasAdd",
+      "shape": [
+        1,
+        8
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.024929480627179146
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 26,
+      "name": "functional_1/activation_5/Relu;functional_1/dense_5/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.031756170094013214
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 27,
+      "name": "functional_1/activation_6/Relu;functional_1/dense_6/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.03207116201519966
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 28,
+      "name": "functional_1/activation_7/Relu;functional_1/dense_7/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.028295973315835
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 29,
+      "name": "functional_1/activation_8/Relu;functional_1/dense_8/BiasAdd",
+      "shape": [
+        1,
+        128
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.024790890514850616
+        ],
+        "zero_points": [
+          -128
+        ],
+        "axis": 0
+      }
+    },
+    {
+      "id": 30,
+      "name": "Identity",
+      "shape": [
+        1,
+        640
+      ],
+      "dtype": "INT8",
+      "buffer_bytes": 0,
+      "quantization": {
+        "scales": [
+          0.36449846625328064
+        ],
+        "zero_points": [
+          96
+        ],
+        "axis": 0
+      }
+    }
+  ],
+  "operators": [
+    {
+      "index": 0,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        0,
+        11,
+        1
+      ],
+      "outputs": [
+        21
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 81920
+    },
+    {
+      "index": 1,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        21,
+        12,
+        2
+      ],
+      "outputs": [
+        22
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 2,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        22,
+        13,
+        3
+      ],
+      "outputs": [
+        23
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 3,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        23,
+        14,
+        4
+      ],
+      "outputs": [
+        24
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 4,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        24,
+        15,
+        5
+      ],
+      "outputs": [
+        25
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 1024
+    },
+    {
+      "index": 5,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        25,
+        16,
+        6
+      ],
+      "outputs": [
+        26
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 1024
+    },
+    {
+      "index": 6,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        26,
+        17,
+        7
+      ],
+      "outputs": [
+        27
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 7,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        27,
+        18,
+        8
+      ],
+      "outputs": [
+        28
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 8,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        28,
+        19,
+        9
+      ],
+      "outputs": [
+        29
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 1,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 16384
+    },
+    {
+      "index": 9,
+      "op": "FULLY_CONNECTED",
+      "version": 4,
+      "inputs": [
+        29,
+        20,
+        10
+      ],
+      "outputs": [
+        30
+      ],
+      "attributes": {
+        "type": "FullyConnectedOptions",
+        "fields": {
+          "AsymmetricQuantizeInputs": false,
+          "FusedActivationFunction": 0,
+          "KeepNumDims": false,
+          "QuantizedBiasType": 0,
+          "WeightsFormat": 0
+        }
+      },
+      "macs": 81920
+    }
+  ],
+  "total_macs": 264192,
+  "constant_buffer_bytes": 270880,
+  "largest_tensor_elements": 81920,
+  "unknown_operators": []
+}

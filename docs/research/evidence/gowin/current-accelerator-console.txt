@@ -1,0 +1,198 @@
+*** GOWIN Tcl Command Line Console  ***
+The available OpenGL surface format was either not version 3.2 or higher or not a Core Profile.
+Chromium on macOS will fall back to software rendering in this case.
+Hardware acceleration and features such as WebGL will not be available.
+current working directory: /private/tmp/tinyml-gowin-current/accelerator_current
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/Gowin_SDPB_32.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_controller.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/compressor_3to2.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fetch_unit_fpga.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/i_decoder.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_execution.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/modular_execution_unit.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/pe.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/quantization.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/quantizer_pipeline.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/scale_calculator.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store_execution.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/tinyml_accelerator_top_fpga.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_ram16sdp/gowin_ram16sdp.v"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_sdpb/gowin_sdpb.v"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_sp/gowin_sp.v"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_project_1.cst"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_project_1.sdc"
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv'
+WARN  (EX2582) : Parameter 'DATA_WIDTH' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":7)
+WARN  (EX2582) : Parameter 'ADDR_WIDTH' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":8)
+WARN  (EX2582) : Parameter 'TILE_ELEMS' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":11)
+WARN  (EX2582) : Parameter 'TILE_WIDTH' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":12)
+WARN  (EX2582) : Parameter 'VECTOR_BUFFER_WIDTH' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":15)
+WARN  (EX2582) : Parameter 'MATRIX_BUFFER_WIDTH' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":16)
+WARN  (EX2582) : Parameter 'MAX_ROWS' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":19)
+WARN  (EX2582) : Parameter 'MAX_COLS' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":20)
+WARN  (EX2582) : Parameter 'OUT_N' declared inside package 'accelerator_config_pkg' shall be treated as localparam("/Users/sayat/Documents/GitHub/tinyML_accelerator/rtl/accelerator_config_pkg.sv":21)
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/Gowin_SDPB_32.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_controller.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/compressor_3to2.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fetch_unit_fpga.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/i_decoder.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_execution.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/modular_execution_unit.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/pe.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/quantization.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/quantizer_pipeline.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/scale_calculator.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store_execution.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/tinyml_accelerator_top_fpga.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_ram16sdp/gowin_ram16sdp.v'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_sdpb/gowin_sdpb.v'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_sp/gowin_sp.v'
+Compiling module 'fpga_top'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv":1)
+WARN  (EX3791) : Expression size 19 truncated to fit in target size 18("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv":32)
+WARN  (EX3791) : Expression size 19 truncated to fit in target size 18("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv":110)
+WARN  (EX3791) : Expression size 26 truncated to fit in target size 25("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv":159)
+Compiling module 'tinyml_accelerator_top_fpga'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/tinyml_accelerator_top_fpga.sv":3)
+Compiling module 'simple_memory'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv":1)
+Compiling module 'uart_rx'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":1)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":64)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":75)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":78)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":88)
+Compiling module 'uart_tx'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":11)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":66)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":83)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":86)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":99)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv":155)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv":220)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv":225)
+Compiling module 'Gowin_SP'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gowin_sp/gowin_sp.v":10)
+WARN  (EX3670) : Actual bit length 16 differs from formal bit length 15 for port 'ad'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/simple_memory.sv":285)
+Compiling module 'fetch_unit_fpga'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fetch_unit_fpga.sv":1)
+Compiling module 'i_decoder'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/i_decoder.sv":1)
+Compiling module 'modular_execution_unit(TILE_WIDTH=256,ADDR_WIDTH=16,MAX_ROWS=1024,MAX_COLS=1024,VECTOR_BUFFER_WIDTH=32768,VECTOR_BUFFER_COUNT=16,MATRIX_BUFFER_WIDTH=131072)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/modular_execution_unit.sv":14)
+Compiling module 'buffer_controller(VECTOR_BUFFER_WIDTH=32768,MATRIX_BUFFER_WIDTH=131072,VECTOR_BUFFER_COUNT=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_controller.sv":11)
+Compiling module 'buffer_file(BUFFER_WIDTH=32768,BUFFER_COUNT=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":3)
+Extracting RAM for identifier 'mem'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":106)
+WARN  (EX3791) : Expression size 8 truncated to fit in target size 7("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":63)
+WARN  (EX3791) : Expression size 8 truncated to fit in target size 7("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":75)
+Compiling module 'buffer_file(BUFFER_WIDTH=131072)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":3)
+Extracting RAM for identifier 'mem'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":106)
+WARN  (EX3791) : Expression size 10 truncated to fit in target size 9("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":63)
+WARN  (EX3791) : Expression size 10 truncated to fit in target size 9("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/buffer_file.sv":75)
+Compiling module 'load_execution(TILE_ELEMS=32,ADDR_WIDTH=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_execution.sv":12)
+Compiling module 'load_v(ADDR_WIDTH=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv":1)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv":66)
+WARN  (EX3791) : Expression size 6 truncated to fit in target size 5("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv":81)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv":83)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_v.sv":89)
+Compiling module 'load_m(ADDR_WIDTH=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":1)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":65)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":75)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":87)
+WARN  (EX3791) : Expression size 6 truncated to fit in target size 5("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":93)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":95)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":101)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_m.sv":115)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_execution.sv":200)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/load_execution.sv":217)
+Compiling module 'gemv_execution(MAX_ROWS=1024,MAX_COLS=1024)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":12)
+Compiling module 'gemv_unit_core(MAX_ROWS=1024,MAX_COLUMNS=1024,TILE_SIZE=8)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":3)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":174)
+Compiling module 'Gowin_SDPB_32'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/Gowin_SDPB_32.sv":9)
+Extracting RAM for identifier 'mem'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/Gowin_SDPB_32.sv":19)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":309)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":313)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":326)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":339)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":477)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":478)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":479)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":510)
+WARN  (EX3791) : Expression size 2 truncated to fit in target size 1("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":511)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":513)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":538)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":539)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":541)
+WARN  (EX3791) : Expression size 2 truncated to fit in target size 1("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":572)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":649)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":651)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":672)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":687)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":691)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":700)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":701)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/top_gemv.sv":706)
+Compiling module 'pe'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/pe.sv":1)
+Compiling module 'scale_calculator'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/scale_calculator.sv":1)
+WARN  (EX3791) : Expression size 7 truncated to fit in target size 6("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/scale_calculator.sv":58)
+Compiling module 'quantizer_pipeline'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/quantizer_pipeline.sv":1)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":285)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":286)
+WARN  (EX3791) : Expression size 29 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":287)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":288)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":289)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":290)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":291)
+WARN  (EX3791) : Expression size 32 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":292)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":342)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":358)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":359)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":410)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":423)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":424)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":466)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":483)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":484)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":488)
+WARN  (EX3791) : Expression size 7 truncated to fit in target size 6("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":550)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/gemv_execution.sv":573)
+Compiling module 'relu_execution(MAX_ROWS=1024)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv":9)
+Compiling module 'relu(LENGTH=32)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu.sv":1)
+WARN  (EX3791) : Expression size 27 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv":106)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv":130)
+WARN  (EX3791) : Expression size 11 truncated to fit in target size 10("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/relu_execution.sv":131)
+Compiling module 'store_execution(TILE_ELEMS=32,ADDR_WIDTH=16)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store_execution.sv":10)
+Compiling module 'store(ADDR_WIDTH=16,TILE_ELEMS=32)'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store.sv":1)
+WARN  (EX3791) : Expression size 17 truncated to fit in target size 16("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/store.sv":102)
+NOTE  (EX0101) : Current top module is "fpga_top"
+[5%] Running netlist conversion ...
+WARN  (CV0016) : Input sys_rst_n is unused("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_top.sv":3)
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+ERROR (RP0001) : The number(273847) of DFF in the design exceeds the resource limit(15750) of current device(GW2AR-LV18QN88C8/I7)
+GowinSynthesis finish
+
+    while executing
+"run all"
+    (file "/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/build_current.tcl" line 15)

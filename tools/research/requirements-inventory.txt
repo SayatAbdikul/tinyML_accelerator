@@ -1,0 +1,5 @@
+tflite==2.18.0
+flatbuffers==25.12.19
+numpy==2.3.5
+# Optional: reading installed Gowin PDF documentation, not required for inventory.
+pypdf==6.1.1

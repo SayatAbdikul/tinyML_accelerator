@@ -1,0 +1,220 @@
+Power Analysis Report
+body { font-family: Verdana, Arial, sans-serif; font-size: 12px; }
+div#main_wrapper { width: 100%; }
+div#content { margin-left: 350px; margin-right: 30px; }
+div#catalog_wrapper {position: fixed; top: 30px; width: 350px; float: left; }
+div#catalog ul { list-style-type: none; }
+div#catalog li { text-align: left; list-style-type:circle; color: #0084ff; margin-top: 3px; margin-bottom: 3px; }
+div#catalog a { display:inline-block; text-decoration: none; color: #0084ff; font-weight: bold; padding: 3px; }
+div#catalog a:visited { color: #0084ff; }
+div#catalog a:hover { color: #fff; background: #0084ff; }
+hr { margin-top: 30px; margin-bottom: 30px; }
+h1, h3 { text-align: center; }
+h1 {margin-top: 50px; }
+table, th, td {white-space:pre;  border: 1px solid #aaa; }
+table { border-collapse:collapse; margin-top: 10px; margin-bottom: 20px; width: 100%; }
+th, td { padding: 5px 5px 5px 5px; }
+th { color: #fff; font-weight: bold; background-color: #0084ff; }
+table.summary_table td.label { width: 24%; min-width: 200px; background-color: #dee8f4; }
+table.thermal_table td.label { width: 24%; min-width: 200px; background-color: #dee8f4; }
+table.Configure_table td.label { width: 24%; min-width: 200px; background-color: #dee8f4; }
+table.detail_table th.label {  min-width: 8%; width: 8%; }
+Power Messages
+Configure Information
+Power Summary
+Power Information
+Thermal Information
+Supply Information
+Power Details
+Power By Block Type
+Power By Hierarchy
+Power By Clock Domain
+Power Messages
+Report Title
+Power Analysis Report
+Design File
+/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/impl/gwsynthesis/fpga_project_1.vg
+Physical Constraints File
+/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/fpga_project_1.cst
+Timing Constraints File
+/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/fpga_project_1.sdc
+Tool Version
+V1.9.11.03 Education
+Part Number
+GW2AR-LV18QN88C8/I7
+Device
+GW2AR-18
+Device Version
+C
+Created Time
+Thu Mar  5 18:51:27 2026
+Legal Announcement
+Copyright (C)2014-2025 Gowin Semiconductor Corporation. All rights reserved.
+Configure Information:
+Grade
+Commercial
+Process
+Typical
+Ambient Temperature
+25.000
+Use Custom Theta JA
+false
+Heat Sink
+None
+Air Flow
+LFM_0
+Use Custom Theta SA
+false
+Board Thermal Model
+None
+Use Custom Theta JB
+false
+Related Vcd File
+Related Saif File
+Filter Glitches
+false
+Default IO Toggle Rate
+0.125
+Default Remain Toggle Rate
+0.125
+Power Summary
+Power Information:
+Total Power (mW)
+251.408
+Quiescent Power (mW)
+122.800
+Dynamic Power (mW)
+128.608
+Thermal Information:
+Junction Temperature
+32.502
+Theta JA
+29.840
+Max Allowed Ambient Temperature
+77.498
+Supply Information:
+Voltage Source
+Voltage
+Dynamic Current(mA)
+Quiescent Current(mA)
+Power(mW)
+VCC
+1.000
+126.584
+70.000
+196.584
+VCCX
+3.300
+0.307
+15.000
+50.512
+VCCIO33
+3.300
+0.307
+1.000
+4.312
+Power Details
+Power By Block Type:
+Block Type
+Total Power(mW)
+Static Power(mW)
+Average Toggle Rate(millions of transitions/sec)
+Logic
+3.536
+NA
+3.375
+IO
+7.250
+4.919
+5.738
+BSRAM
+116.888
+NA
+NA
+DSP
+5.846
+NA
+0.479
+Power By Hierarchy:
+Hierarchy Entity
+Total Power(mW)
+Block Dynamic Power(mW)
+fpga_top
+126.270
+126.270(126.199)
+fpga_top/accelerator_inst/
+126.199
+126.199(126.182)
+fpga_top/accelerator_inst/decoder_u/
+0.017
+0.017(0.000)
+fpga_top/accelerator_inst/execution_u/
+121.249
+121.249(121.016)
+fpga_top/accelerator_inst/execution_u/buffer_ctrl/
+96.106
+96.106(96.074)
+fpga_top/accelerator_inst/execution_u/buffer_ctrl/matrix_buffer_inst/
+61.623
+61.623(0.000)
+fpga_top/accelerator_inst/execution_u/buffer_ctrl/vector_buffer_inst/
+34.450
+34.450(0.000)
+fpga_top/accelerator_inst/execution_u/gemv_exec/
+24.360
+24.360(22.837)
+fpga_top/accelerator_inst/execution_u/gemv_exec/gemv_unit/
+22.837
+22.837(18.343)
+fpga_top/accelerator_inst/execution_u/gemv_exec/gemv_unit/quantize_inst/
+2.064
+2.064(0.000)
+fpga_top/accelerator_inst/execution_u/gemv_exec/gemv_unit/res_mem/
+8.068
+8.068(0.000)
+fpga_top/accelerator_inst/execution_u/gemv_exec/gemv_unit/scale_inst/
+0.144
+0.144(0.000)
+fpga_top/accelerator_inst/execution_u/gemv_exec/gemv_unit/x_mem/
+8.068
+8.068(0.000)
+fpga_top/accelerator_inst/execution_u/load_exec/
+0.189
+0.189(0.185)
+fpga_top/accelerator_inst/execution_u/load_exec/load_m_inst/
+0.103
+0.103(0.000)
+fpga_top/accelerator_inst/execution_u/load_exec/load_v_inst/
+0.082
+0.082(0.000)
+fpga_top/accelerator_inst/execution_u/relu_exec/
+0.259
+0.259(0.000)
+fpga_top/accelerator_inst/execution_u/store_exec/
+0.102
+0.102(0.101)
+fpga_top/accelerator_inst/execution_u/store_exec/store_inst/
+0.101
+0.101(0.000)
+fpga_top/accelerator_inst/fetch_u/
+0.055
+0.055(0.000)
+fpga_top/accelerator_inst/main_memory/
+4.861
+4.861(4.775)
+fpga_top/accelerator_inst/main_memory/main_mem_inst/
+4.750
+4.750(0.000)
+fpga_top/accelerator_inst/main_memory/rx_inst/
+0.013
+0.013(0.000)
+fpga_top/accelerator_inst/main_memory/tx_inst/
+0.012
+0.012(0.000)
+Power By Clock Domain:
+Clock Domain
+Clock Frequency(Mhz)
+Total Dynamic Power(mW)
+clk27m
+27.000
+126.277

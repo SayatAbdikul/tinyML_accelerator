@@ -1,0 +1,234 @@
+Hierarchy Module Resource
+body { font-family: Verdana, Arial, sans-serif; font-size: 14px; }
+div#main_wrapper{ width: 100%; }
+h1 {text-align: center; }
+h1 {margin-top: 36px; }
+table, th, td { border: 1px solid #aaa; }
+table { border-collapse:collapse; margin-top: 10px; margin-bottom: 20px; width: 100%; }
+th, td { align = "center"; padding: 5px 2px 5px 5px; }
+th { color: #fff; font-weight: bold; background-color: #0084ff; }
+table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-color: #dee8f4; }
+Hierarchy Module Resource
+MODULE NAME
+REG NUMBER
+ALU NUMBER
+LUT NUMBER
+DSP NUMBER
+BSRAM NUMBER
+SSRAM NUMBER
+ROM16 NUMBER
+fpga_top (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/fpga_top.sv)
+53
+24
+52
+-
+-
+-
+-
+|--accelerator_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/fpga_top.sv)
+63
+-
+27
+-
+-
+-
+-
+|--main_memory
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/tinyml_accelerator_top_fpga.sv)
+93
+-
+273
+-
+-
+-
+-
+|--rx_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/simple_memory.sv)
+32
+-
+30
+-
+-
+-
+-
+|--tx_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/simple_memory.sv)
+23
+-
+34
+-
+-
+-
+-
+|--main_mem_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/simple_memory.sv)
+1
+-
+9
+-
+16
+-
+-
+|--fetch_u
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/tinyml_accelerator_top_fpga.sv)
+149
+14
+21
+-
+-
+-
+-
+|--decoder_u
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/tinyml_accelerator_top_fpga.sv)
+-
+-
+62
+-
+-
+-
+-
+|--execution_u
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/tinyml_accelerator_top_fpga.sv)
+8
+-
+869
+-
+-
+-
+-
+|--buffer_ctrl
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/modular_execution_unit.sv)
+24
+20
+30
+-
+-
+-
+-
+|--vector_buffer_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/buffer_controller.sv)
+34
+8
+95
+-
+8
+4
+-
+|--matrix_buffer_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/buffer_controller.sv)
+36
+-
+66
+-
+15
+-
+-
+|--load_exec
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/modular_execution_unit.sv)
+5
+-
+11
+-
+-
+-
+-
+|--load_v_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/load_execution.sv)
+289
+9
+118
+-
+-
+-
+-
+|--load_m_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/load_execution.sv)
+317
+9
+181
+-
+-
+-
+-
+|--gemv_exec
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/modular_execution_unit.sv)
+767
+102
+4630
+-
+-
+-
+-
+|--gemv_unit
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/gemv_execution.sv)
+681
+156
+861
+4
+-
+-
+-
+|--x_mem
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/top_gemv.sv)
+-
+-
+-
+-
+2
+-
+-
+|--res_mem
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/top_gemv.sv)
+-
+-
+-
+-
+2
+-
+-
+|--scale_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/top_gemv.sv)
+135
+62
+101
+-
+-
+-
+-
+|--quantize_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/top_gemv.sv)
+201
+40
+29
+1
+-
+-
+-
+|--relu_exec
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/modular_execution_unit.sv)
+257
+127
+328
+-
+-
+-
+-
+|--store_exec
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/modular_execution_unit.sv)
+4
+-
+4
+-
+-
+-
+-
+|--store_inst
+ (/Applications/GowinIDE.app/Contents/Resources/Gowin_EDA/IDE/bin/fpga_project_1/src/store_execution.sv)
+63
+25
+189
+-
+-
+-
+-

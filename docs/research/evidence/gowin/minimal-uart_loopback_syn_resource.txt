@@ -1,0 +1,45 @@
+Hierarchy Module Resource
+body { font-family: Verdana, Arial, sans-serif; font-size: 14px; }
+div#main_wrapper{ width: 100%; }
+h1 {text-align: center; }
+h1 {margin-top: 36px; }
+table, th, td { border: 1px solid #aaa; }
+table { border-collapse:collapse; margin-top: 10px; margin-bottom: 20px; width: 100%; }
+th, td { align = "center"; padding: 5px 2px 5px 5px; }
+th { color: #fff; font-weight: bold; background-color: #0084ff; }
+table td.label { width: 20%; white-space: nowrap; min-width: 20px; background-color: #dee8f4; }
+Hierarchy Module Resource
+MODULE NAME
+REG NUMBER
+ALU NUMBER
+LUT NUMBER
+DSP NUMBER
+BSRAM NUMBER
+SSRAM NUMBER
+ROM16 NUMBER
+uart_loopback (/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv)
+-
+-
+6
+-
+-
+-
+-
+|--receiver
+ (/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv)
+32
+-
+32
+-
+-
+-
+-
+|--transmitter
+ (/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv)
+23
+-
+38
+-
+-
+-
+-

@@ -1,0 +1,8647 @@
+Timing Analysis Report
+@import url(../temp/style.css);
+body { font-family: Verdana, Arial, sans-serif; font-size: 12px; }
+div#content { width: 100%; margin: }
+hr { margin-top: 30px; margin-bottom: 30px; }
+h1, h3 { text-align: center; }
+h1 {margin-top: 50px; }
+table, th, td {white-space:pre; border: 1px solid #aaa; }
+table { border-collapse:collapse; margin-top: 10px; margin-bottom: 20px; width: 100%; }
+th, td { padding: 5px 5px 5px 5px; }
+th { color: #fff; font-weight: bold; background-color: #0084ff; }
+table.summary_table td.label { width: 24%; min-width: 200px; background-color: #dee8f4; }
+table.detail_table th.label {  min-width: 8%; width: 8%; }
+Timing Messages
+Report Title
+Timing Analysis Report
+Design File
+/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/gwsynthesis/uart_loopback.vg
+Physical Constraints File
+/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.cst
+Timing Constraint File
+/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_project_1.sdc
+Tool Version
+V1.9.11.03 Education
+Part Number
+GW2AR-LV18QN88C8/I7
+Device
+GW2AR-18
+Device Version
+C
+Created Time
+Tue Sep  8 22:18:43 2026
+Legal Announcement
+Copyright (C)2014-2025 Gowin Semiconductor Corporation. All rights reserved.
+Timing Summaries
+STA Tool Run Summary:
+Setup Delay Model
+Slow 0.95V 85C C8/I7
+Hold Delay Model
+Fast 1.05V 0C C8/I7
+Numbers of Paths Analyzed
+157
+Numbers of Endpoints Analyzed
+157
+Numbers of Falling Endpoints
+0
+Numbers of Setup Violated Endpoints
+0
+Numbers of Hold Violated Endpoints
+0
+Clock Summary:
+NO.
+Clock Name
+Type
+Period
+Frequency(MHz)
+Rise
+Fall
+Source
+Master
+Objects
+1
+clk27m
+Base
+37.037
+27.000
+0.000
+18.518
+sys_clk
+Max Frequency Summary:
+NO.
+Clock Name
+Constraint
+Actual Fmax
+Logic Level
+Entity
+1
+clk27m
+27.000(MHz)
+304.389(MHz)
+4
+TOP
+Total Negative Slack Summary:
+Clock Name
+Analysis Type
+Endpoints TNS
+Number of Endpoints
+clk27m
+Setup
+0.000
+0
+clk27m
+Hold
+0.000
+0
+Timing Details
+Path Slacks Table:
+Setup Paths Table
+Report Command:report_timing -setup -max_paths 25 -max_common_paths 1
+Path Number
+Path Slack
+From Node
+To Node
+From Clock
+To Clock
+Relation
+Clock Skew
+Data Delay
+1
+33.752
+receiver/clk_cnt_3_s1/Q
+receiver/state_1_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.250
+2
+33.857
+transmitter/clk_cnt_0_s0/Q
+transmitter/bit_cnt_1_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.145
+3
+33.857
+transmitter/clk_cnt_0_s0/Q
+transmitter/bit_cnt_2_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.145
+4
+33.862
+receiver/clk_cnt_4_s1/Q
+receiver/bit_cnt_0_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.140
+5
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_0_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+6
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_1_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+7
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_2_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+8
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_3_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+9
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_4_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+10
+33.885
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_5_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+3.117
+11
+34.045
+receiver/clk_cnt_4_s1/Q
+receiver/bit_cnt_1_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.957
+12
+34.045
+receiver/clk_cnt_4_s1/Q
+receiver/bit_cnt_2_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.957
+13
+34.063
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_7_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.939
+14
+34.084
+receiver/clk_cnt_3_s1/Q
+receiver/rx_valid_s0/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.918
+15
+34.104
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_6_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.898
+16
+34.146
+transmitter/state_0_s1/Q
+transmitter/tx_o_s0/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.856
+17
+34.167
+transmitter/clk_cnt_0_s0/Q
+transmitter/state_1_s1/CE
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.835
+18
+34.174
+receiver/clk_cnt_2_s1/Q
+receiver/clk_cnt_7_s1/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.828
+19
+34.251
+receiver/clk_cnt_3_s1/Q
+receiver/state_0_s2/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.751
+20
+34.251
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_6_s1/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.751
+21
+34.260
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_3_s1/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.742
+22
+34.260
+receiver/clk_cnt_3_s1/Q
+receiver/clk_cnt_5_s1/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.742
+23
+34.417
+transmitter/clk_cnt_0_s0/Q
+transmitter/clk_cnt_1_s0/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.585
+24
+34.417
+transmitter/clk_cnt_0_s0/Q
+transmitter/clk_cnt_4_s0/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.585
+25
+34.429
+transmitter/clk_cnt_0_s0/Q
+transmitter/bit_cnt_0_s3/D
+clk27m:[R]
+clk27m:[R]
+37.037
+0.000
+2.573
+Hold Paths Table
+Report Command:report_timing -hold -max_paths 25 -max_common_paths 1
+Path Number
+Path Slack
+From Node
+To Node
+From Clock
+To Clock
+Relation
+Clock Skew
+Data Delay
+1
+0.425
+transmitter/bit_cnt_2_s1/Q
+transmitter/bit_cnt_2_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.436
+2
+0.425
+transmitter/clk_cnt_6_s0/Q
+transmitter/clk_cnt_6_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.436
+3
+0.425
+receiver/bit_cnt_0_s1/Q
+receiver/bit_cnt_0_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.436
+4
+0.425
+receiver/bit_cnt_2_s1/Q
+receiver/bit_cnt_2_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.436
+5
+0.425
+receiver/clk_cnt_7_s1/Q
+receiver/clk_cnt_7_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.436
+6
+0.427
+transmitter/clk_cnt_0_s0/Q
+transmitter/clk_cnt_0_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.438
+7
+0.427
+receiver/state_0_s2/Q
+receiver/state_0_s2/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.438
+8
+0.429
+transmitter/state_1_s1/Q
+transmitter/state_1_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.440
+9
+0.485
+transmitter/bit_cnt_0_s3/Q
+transmitter/bit_cnt_0_s3/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.496
+10
+0.485
+transmitter/clk_cnt_1_s0/Q
+transmitter/clk_cnt_1_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.496
+11
+0.486
+receiver/clk_cnt_1_s1/Q
+receiver/clk_cnt_1_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.497
+12
+0.537
+transmitter/clk_cnt_4_s0/Q
+transmitter/clk_cnt_4_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.548
+13
+0.539
+transmitter/shift_reg_1_s1/Q
+transmitter/shift_reg_0_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.550
+14
+0.539
+transmitter/shift_reg_4_s1/Q
+transmitter/shift_reg_3_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.550
+15
+0.539
+transmitter/shift_reg_6_s1/Q
+transmitter/shift_reg_5_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.550
+16
+0.540
+receiver/clk_cnt_0_s1/Q
+receiver/clk_cnt_0_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.551
+17
+0.542
+transmitter/clk_cnt_7_s0/Q
+transmitter/clk_cnt_7_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.553
+18
+0.544
+transmitter/shift_reg_5_s1/Q
+transmitter/shift_reg_4_s1/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.555
+19
+0.546
+receiver/shift_reg_3_s0/Q
+receiver/rx_data_3_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.557
+20
+0.546
+receiver/shift_reg_4_s0/Q
+receiver/rx_data_4_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.557
+21
+0.546
+receiver/shift_reg_3_s0/Q
+receiver/shift_reg_2_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.557
+22
+0.546
+receiver/shift_reg_4_s0/Q
+receiver/shift_reg_3_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.557
+23
+0.547
+receiver/shift_reg_5_s0/Q
+receiver/rx_data_5_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.558
+24
+0.547
+receiver/shift_reg_7_s0/Q
+receiver/rx_data_7_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.558
+25
+0.547
+receiver/shift_reg_5_s0/Q
+receiver/shift_reg_4_s0/D
+clk27m:[R]
+clk27m:[R]
+0.000
+0.000
+0.558
+Recovery Paths Table
+Report Command:report_timing -recovery -max_paths 25 -max_common_paths 1
+Nothing to report!
+Removal Paths Table
+Report Command:report_timing -removal -max_paths 25 -max_common_paths 1
+Nothing to report!
+Minimum Pulse Width Table:
+Number
+Slack
+Actual Width
+Required Width
+Type
+Clock
+Objects
+Report Command:report_min_pulse_width -nworst 10 -detail
+1
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/rx_sync_2_s0
+2
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/shift_reg_7_s0
+3
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/shift_reg_5_s0
+4
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/shift_reg_1_s0
+5
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/rx_data_2_s0
+6
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/state_0_s2
+7
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+transmitter/clk_cnt_7_s0
+8
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+receiver/rx_data_1_s0
+9
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+transmitter/clk_cnt_6_s0
+10
+15.320
+16.320
+1.000
+Low Pulse Width
+clk27m
+transmitter/clk_cnt_5_s0
+Timing Report By Analysis Type:
+Setup Analysis Report
+Report Command:report_timing -setup -max_paths 25 -max_common_paths 1
+Path1
+Path Summary:
+Slack
+33.752
+Data Arrival Time
+8.580
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/state_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[3][B]
+receiver/n109_s6/I1
+8.081
+0.570
+tINS
+FR
+1
+R27C29[3][B]
+receiver/n109_s6/F
+8.580
+0.499
+tNET
+RR
+1
+R27C30[1][A]
+receiver/state_1_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C30[1][A]
+receiver/state_1_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C30[1][A]
+receiver/state_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 45.689%; route: 1.533, 47.174%; tC2Q: 0.232, 7.138%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path2
+Path Summary:
+Slack
+33.857
+Data Arrival Time
+8.474
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/bit_cnt_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.289
+0.197
+tNET
+FF
+1
+R25C26[3][A]
+transmitter/bit_cnt_2_s8/I1
+7.751
+0.462
+tINS
+FR
+2
+R25C26[3][A]
+transmitter/bit_cnt_2_s8/F
+8.474
+0.724
+tNET
+RR
+1
+R25C26[1][B]
+transmitter/bit_cnt_1_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R25C26[1][B]
+transmitter/bit_cnt_1_s1/CLK
+42.331
+-0.035
+tSu
+1
+R25C26[1][B]
+transmitter/bit_cnt_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.377, 43.782%; route: 1.536, 48.842%; tC2Q: 0.232, 7.376%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path3
+Path Summary:
+Slack
+33.857
+Data Arrival Time
+8.474
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/bit_cnt_2_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.289
+0.197
+tNET
+FF
+1
+R25C26[3][A]
+transmitter/bit_cnt_2_s8/I1
+7.751
+0.462
+tINS
+FR
+2
+R25C26[3][A]
+transmitter/bit_cnt_2_s8/F
+8.474
+0.724
+tNET
+RR
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/CLK
+42.331
+-0.035
+tSu
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.377, 43.782%; route: 1.536, 48.842%; tC2Q: 0.232, 7.376%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path4
+Path Summary:
+Slack
+33.862
+Data Arrival Time
+8.470
+Data Required Time
+42.331
+From
+receiver/clk_cnt_4_s1
+To
+receiver/bit_cnt_0_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R26C30[0][B]
+receiver/clk_cnt_4_s1/Q
+5.820
+0.258
+tNET
+FF
+1
+R27C30[2][B]
+receiver/n109_s4/I2
+6.369
+0.549
+tINS
+FR
+1
+R27C30[2][B]
+receiver/n109_s4/F
+6.370
+0.001
+tNET
+RR
+1
+R27C30[3][B]
+receiver/n109_s2/I0
+6.919
+0.549
+tINS
+RR
+12
+R27C30[3][B]
+receiver/n109_s2/F
+7.097
+0.178
+tNET
+RR
+1
+R27C31[2][A]
+receiver/bit_cnt_2_s3/I2
+7.559
+0.462
+tINS
+RR
+3
+R27C31[2][A]
+receiver/bit_cnt_2_s3/F
+8.470
+0.911
+tNET
+RR
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1/CLK
+42.331
+-0.035
+tSu
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.560, 49.677%; route: 1.348, 42.935%; tC2Q: 0.232, 7.388%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path5
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_0_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path6
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path7
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_2_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[1][B]
+receiver/clk_cnt_2_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[1][B]
+receiver/clk_cnt_2_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[1][B]
+receiver/clk_cnt_2_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path8
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_3_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path9
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_4_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path10
+Path Summary:
+Slack
+33.885
+Data Arrival Time
+8.447
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_5_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.447
+0.366
+tNET
+RR
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 47.636%; route: 1.400, 44.922%; tC2Q: 0.232, 7.442%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path11
+Path Summary:
+Slack
+34.045
+Data Arrival Time
+8.286
+Data Required Time
+42.331
+From
+receiver/clk_cnt_4_s1
+To
+receiver/bit_cnt_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R26C30[0][B]
+receiver/clk_cnt_4_s1/Q
+5.820
+0.258
+tNET
+FF
+1
+R27C30[2][B]
+receiver/n109_s4/I2
+6.369
+0.549
+tINS
+FR
+1
+R27C30[2][B]
+receiver/n109_s4/F
+6.370
+0.001
+tNET
+RR
+1
+R27C30[3][B]
+receiver/n109_s2/I0
+6.919
+0.549
+tINS
+RR
+12
+R27C30[3][B]
+receiver/n109_s2/F
+7.097
+0.178
+tNET
+RR
+1
+R27C31[2][A]
+receiver/bit_cnt_2_s3/I2
+7.559
+0.462
+tINS
+RR
+3
+R27C31[2][A]
+receiver/bit_cnt_2_s3/F
+8.286
+0.727
+tNET
+RR
+1
+R27C31[0][B]
+receiver/bit_cnt_1_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C31[0][B]
+receiver/bit_cnt_1_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C31[0][B]
+receiver/bit_cnt_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.560, 52.763%; route: 1.165, 39.390%; tC2Q: 0.232, 7.847%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path12
+Path Summary:
+Slack
+34.045
+Data Arrival Time
+8.286
+Data Required Time
+42.331
+From
+receiver/clk_cnt_4_s1
+To
+receiver/bit_cnt_2_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[0][B]
+receiver/clk_cnt_4_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R26C30[0][B]
+receiver/clk_cnt_4_s1/Q
+5.820
+0.258
+tNET
+FF
+1
+R27C30[2][B]
+receiver/n109_s4/I2
+6.369
+0.549
+tINS
+FR
+1
+R27C30[2][B]
+receiver/n109_s4/F
+6.370
+0.001
+tNET
+RR
+1
+R27C30[3][B]
+receiver/n109_s2/I0
+6.919
+0.549
+tINS
+RR
+12
+R27C30[3][B]
+receiver/n109_s2/F
+7.097
+0.178
+tNET
+RR
+1
+R27C31[2][A]
+receiver/bit_cnt_2_s3/I2
+7.559
+0.462
+tINS
+RR
+3
+R27C31[2][A]
+receiver/bit_cnt_2_s3/F
+8.286
+0.727
+tNET
+RR
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.560, 52.763%; route: 1.165, 39.390%; tC2Q: 0.232, 7.847%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path13
+Path Summary:
+Slack
+34.063
+Data Arrival Time
+8.268
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_7_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.268
+0.188
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 50.529%; route: 1.222, 41.577%; tC2Q: 0.232, 7.894%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path14
+Path Summary:
+Slack
+34.084
+Data Arrival Time
+8.247
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/rx_valid_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[3][A]
+receiver/n149_s6/I2
+7.304
+0.453
+tINS
+RF
+9
+R27C30[3][A]
+receiver/n149_s6/F
+8.247
+0.943
+tNET
+FF
+1
+R27C27[0][A]
+receiver/rx_valid_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C27[0][A]
+receiver/rx_valid_s0/CLK
+42.331
+-0.035
+tSu
+1
+R27C27[0][A]
+receiver/rx_valid_s0
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+3
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 0.915, 31.358%; route: 1.771, 60.691%; tC2Q: 0.232, 7.951%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path15
+Path Summary:
+Slack
+34.104
+Data Arrival Time
+8.227
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_6_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][B]
+receiver/clk_cnt_7_s4/I1
+8.081
+0.570
+tINS
+FR
+8
+R27C29[0][B]
+receiver/clk_cnt_7_s4/F
+8.227
+0.147
+tNET
+RR
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 51.240%; route: 1.181, 40.754%; tC2Q: 0.232, 8.005%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path16
+Path Summary:
+Slack
+34.146
+Data Arrival Time
+8.185
+Data Required Time
+42.331
+From
+transmitter/state_0_s1
+To
+transmitter/tx_o_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C25[2][A]
+transmitter/state_0_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+11
+R26C25[2][A]
+transmitter/state_0_s1/Q
+6.019
+0.457
+tNET
+FF
+1
+R25C26[2][B]
+transmitter/n117_s6/I1
+6.390
+0.371
+tINS
+FF
+1
+R25C26[2][B]
+transmitter/n117_s6/F
+8.185
+1.796
+tNET
+FF
+1
+IOT50[A]
+transmitter/tx_o_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+IOT50[A]
+transmitter/tx_o_s0/CLK
+42.331
+-0.035
+tSu
+1
+IOT50[A]
+transmitter/tx_o_s0
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 0.371, 12.990%; route: 2.253, 78.886%; tC2Q: 0.232, 8.123%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path17
+Path Summary:
+Slack
+34.167
+Data Arrival Time
+8.164
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/state_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.693
+0.601
+tNET
+FF
+1
+R26C26[0][B]
+transmitter/n90_s1/I2
+8.020
+0.327
+tINS
+FR
+1
+R26C26[0][B]
+transmitter/n90_s1/F
+8.164
+0.144
+tNET
+RR
+1
+R26C26[0][A]
+transmitter/state_1_s1/CE
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C26[0][A]
+transmitter/state_1_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C26[0][A]
+transmitter/state_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.242, 43.811%; route: 1.361, 48.005%; tC2Q: 0.232, 8.184%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path18
+Path Summary:
+Slack
+34.174
+Data Arrival Time
+8.157
+Data Required Time
+42.331
+From
+receiver/clk_cnt_2_s1
+To
+receiver/clk_cnt_7_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][B]
+receiver/clk_cnt_2_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+5
+R26C30[1][B]
+receiver/clk_cnt_2_s1/Q
+5.737
+0.176
+tNET
+FF
+1
+R26C31[3][A]
+receiver/n19_s4/I2
+6.292
+0.555
+tINS
+FF
+4
+R26C31[3][A]
+receiver/n19_s4/F
+6.865
+0.573
+tNET
+FF
+1
+R27C29[3][A]
+receiver/n16_s4/I3
+7.414
+0.549
+tINS
+FR
+1
+R27C29[3][A]
+receiver/n16_s4/F
+7.587
+0.172
+tNET
+RR
+1
+R27C30[0][A]
+receiver/n16_s3/I3
+8.157
+0.570
+tINS
+RR
+1
+R27C30[0][A]
+receiver/n16_s3/F
+8.157
+0.000
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.674, 59.204%; route: 0.922, 32.591%; tC2Q: 0.232, 8.205%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path19
+Path Summary:
+Slack
+34.251
+Data Arrival Time
+8.081
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/state_0_s2
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[0][A]
+receiver/n148_s8/I0
+8.081
+0.570
+tINS
+FR
+1
+R27C29[0][A]
+receiver/n148_s8/F
+8.081
+0.000
+tNET
+RR
+1
+R27C29[0][A]
+receiver/state_0_s2/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C29[0][A]
+receiver/state_0_s2/CLK
+42.331
+-0.035
+tSu
+1
+R27C29[0][A]
+receiver/state_0_s2
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 53.976%; route: 1.034, 37.591%; tC2Q: 0.232, 8.433%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path20
+Path Summary:
+Slack
+34.251
+Data Arrival Time
+8.081
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_6_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.511
+0.206
+tNET
+FF
+1
+R27C29[2][A]
+receiver/n17_s3/I1
+8.081
+0.570
+tINS
+FR
+1
+R27C29[2][A]
+receiver/n17_s3/F
+8.081
+0.000
+tNET
+RR
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1/CLK
+42.331
+-0.035
+tSu
+1
+R27C29[2][A]
+receiver/clk_cnt_6_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 53.976%; route: 1.034, 37.591%; tC2Q: 0.232, 8.433%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path21
+Path Summary:
+Slack
+34.260
+Data Arrival Time
+8.071
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_3_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.501
+0.197
+tNET
+FF
+1
+R26C30[1][A]
+receiver/n20_s3/I1
+8.071
+0.570
+tINS
+FR
+1
+R26C30[1][A]
+receiver/n20_s3/F
+8.071
+0.000
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 54.154%; route: 1.025, 37.385%; tC2Q: 0.232, 8.460%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path22
+Path Summary:
+Slack
+34.260
+Data Arrival Time
+8.071
+Data Required Time
+42.331
+From
+receiver/clk_cnt_3_s1
+To
+receiver/clk_cnt_5_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R26C30[1][A]
+receiver/clk_cnt_3_s1/CLK
+5.561
+0.232
+tC2Q
+RF
+4
+R26C30[1][A]
+receiver/clk_cnt_3_s1/Q
+6.212
+0.651
+tNET
+FF
+1
+R27C31[3][A]
+receiver/n166_s7/I3
+6.674
+0.462
+tINS
+FR
+3
+R27C31[3][A]
+receiver/n166_s7/F
+6.851
+0.177
+tNET
+RR
+1
+R27C30[2][A]
+receiver/n109_s1/I1
+7.304
+0.453
+tINS
+RF
+8
+R27C30[2][A]
+receiver/n109_s1/F
+7.501
+0.197
+tNET
+FF
+1
+R26C30[0][A]
+receiver/n18_s3/I1
+8.071
+0.570
+tINS
+FR
+1
+R26C30[0][A]
+receiver/n18_s3/F
+8.071
+0.000
+tNET
+RR
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1/CLK
+42.331
+-0.035
+tSu
+1
+R26C30[0][A]
+receiver/clk_cnt_5_s1
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.485, 54.154%; route: 1.025, 37.385%; tC2Q: 0.232, 8.460%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path23
+Path Summary:
+Slack
+34.417
+Data Arrival Time
+7.914
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/clk_cnt_1_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.543
+0.451
+tNET
+FF
+1
+R26C26[2][A]
+transmitter/n125_s5/I2
+7.914
+0.371
+tINS
+FF
+1
+R26C26[2][A]
+transmitter/n125_s5/F
+7.914
+0.000
+tNET
+FF
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/CLK
+42.331
+-0.035
+tSu
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.286, 49.752%; route: 1.067, 41.273%; tC2Q: 0.232, 8.975%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path24
+Path Summary:
+Slack
+34.417
+Data Arrival Time
+7.914
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/clk_cnt_4_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.543
+0.451
+tNET
+FF
+1
+R26C26[2][B]
+transmitter/n122_s5/I2
+7.914
+0.371
+tINS
+FF
+1
+R26C26[2][B]
+transmitter/n122_s5/F
+7.914
+0.000
+tNET
+FF
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/CLK
+42.331
+-0.035
+tSu
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.286, 49.752%; route: 1.067, 41.273%; tC2Q: 0.232, 8.975%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Path25
+Path Summary:
+Slack
+34.429
+Data Arrival Time
+7.903
+Data Required Time
+42.331
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/bit_cnt_0_s3
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+2.088
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+5.329
+3.241
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+5.561
+0.232
+tC2Q
+RF
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+6.000
+0.439
+tNET
+FF
+1
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/I1
+6.462
+0.462
+tINS
+FR
+4
+R26C25[0][A]
+transmitter/bit_cnt_2_s6/F
+6.639
+0.176
+tNET
+RR
+1
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/I1
+7.092
+0.453
+tINS
+RF
+9
+R25C25[3][A]
+transmitter/bit_cnt_2_s7/F
+7.532
+0.440
+tNET
+FF
+1
+R27C26[2][A]
+transmitter/n139_s7/I2
+7.903
+0.371
+tINS
+FF
+1
+R27C26[2][A]
+transmitter/n139_s7/F
+7.903
+0.000
+tNET
+FF
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+37.037
+37.037
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+39.125
+2.088
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+42.366
+3.241
+tNET
+RR
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/CLK
+42.331
+-0.035
+tSu
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3
+Path Statistics:
+Clock Skew
+0.000
+Setup Relationship
+37.037
+Logic Level
+4
+Arrival Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Arrival Data Path Delay
+cell: 1.286, 49.973%; route: 1.055, 41.011%; tC2Q: 0.232, 9.015%
+Required Clock Path Delay
+cell: 2.088, 39.180%; route: 3.241, 60.820%
+Hold Analysis Report
+Report Command:report_timing -hold -max_paths 25 -max_common_paths 1
+Path1
+Path Summary:
+Slack
+0.425
+Data Arrival Time
+4.019
+Data Required Time
+3.594
+From
+transmitter/bit_cnt_2_s1
+To
+transmitter/bit_cnt_2_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+2
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/Q
+3.787
+0.002
+tNET
+RR
+1
+R25C26[1][A]
+transmitter/n137_s5/I2
+4.019
+0.232
+tINS
+RF
+1
+R25C26[1][A]
+transmitter/n137_s5/F
+4.019
+0.000
+tNET
+FF
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1/CLK
+3.594
+0.011
+tHld
+1
+R25C26[1][A]
+transmitter/bit_cnt_2_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.157%; route: 0.002, 0.560%; tC2Q: 0.202, 46.283%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path2
+Path Summary:
+Slack
+0.425
+Data Arrival Time
+4.019
+Data Required Time
+3.594
+From
+transmitter/clk_cnt_6_s0
+To
+transmitter/clk_cnt_6_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C25[0][A]
+transmitter/clk_cnt_6_s0/CLK
+3.785
+0.202
+tC2Q
+RR
+3
+R25C25[0][A]
+transmitter/clk_cnt_6_s0/Q
+3.787
+0.002
+tNET
+RR
+1
+R25C25[0][A]
+transmitter/n120_s5/I0
+4.019
+0.232
+tINS
+RF
+1
+R25C25[0][A]
+transmitter/n120_s5/F
+4.019
+0.000
+tNET
+FF
+1
+R25C25[0][A]
+transmitter/clk_cnt_6_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C25[0][A]
+transmitter/clk_cnt_6_s0/CLK
+3.594
+0.011
+tHld
+1
+R25C25[0][A]
+transmitter/clk_cnt_6_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.157%; route: 0.002, 0.560%; tC2Q: 0.202, 46.283%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path3
+Path Summary:
+Slack
+0.425
+Data Arrival Time
+4.019
+Data Required Time
+3.594
+From
+receiver/bit_cnt_0_s1
+To
+receiver/bit_cnt_0_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+4
+R25C31[0][A]
+receiver/bit_cnt_0_s1/Q
+3.787
+0.002
+tNET
+RR
+1
+R25C31[0][A]
+receiver/n176_s7/I0
+4.019
+0.232
+tINS
+RF
+1
+R25C31[0][A]
+receiver/n176_s7/F
+4.019
+0.000
+tNET
+FF
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1/CLK
+3.594
+0.011
+tHld
+1
+R25C31[0][A]
+receiver/bit_cnt_0_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.157%; route: 0.002, 0.560%; tC2Q: 0.202, 46.283%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path4
+Path Summary:
+Slack
+0.425
+Data Arrival Time
+4.019
+Data Required Time
+3.594
+From
+receiver/bit_cnt_2_s1
+To
+receiver/bit_cnt_2_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+2
+R27C31[0][A]
+receiver/bit_cnt_2_s1/Q
+3.787
+0.002
+tNET
+RR
+1
+R27C31[0][A]
+receiver/n174_s6/I2
+4.019
+0.232
+tINS
+RF
+1
+R27C31[0][A]
+receiver/n174_s6/F
+4.019
+0.000
+tNET
+FF
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C31[0][A]
+receiver/bit_cnt_2_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.157%; route: 0.002, 0.560%; tC2Q: 0.202, 46.283%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path5
+Path Summary:
+Slack
+0.425
+Data Arrival Time
+4.019
+Data Required Time
+3.594
+From
+receiver/clk_cnt_7_s1
+To
+receiver/clk_cnt_7_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+3
+R27C30[0][A]
+receiver/clk_cnt_7_s1/Q
+3.787
+0.002
+tNET
+RR
+1
+R27C30[0][A]
+receiver/n16_s3/I2
+4.019
+0.232
+tINS
+RF
+1
+R27C30[0][A]
+receiver/n16_s3/F
+4.019
+0.000
+tNET
+FF
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C30[0][A]
+receiver/clk_cnt_7_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.157%; route: 0.002, 0.560%; tC2Q: 0.202, 46.283%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path6
+Path Summary:
+Slack
+0.427
+Data Arrival Time
+4.021
+Data Required Time
+3.594
+From
+transmitter/clk_cnt_0_s0
+To
+transmitter/clk_cnt_0_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+3.785
+0.202
+tC2Q
+RR
+6
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/Q
+3.789
+0.004
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/n126_s7/I0
+4.021
+0.232
+tINS
+RF
+1
+R25C26[0][A]
+transmitter/n126_s7/F
+4.021
+0.000
+tNET
+FF
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0/CLK
+3.594
+0.011
+tHld
+1
+R25C26[0][A]
+transmitter/clk_cnt_0_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.008%; route: 0.004, 0.838%; tC2Q: 0.202, 46.154%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path7
+Path Summary:
+Slack
+0.427
+Data Arrival Time
+4.021
+Data Required Time
+3.594
+From
+receiver/state_0_s2
+To
+receiver/state_0_s2
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C29[0][A]
+receiver/state_0_s2/CLK
+3.785
+0.202
+tC2Q
+RR
+7
+R27C29[0][A]
+receiver/state_0_s2/Q
+3.789
+0.004
+tNET
+RR
+1
+R27C29[0][A]
+receiver/n148_s8/I3
+4.021
+0.232
+tINS
+RF
+1
+R27C29[0][A]
+receiver/n148_s8/F
+4.021
+0.000
+tNET
+FF
+1
+R27C29[0][A]
+receiver/state_0_s2/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C29[0][A]
+receiver/state_0_s2/CLK
+3.594
+0.011
+tHld
+1
+R27C29[0][A]
+receiver/state_0_s2
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 53.008%; route: 0.004, 0.838%; tC2Q: 0.202, 46.154%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path8
+Path Summary:
+Slack
+0.429
+Data Arrival Time
+4.023
+Data Required Time
+3.594
+From
+transmitter/state_1_s1
+To
+transmitter/state_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[0][A]
+transmitter/state_1_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+19
+R26C26[0][A]
+transmitter/state_1_s1/Q
+3.791
+0.006
+tNET
+RR
+1
+R26C26[0][A]
+transmitter/n127_s6/I1
+4.023
+0.232
+tINS
+RF
+1
+R26C26[0][A]
+transmitter/n127_s6/F
+4.023
+0.000
+tNET
+FF
+1
+R26C26[0][A]
+transmitter/state_1_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[0][A]
+transmitter/state_1_s1/CLK
+3.594
+0.011
+tHld
+1
+R26C26[0][A]
+transmitter/state_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 52.714%; route: 0.006, 1.389%; tC2Q: 0.202, 45.898%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path9
+Path Summary:
+Slack
+0.485
+Data Arrival Time
+4.079
+Data Required Time
+3.594
+From
+transmitter/bit_cnt_0_s3
+To
+transmitter/bit_cnt_0_s3
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/CLK
+3.785
+0.202
+tC2Q
+RR
+4
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/Q
+3.789
+0.004
+tNET
+RR
+1
+R27C26[2][A]
+transmitter/n139_s7/I3
+4.079
+0.290
+tINS
+RF
+1
+R27C26[2][A]
+transmitter/n139_s7/F
+4.079
+0.000
+tNET
+FF
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3/CLK
+3.594
+0.011
+tHld
+1
+R27C26[2][A]
+transmitter/bit_cnt_0_s3
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.290, 58.507%; route: 0.004, 0.740%; tC2Q: 0.202, 40.753%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path10
+Path Summary:
+Slack
+0.485
+Data Arrival Time
+4.079
+Data Required Time
+3.594
+From
+transmitter/clk_cnt_1_s0
+To
+transmitter/clk_cnt_1_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/CLK
+3.785
+0.202
+tC2Q
+RR
+5
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/Q
+3.789
+0.004
+tNET
+RR
+1
+R26C26[2][A]
+transmitter/n125_s5/I1
+4.079
+0.290
+tINS
+RF
+1
+R26C26[2][A]
+transmitter/n125_s5/F
+4.079
+0.000
+tNET
+FF
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C26[2][A]
+transmitter/clk_cnt_1_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.290, 58.507%; route: 0.004, 0.740%; tC2Q: 0.202, 40.753%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path11
+Path Summary:
+Slack
+0.486
+Data Arrival Time
+4.080
+Data Required Time
+3.594
+From
+receiver/clk_cnt_1_s1
+To
+receiver/clk_cnt_1_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+6
+R26C30[2][A]
+receiver/clk_cnt_1_s1/Q
+3.790
+0.005
+tNET
+RR
+1
+R26C30[2][A]
+receiver/n22_s3/I3
+4.080
+0.290
+tINS
+RF
+1
+R26C30[2][A]
+receiver/n22_s3/F
+4.080
+0.000
+tNET
+FF
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1/CLK
+3.594
+0.011
+tHld
+1
+R26C30[2][A]
+receiver/clk_cnt_1_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.290, 58.363%; route: 0.005, 0.984%; tC2Q: 0.202, 40.653%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path12
+Path Summary:
+Slack
+0.537
+Data Arrival Time
+4.131
+Data Required Time
+3.594
+From
+transmitter/clk_cnt_4_s0
+To
+transmitter/clk_cnt_4_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/CLK
+3.785
+0.202
+tC2Q
+RR
+4
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/Q
+3.787
+0.002
+tNET
+RR
+1
+R26C26[2][B]
+transmitter/n122_s5/I0
+4.131
+0.344
+tINS
+RF
+1
+R26C26[2][B]
+transmitter/n122_s5/F
+4.131
+0.000
+tNET
+FF
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C26[2][B]
+transmitter/clk_cnt_4_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.344, 62.723%; route: 0.002, 0.446%; tC2Q: 0.202, 36.831%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path13
+Path Summary:
+Slack
+0.539
+Data Arrival Time
+4.133
+Data Required Time
+3.594
+From
+transmitter/shift_reg_1_s1
+To
+transmitter/shift_reg_0_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C26[0][B]
+transmitter/shift_reg_1_s1/CLK
+3.784
+0.201
+tC2Q
+RF
+1
+R27C26[0][B]
+transmitter/shift_reg_1_s1/Q
+3.901
+0.117
+tNET
+FF
+1
+R27C26[1][A]
+transmitter/n136_s5/I0
+4.133
+0.232
+tINS
+FF
+1
+R27C26[1][A]
+transmitter/n136_s5/F
+4.133
+0.000
+tNET
+FF
+1
+R27C26[1][A]
+transmitter/shift_reg_0_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C26[1][A]
+transmitter/shift_reg_0_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C26[1][A]
+transmitter/shift_reg_0_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 42.184%; route: 0.117, 21.269%; tC2Q: 0.201, 36.547%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path14
+Path Summary:
+Slack
+0.539
+Data Arrival Time
+4.133
+Data Required Time
+3.594
+From
+transmitter/shift_reg_4_s1
+To
+transmitter/shift_reg_3_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[1][B]
+transmitter/shift_reg_4_s1/CLK
+3.784
+0.201
+tC2Q
+RF
+1
+R27C25[1][B]
+transmitter/shift_reg_4_s1/Q
+3.901
+0.117
+tNET
+FF
+1
+R27C25[2][A]
+transmitter/n133_s5/I0
+4.133
+0.232
+tINS
+FF
+1
+R27C25[2][A]
+transmitter/n133_s5/F
+4.133
+0.000
+tNET
+FF
+1
+R27C25[2][A]
+transmitter/shift_reg_3_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[2][A]
+transmitter/shift_reg_3_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C25[2][A]
+transmitter/shift_reg_3_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 42.184%; route: 0.117, 21.269%; tC2Q: 0.201, 36.547%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path15
+Path Summary:
+Slack
+0.539
+Data Arrival Time
+4.133
+Data Required Time
+3.594
+From
+transmitter/shift_reg_6_s1
+To
+transmitter/shift_reg_5_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[0][B]
+transmitter/shift_reg_6_s1/CLK
+3.784
+0.201
+tC2Q
+RF
+1
+R27C25[0][B]
+transmitter/shift_reg_6_s1/Q
+3.901
+0.117
+tNET
+FF
+1
+R27C25[1][A]
+transmitter/n131_s5/I0
+4.133
+0.232
+tINS
+FF
+1
+R27C25[1][A]
+transmitter/n131_s5/F
+4.133
+0.000
+tNET
+FF
+1
+R27C25[1][A]
+transmitter/shift_reg_5_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[1][A]
+transmitter/shift_reg_5_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C25[1][A]
+transmitter/shift_reg_5_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 42.184%; route: 0.117, 21.269%; tC2Q: 0.201, 36.547%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path16
+Path Summary:
+Slack
+0.540
+Data Arrival Time
+4.134
+Data Required Time
+3.594
+From
+receiver/clk_cnt_0_s1
+To
+receiver/clk_cnt_0_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1/CLK
+3.785
+0.202
+tC2Q
+RR
+7
+R26C30[2][B]
+receiver/clk_cnt_0_s1/Q
+3.790
+0.005
+tNET
+RR
+1
+R26C30[2][B]
+receiver/n23_s4/I0
+4.134
+0.344
+tINS
+RF
+1
+R26C30[2][B]
+receiver/n23_s4/F
+4.134
+0.000
+tNET
+FF
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1/CLK
+3.594
+0.011
+tHld
+1
+R26C30[2][B]
+receiver/clk_cnt_0_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.344, 62.445%; route: 0.005, 0.887%; tC2Q: 0.202, 36.668%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path17
+Path Summary:
+Slack
+0.542
+Data Arrival Time
+4.136
+Data Required Time
+3.594
+From
+transmitter/clk_cnt_7_s0
+To
+transmitter/clk_cnt_7_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C25[0][B]
+transmitter/clk_cnt_7_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R25C25[0][B]
+transmitter/clk_cnt_7_s0/Q
+3.904
+0.120
+tNET
+FF
+1
+R25C25[0][B]
+transmitter/n119_s5/I2
+4.136
+0.232
+tINS
+FF
+1
+R25C25[0][B]
+transmitter/n119_s5/F
+4.136
+0.000
+tNET
+FF
+1
+R25C25[0][B]
+transmitter/clk_cnt_7_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R25C25[0][B]
+transmitter/clk_cnt_7_s0/CLK
+3.594
+0.011
+tHld
+1
+R25C25[0][B]
+transmitter/clk_cnt_7_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 41.934%; route: 0.120, 21.736%; tC2Q: 0.201, 36.331%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path18
+Path Summary:
+Slack
+0.544
+Data Arrival Time
+4.138
+Data Required Time
+3.594
+From
+transmitter/shift_reg_5_s1
+To
+transmitter/shift_reg_4_s1
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[1][A]
+transmitter/shift_reg_5_s1/CLK
+3.784
+0.201
+tC2Q
+RF
+1
+R27C25[1][A]
+transmitter/shift_reg_5_s1/Q
+3.906
+0.122
+tNET
+FF
+1
+R27C25[1][B]
+transmitter/n132_s5/I0
+4.138
+0.232
+tINS
+FF
+1
+R27C25[1][B]
+transmitter/n132_s5/F
+4.138
+0.000
+tNET
+FF
+1
+R27C25[1][B]
+transmitter/shift_reg_4_s1/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C25[1][B]
+transmitter/shift_reg_4_s1/CLK
+3.594
+0.011
+tHld
+1
+R27C25[1][B]
+transmitter/shift_reg_4_s1
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+2
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.232, 41.810%; route: 0.122, 21.967%; tC2Q: 0.201, 36.223%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path19
+Path Summary:
+Slack
+0.546
+Data Arrival Time
+4.140
+Data Required Time
+3.594
+From
+receiver/shift_reg_3_s0
+To
+receiver/rx_data_3_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[1][B]
+receiver/shift_reg_3_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C29[1][B]
+receiver/shift_reg_3_s0/Q
+4.140
+0.356
+tNET
+FF
+1
+R26C29[0][A]
+receiver/rx_data_3_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[0][A]
+receiver/rx_data_3_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C29[0][A]
+receiver/rx_data_3_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.356, 63.893%; tC2Q: 0.201, 36.107%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path20
+Path Summary:
+Slack
+0.546
+Data Arrival Time
+4.140
+Data Required Time
+3.594
+From
+receiver/shift_reg_4_s0
+To
+receiver/rx_data_4_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[2][A]
+receiver/shift_reg_4_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C29[2][A]
+receiver/shift_reg_4_s0/Q
+4.140
+0.356
+tNET
+FF
+1
+R26C29[0][B]
+receiver/rx_data_4_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[0][B]
+receiver/rx_data_4_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C29[0][B]
+receiver/rx_data_4_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.356, 63.893%; tC2Q: 0.201, 36.107%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path21
+Path Summary:
+Slack
+0.546
+Data Arrival Time
+4.140
+Data Required Time
+3.594
+From
+receiver/shift_reg_3_s0
+To
+receiver/shift_reg_2_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[1][B]
+receiver/shift_reg_3_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C29[1][B]
+receiver/shift_reg_3_s0/Q
+4.140
+0.356
+tNET
+FF
+1
+R26C29[1][A]
+receiver/shift_reg_2_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[1][A]
+receiver/shift_reg_2_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C29[1][A]
+receiver/shift_reg_2_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.356, 63.893%; tC2Q: 0.201, 36.107%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path22
+Path Summary:
+Slack
+0.546
+Data Arrival Time
+4.140
+Data Required Time
+3.594
+From
+receiver/shift_reg_4_s0
+To
+receiver/shift_reg_3_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[2][A]
+receiver/shift_reg_4_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C29[2][A]
+receiver/shift_reg_4_s0/Q
+4.140
+0.356
+tNET
+FF
+1
+R26C29[1][B]
+receiver/shift_reg_3_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[1][B]
+receiver/shift_reg_3_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C29[1][B]
+receiver/shift_reg_3_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.356, 63.893%; tC2Q: 0.201, 36.107%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path23
+Path Summary:
+Slack
+0.547
+Data Arrival Time
+4.141
+Data Required Time
+3.594
+From
+receiver/shift_reg_5_s0
+To
+receiver/rx_data_5_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C28[0][B]
+receiver/shift_reg_5_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C28[0][B]
+receiver/shift_reg_5_s0/Q
+4.141
+0.357
+tNET
+FF
+1
+R27C28[1][A]
+receiver/rx_data_5_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C28[1][A]
+receiver/rx_data_5_s0/CLK
+3.594
+0.011
+tHld
+1
+R27C28[1][A]
+receiver/rx_data_5_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.357, 63.990%; tC2Q: 0.201, 36.010%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path24
+Path Summary:
+Slack
+0.547
+Data Arrival Time
+4.141
+Data Required Time
+3.594
+From
+receiver/shift_reg_7_s0
+To
+receiver/rx_data_7_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C28[1][A]
+receiver/shift_reg_7_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C28[1][A]
+receiver/shift_reg_7_s0/Q
+4.141
+0.357
+tNET
+FF
+1
+R27C28[2][A]
+receiver/rx_data_7_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R27C28[2][A]
+receiver/rx_data_7_s0/CLK
+3.594
+0.011
+tHld
+1
+R27C28[2][A]
+receiver/rx_data_7_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.357, 63.990%; tC2Q: 0.201, 36.010%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Path25
+Path Summary:
+Slack
+0.547
+Data Arrival Time
+4.141
+Data Required Time
+3.594
+From
+receiver/shift_reg_5_s0
+To
+receiver/shift_reg_4_s0
+Launch Clk
+clk27m:[R]
+Latch Clk
+clk27m:[R]
+Data Arrival Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C28[0][B]
+receiver/shift_reg_5_s0/CLK
+3.784
+0.201
+tC2Q
+RF
+2
+R26C28[0][B]
+receiver/shift_reg_5_s0/Q
+4.141
+0.357
+tNET
+FF
+1
+R26C29[2][A]
+receiver/shift_reg_4_s0/D
+Data Required Path:
+AT
+DELAY
+TYPE
+RF
+FANOUT
+LOC
+NODE
+0.000
+0.000
+active clock edge time
+0.000
+0.000
+clk27m
+0.000
+0.000
+tCL
+RR
+1
+IOL7[A]
+sys_clk_ibuf/I
+1.392
+1.392
+tINS
+RR
+55
+IOL7[A]
+sys_clk_ibuf/O
+3.583
+2.191
+tNET
+RR
+1
+R26C29[2][A]
+receiver/shift_reg_4_s0/CLK
+3.594
+0.011
+tHld
+1
+R26C29[2][A]
+receiver/shift_reg_4_s0
+Path Statistics:
+Clock Skew
+0.000
+Hold Relationship
+0.000
+Logic Level
+1
+Arrival Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Arrival Data Path Delay
+cell: 0.000, 0.000%; route: 0.357, 63.990%; tC2Q: 0.201, 36.010%
+Required Clock Path Delay
+cell: 1.392, 38.851%; route: 2.191, 61.149%
+Recovery Analysis Report
+Report Command:report_timing -recovery -max_paths 25 -max_common_paths 1
+No recovery paths to report!
+Removal Analysis Report
+Report Command:report_timing -removal -max_paths 25 -max_common_paths 1
+No removal paths to report!
+Minimum Pulse Width Report:
+Report Command:report_min_pulse_width -nworst 10 -detail
+MPW1
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/rx_sync_2_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/rx_sync_2_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/rx_sync_2_s0/CLK
+MPW2
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/shift_reg_7_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/shift_reg_7_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/shift_reg_7_s0/CLK
+MPW3
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/shift_reg_5_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/shift_reg_5_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/shift_reg_5_s0/CLK
+MPW4
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/shift_reg_1_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/shift_reg_1_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/shift_reg_1_s0/CLK
+MPW5
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/rx_data_2_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/rx_data_2_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/rx_data_2_s0/CLK
+MPW6
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/state_0_s2
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/state_0_s2/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/state_0_s2/CLK
+MPW7
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+transmitter/clk_cnt_7_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+transmitter/clk_cnt_7_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+transmitter/clk_cnt_7_s0/CLK
+MPW8
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+receiver/rx_data_1_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+receiver/rx_data_1_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+receiver/rx_data_1_s0/CLK
+MPW9
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+transmitter/clk_cnt_6_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+transmitter/clk_cnt_6_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+transmitter/clk_cnt_6_s0/CLK
+MPW10
+MPW Summary:
+Slack:
+15.320
+Actual Width:
+16.320
+Required Width:
+1.000
+Type:
+Low Pulse Width
+Clock:
+clk27m
+Objects:
+transmitter/clk_cnt_5_s0
+Late clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+18.518
+0.000
+active clock edge time
+18.518
+0.000
+clk27m
+18.518
+0.000
+tCL
+FF
+sys_clk_ibuf/I
+20.832
+2.314
+tINS
+FF
+sys_clk_ibuf/O
+24.300
+3.468
+tNET
+FF
+transmitter/clk_cnt_5_s0/CLK
+Early clock Path:
+AT
+DELAY
+TYPE
+RF
+NODE
+37.037
+0.000
+active clock edge time
+37.037
+0.000
+clk27m
+37.037
+0.000
+tCL
+RR
+sys_clk_ibuf/I
+38.429
+1.392
+tINS
+RR
+sys_clk_ibuf/O
+40.620
+2.191
+tNET
+RR
+transmitter/clk_cnt_5_s0/CLK
+High Fanout Nets Report:
+Report Command:report_high_fanout_nets -max_nets 10
+FANOUT
+NET NAME
+WORST SLACK
+MAX DELAY
+55
+sys_clk_d
+33.752
+3.468
+19
+transmitter/state[1]
+34.248
+0.481
+12
+receiver/n109_6
+33.862
+0.206
+11
+transmitter/state[0]
+34.146
+0.607
+9
+receiver/n166_10
+33.950
+0.670
+9
+receiver/state[1]
+34.525
+0.455
+9
+receiver/n149_11
+34.084
+0.943
+9
+transmitter/bit_cnt_2_13
+33.857
+0.601
+8
+receiver/clk_cnt_7_9
+33.885
+0.433
+8
+receiver/n109_5
+33.752
+0.206
+Route Congestions Report:
+Report Command:report_route_congestion -max_grids 10
+GRID LOC
+ROUTE CONGESTIONS
+R2C2
+100.00%
+R2C3
+100.00%
+R2C4
+100.00%
+R2C11
+100.00%
+R2C27
+100.00%
+R3C5
+100.00%
+R4C15
+100.00%
+R6C35
+100.00%
+R12C19
+100.00%
+R22C44
+100.00%
+Timing Exceptions Report:
+Setup Analysis Report
+Report Command:report_exceptions -setup -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+Hold Analysis Report
+Report Command:report_exceptions -hold -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+Recovery Analysis Report
+Report Command:report_exceptions -recovery -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+Removal Analysis Report
+Report Command:report_exceptions -removal -max_paths 5 -max_common_paths 1
+No timing exceptions to report!
+Timing Constraints Report:
+SDC Command Type
+State
+Detail Command
+TC_CLOCK
+Actived
+create_clock -name clk27m -period 37.037 -waveform {0 18.518} [get_ports {sys_clk}]

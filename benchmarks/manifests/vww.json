@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "workload": "vww",
+  "priority": "primary-equal",
+  "upstream": "https://github.com/mlcommons/tiny",
+  "revision": "4addd0fa08d216e20637637874e084895f289da4",
+  "files": [
+    {
+      "path": "benchmark/evaluation/datasets/vww01/y_labels.csv",
+      "sha256": "3697ca57c48b23b21602ae9bdb32b1925407a1d41d79167cdfb365054cb9c33d",
+      "bytes": 21000
+    },
+    {
+      "path": "benchmark/runner/datasets.py",
+      "sha256": "a09de931c4a858e3080846a4e715698bad5f6539b04f29eb32b68f0676234ab6",
+      "bytes": 3058
+    },
+    {
+      "path": "benchmark/runner/device_manager.py",
+      "sha256": "3029294ef82f5dbc3d50840c5f94ab88f248c666fc262b3bbfc3fd4212dbaccc",
+      "bytes": 7388
+    },
+    {
+      "path": "benchmark/runner/device_under_test.py",
+      "sha256": "4a83c8d330ef1858693986c677445db4b410714445e623718d518cf1c358ae8e",
+      "bytes": 4326
+    },
+    {
+      "path": "benchmark/runner/interface_device.py",
+      "sha256": "69057dbecc26db44ab7ee47a79fc4cae68d4d12a14d1030e72deebe52e1f46bb",
+      "bytes": 88
+    },
+    {
+      "path": "benchmark/runner/io_manager.py",
+      "sha256": "a80dcf8f6358587fc4fc431dd2b6a89c545127bf619ad9ae576bfbe0bbb74a34",
+      "bytes": 2150
+    },
+    {
+      "path": "benchmark/runner/io_manager_enhanced.py",
+      "sha256": "11316a0d7f3a64d97569bd5c3918c76b033a8f994dbeff22f75b8cd86111bf9a",
+      "bytes": 1154
+    },
+    {
+      "path": "benchmark/runner/main.py",
+      "sha256": "6e38df8e1260d606c7f1a97e07d313cdf8391fdee0b7c5bb518b1b39b6faff94",
+      "bytes": 16453
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager.py",
+      "sha256": "0e258385052a83bfba1e5cf3d6187647ef6fadb3f568c690149991b500edabad",
+      "bytes": 2997
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_js220.py",
+      "sha256": "95ba561853a3200cdc7a2ed7dc32e47e268a8541afc8762187bbd64f77bec186",
+      "bytes": 10587
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_lpm.py",
+      "sha256": "2481d057924a8f057c4e5dc9aa395e4a8f3a2b98af25f0b5c1c6b1aa5b6563dc",
+      "bytes": 21558
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_stlinkv3pwr.py",
+      "sha256": "afabf5dcb13c8475067671a99cb9f6bab3978435d267fa8e865c6cdb4a46b7c2",
+      "bytes": 4189
+    },
+    {
+      "path": "benchmark/runner/runner_utils.py",
+      "sha256": "d55d4fecf21e7ea7239931337fcd0277db0e9ea9d8033f1a98577d045e809268",
+      "bytes": 1223
+    },
+    {
+      "path": "benchmark/runner/script.py",
+      "sha256": "135143af6d88a693d8dba63a5fbff96a3668d03c65da086aca3faf9ab7237218",
+      "bytes": 20069
+    },
+    {
+      "path": "benchmark/runner/serial_device.py",
+      "sha256": "dac40f7647389abc59f3e6221a60ab21e14f7be4406f69da78f51bfff93ce03c",
+      "bytes": 4422
+    },
+    {
+      "path": "benchmark/runner/stream_wav_uart.py",
+      "sha256": "94da2eac0bb9f2d38cb462ec0ad3593ddae6e2553af7c92124ace86e9ef7174b",
+      "bytes": 11276
+    },
+    {
+      "path": "benchmark/runner/streaming_ww_utils.py",
+      "sha256": "3757b52b4a198724d24ba862064db805cb357402937dfdf70c250f943c56c420",
+      "bytes": 9061
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/calibration_data.txt",
+      "sha256": "dc2eda4b1cc99a2ec3231f4edad959458fd7fc811ea9b9e7e3524dbba604ed11",
+      "bytes": 421
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/convert_vww.py",
+      "sha256": "52c9a3a6a02f8d656940c5c4228ad6fc3b997b30f8bee77b31ba4d5d7365e8e3",
+      "bytes": 1849
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/generate_y_labels.py",
+      "sha256": "92d7c331189bc252d84c48a73a6c5046a0f47e3af3e0782c0ef5b6f1d28e4897",
+      "bytes": 912
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/train_vww.py",
+      "sha256": "0dfeb1fc24d0836f86021768b86cec3f77a97f75d719d64205eafb4b5ae3c743",
+      "bytes": 2305
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/trained_models/README.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/trained_models/vww_96.h5",
+      "sha256": "af9111d50e6e85b2f2123345e0316ef1c384865ebf6b06340ddac7e66017450f",
+      "bytes": 3124024
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/trained_models/vww_96_float.tflite",
+      "sha256": "115bbc094d2119561320a21f01b6500a18bea8cc8589282ab007097bec8af38c",
+      "bytes": 866284
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/trained_models/vww_96_int8.tflite",
+      "sha256": "597a384c8c2c8a1276f04702f25013b7838f2f814f1ca7c174d295b73e3d6b7b",
+      "bytes": 333288
+    },
+    {
+      "path": "benchmark/training/visual_wake_words/vww_model.py",
+      "sha256": "4d2889b23701c723536279cb77ea1c9ef92a437d61c1ea331028e2b0a1e3c652",
+      "bytes": 9654
+    }
+  ],
+  "evaluator_rules": {
+    "path": "benchmark/MLPerfTiny_Rules.adoc",
+    "sha256": "9072947fba3d9940120c98845b9278d7b8ae4c5f918384faddc200ecf1369d3a"
+  },
+  "dataset": {
+    "name": "COCO 2014 / Visual Wake Words",
+    "local_split_sha256": "fc57a65876dae96143e22296c334e4a82cd3dba2b99b8299b28fc337d41fb2b0",
+    "status": "complete declared accuracy split materialized and hashed",
+    "index": {
+      "path": "benchmark/evaluation/datasets/vww01/y_labels.csv",
+      "sha256": "3697ca57c48b23b21602ae9bdb32b1925407a1d41d79167cdfb365054cb9c33d",
+      "status": "upstream benchmark index pinned separately; full quality run uses declared split manifest"
+    },
+    "split_manifest": "vww.data.json",
+    "archive_manifest": "dataset-archives.json",
+    "scope": "Silicon Labs VWW archive complete first-10%-per-class validation partition",
+    "official_mlperf_submission_certified": false
+  },
+  "calibration": {
+    "status": "materialized; calibration/accuracy ID and feature-content overlap checked",
+    "sample_ids_sha256": "f53b0f297f3fa4a3c7158371941e0a4b0656136aedf34b42618f10537ec0fa96",
+    "sample_content_sha256": "2f0ab7042cf616120d959f94242a7ce5821b5316ba7057a10b2e42d0e39faece",
+    "hash_encoding": "UTF-8 compact JSON ordered lists",
+    "npz_sha256": "85bff6bf2eaf1a4a4274b29a9f8de3b39308bcfa89111bf522edc459795e6730",
+    "report": "vww.calibration.json",
+    "count": 11
+  },
+  "conversion_parity": {
+    "status": "passed-synthetic-float-artifact-parity",
+    "report": "vww.parity.json",
+    "absolute_tolerance": 1e-05,
+    "relative_tolerance": 0.0001,
+    "scope": "16 deterministic probes; source-framework parity, not full-dataset tensor parity"
+  },
+  "quality_target": {
+    "metric": "top-1",
+    "minimum": 0.8
+  },
+  "quality_measured": {
+    "static_report": "vww.static-quality.json",
+    "float_report": "vww.float-quality.json",
+    "scope": "Silicon Labs VWW archive complete first-10%-per-class validation partition",
+    "hardware_execution": false,
+    "official_mlperf_submission_certified": false
+  },
+  "canonical_inventory": "vww.canonical-inventory.json"
+}

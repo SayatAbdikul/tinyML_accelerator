@@ -1,0 +1,76 @@
+*** GOWIN Tcl Command Line Console  ***
+The available OpenGL surface format was either not version 3.2 or higher or not a Core Profile.
+Chromium on macOS will fall back to software rendering in this case.
+Hardware acceleration and features such as WebGL will not be available.
+current working directory: /private/tmp/tinyml-gowin-bringup/uart_loopback
+current device: GW2AR-18C  GW2AR-LV18QN88C8/I7
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.cst"
+add new file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/src/fpga_project_1.sdc"
+GowinSynthesis start
+Running parser ...
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv'
+Analyzing Verilog file '/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv'
+Compiling module 'uart_loopback'("/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.sv":2)
+Compiling module 'uart_rx'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":1)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":64)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":75)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":78)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_rx.sv":88)
+Compiling module 'uart_tx'("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":11)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":66)
+WARN  (EX3791) : Expression size 4 truncated to fit in target size 3("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":83)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":86)
+WARN  (EX3791) : Expression size 9 truncated to fit in target size 8("/Users/sayat/Documents/GitHub/tinyML_accelerator/src/uart_tx.sv":99)
+NOTE  (EX0101) : Current top module is "uart_loopback"
+[5%] Running netlist conversion ...
+Running device independent optimization ...
+[10%] Optimizing Phase 0 completed
+[15%] Optimizing Phase 1 completed
+[25%] Optimizing Phase 2 completed
+Running inference ...
+[30%] Inferring Phase 0 completed
+[40%] Inferring Phase 1 completed
+[50%] Inferring Phase 2 completed
+[55%] Inferring Phase 3 completed
+Running technical mapping ...
+[60%] Tech-Mapping Phase 0 completed
+[65%] Tech-Mapping Phase 1 completed
+[75%] Tech-Mapping Phase 2 completed
+[80%] Tech-Mapping Phase 3 completed
+[90%] Tech-Mapping Phase 4 completed
+[95%] Generate netlist file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/gwsynthesis/uart_loopback.vg" completed
+[100%] Generate report file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/gwsynthesis/uart_loopback_syn.rpt.html" completed
+GowinSynthesis finish
+Reading netlist file: "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/gwsynthesis/uart_loopback.vg"
+Parsing netlist file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/gwsynthesis/uart_loopback.vg" completed
+Processing netlist completed
+Reading constraint file: "/Users/sayat/Documents/GitHub/tinyML_accelerator/hardware/bringup/uart_loopback.cst"
+Physical Constraint parsed completed
+Running placement......
+[10%] Placement Phase 0 completed
+[20%] Placement Phase 1 completed
+[30%] Placement Phase 2 completed
+[50%] Placement Phase 3 completed
+Running routing......
+[60%] Routing Phase 0 completed
+[70%] Routing Phase 1 completed
+[80%] Routing Phase 2 completed
+WARN  (PR1014) : Generic routing resource will be used to clock signal 'sys_clk_d' by the specified constraint. And then it may lead to the excessive delay or skew
+[90%] Routing Phase 3 completed
+Running timing analysis......
+[95%] Timing analysis completed
+Placement and routing completed
+Bitstream generation in progress......
+Bitstream generation completed
+Running power analysis......
+[100%] Power analysis completed
+Generate file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/pnr/uart_loopback.power.html" completed
+Generate file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/pnr/uart_loopback.pin.html" completed
+Generate file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/pnr/uart_loopback.rpt.html" completed
+Generate file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/pnr/uart_loopback.rpt.txt" completed
+Generate file "/private/tmp/tinyml-gowin-bringup/uart_loopback/impl/pnr/uart_loopback.tr.html" completed
+Tue Sep  8 22:18:43 2026

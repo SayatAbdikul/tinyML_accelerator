@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "workload": "kws",
+  "priority": "primary-equal",
+  "upstream": "https://github.com/mlcommons/tiny",
+  "revision": "4addd0fa08d216e20637637874e084895f289da4",
+  "files": [
+    {
+      "path": "benchmark/evaluation/datasets/kws01/y_labels.csv",
+      "sha256": "6cb3709762d53fe64eb00eaf4a75796248bb3c1386f1d1f93ccdb07b071e9698",
+      "bytes": 27048
+    },
+    {
+      "path": "benchmark/runner/datasets.py",
+      "sha256": "a09de931c4a858e3080846a4e715698bad5f6539b04f29eb32b68f0676234ab6",
+      "bytes": 3058
+    },
+    {
+      "path": "benchmark/runner/device_manager.py",
+      "sha256": "3029294ef82f5dbc3d50840c5f94ab88f248c666fc262b3bbfc3fd4212dbaccc",
+      "bytes": 7388
+    },
+    {
+      "path": "benchmark/runner/device_under_test.py",
+      "sha256": "4a83c8d330ef1858693986c677445db4b410714445e623718d518cf1c358ae8e",
+      "bytes": 4326
+    },
+    {
+      "path": "benchmark/runner/interface_device.py",
+      "sha256": "69057dbecc26db44ab7ee47a79fc4cae68d4d12a14d1030e72deebe52e1f46bb",
+      "bytes": 88
+    },
+    {
+      "path": "benchmark/runner/io_manager.py",
+      "sha256": "a80dcf8f6358587fc4fc431dd2b6a89c545127bf619ad9ae576bfbe0bbb74a34",
+      "bytes": 2150
+    },
+    {
+      "path": "benchmark/runner/io_manager_enhanced.py",
+      "sha256": "11316a0d7f3a64d97569bd5c3918c76b033a8f994dbeff22f75b8cd86111bf9a",
+      "bytes": 1154
+    },
+    {
+      "path": "benchmark/runner/main.py",
+      "sha256": "6e38df8e1260d606c7f1a97e07d313cdf8391fdee0b7c5bb518b1b39b6faff94",
+      "bytes": 16453
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager.py",
+      "sha256": "0e258385052a83bfba1e5cf3d6187647ef6fadb3f568c690149991b500edabad",
+      "bytes": 2997
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_js220.py",
+      "sha256": "95ba561853a3200cdc7a2ed7dc32e47e268a8541afc8762187bbd64f77bec186",
+      "bytes": 10587
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_lpm.py",
+      "sha256": "2481d057924a8f057c4e5dc9aa395e4a8f3a2b98af25f0b5c1c6b1aa5b6563dc",
+      "bytes": 21558
+    },
+    {
+      "path": "benchmark/runner/power_manager/power_manager_stlinkv3pwr.py",
+      "sha256": "afabf5dcb13c8475067671a99cb9f6bab3978435d267fa8e865c6cdb4a46b7c2",
+      "bytes": 4189
+    },
+    {
+      "path": "benchmark/runner/runner_utils.py",
+      "sha256": "d55d4fecf21e7ea7239931337fcd0277db0e9ea9d8033f1a98577d045e809268",
+      "bytes": 1223
+    },
+    {
+      "path": "benchmark/runner/script.py",
+      "sha256": "135143af6d88a693d8dba63a5fbff96a3668d03c65da086aca3faf9ab7237218",
+      "bytes": 20069
+    },
+    {
+      "path": "benchmark/runner/serial_device.py",
+      "sha256": "dac40f7647389abc59f3e6221a60ab21e14f7be4406f69da78f51bfff93ce03c",
+      "bytes": 4422
+    },
+    {
+      "path": "benchmark/runner/stream_wav_uart.py",
+      "sha256": "94da2eac0bb9f2d38cb462ec0ad3593ddae6e2553af7c92124ace86e9ef7174b",
+      "bytes": 11276
+    },
+    {
+      "path": "benchmark/runner/streaming_ww_utils.py",
+      "sha256": "3757b52b4a198724d24ba862064db805cb357402937dfdf70c250f943c56c420",
+      "bytes": 9061
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/README.md",
+      "sha256": "28ea0da09f72194618a873db9aa873f485b00decf729e0b0ea7f54f86a956892",
+      "bytes": 4701
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/eval_functions_eembc.py",
+      "sha256": "64be48b7cfe4ca1157f01227f3122ee1760c8c5509c6875cacaab8ff931b22d1",
+      "bytes": 8694
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/eval_quantized_model.py",
+      "sha256": "b02d7448c4ebb557ce728b32c229f9f0dbc4309f49e3e91a3f2bd981a7466123",
+      "bytes": 2654
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/evaluate.py",
+      "sha256": "77ebed09dbb2349824e04f37a9fc967e0bb2d71d03b241ab8311e5a36657137f",
+      "bytes": 1949
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/get_dataset.py",
+      "sha256": "ddfe37b074cf778d3d6cc8e657fcadd0ce031844b97cbbebc3a424af9041dc7c",
+      "bytes": 15447
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/keras_model.py",
+      "sha256": "0e0a1309cd179b5c235beb31c63c168ac74196fa378de0ed8aba7197826c697d",
+      "bytes": 9093
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/kws_util.py",
+      "sha256": "4565d66aaf4a0f65fda9361156428e3ca37d6e8c20f8bc6c19dd703df5d7050f",
+      "bytes": 6374
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/make_bin_files.py",
+      "sha256": "183b4421ceefdbaee5f148b43f1be5d461b78e6d560cbddc81835099c8fc0a87",
+      "bytes": 5691
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/mk_cal_set.py",
+      "sha256": "bfae9ff805d6acc7c2da89d6731c4b263d924d4c51db046bf1879e48eda12697",
+      "bytes": 1309
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/quant_cal_idxs.txt",
+      "sha256": "c9ffc5c54e56551edff9e6fa8703554a3118f38aa1b8697da345e1d5e2452292",
+      "bytes": 584
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/quantize.py",
+      "sha256": "16bdb946ab6c03607a737f6210679ce830148d0df0c231d614ac939401cc8f85",
+      "bytes": 2193
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/train.py",
+      "sha256": "adfcba516facfefafd32fbfc6edd99fb1ffd1069619ac85dc7ef78d2fb4c4ada",
+      "bytes": 1634
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/README.md",
+      "sha256": "620cef57c8c79d502b187bd3caafca3099a2177427a3e4be4e4c7237b7cd03bb",
+      "bytes": 556
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/kws_ref_model.tflite",
+      "sha256": "aeea436800704fce17b17292e4412630ad856e9d777c044c64ef748a880bd0ae",
+      "bytes": 53936
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/kws_ref_model/saved_model.pb",
+      "sha256": "80665dd19eeb03d1152fdc098b5635261731b23478d09f6ff2166da799f98138",
+      "bytes": 819446
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/kws_ref_model/variables/variables.data-00000-of-00001",
+      "sha256": "5ebfddd34e85a2d35e87e27a8a803353534019bb460907b16db5fa72d757e8c5",
+      "bytes": 321307
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/kws_ref_model/variables/variables.index",
+      "sha256": "3f21dd9ea6736e20e70c5ed2f40ed9d8a7d12b98316ac0e4ab8f4eb7e303d738",
+      "bytes": 9326
+    },
+    {
+      "path": "benchmark/training/keyword_spotting/trained_models/kws_ref_model_float32.tflite",
+      "sha256": "e5004c6f1012246e33fa068d8488325538e0444073cd361f5a7edb40c73f12d2",
+      "bytes": 43392
+    }
+  ],
+  "evaluator_rules": {
+    "path": "benchmark/MLPerfTiny_Rules.adoc",
+    "sha256": "9072947fba3d9940120c98845b9278d7b8ae4c5f918384faddc200ecf1369d3a"
+  },
+  "dataset": {
+    "name": "Speech Commands v2",
+    "local_split_sha256": "66f6b5cd75410e7b7b5d483dab8e48c363256822a066689fe895041c7941b8ac",
+    "status": "complete declared accuracy split materialized and hashed",
+    "index": {
+      "path": "benchmark/evaluation/datasets/kws01/y_labels.csv",
+      "sha256": "6cb3709762d53fe64eb00eaf4a75796248bb3c1386f1d1f93ccdb07b071e9698",
+      "status": "upstream benchmark index pinned separately; full quality run uses declared split manifest"
+    },
+    "split_manifest": "kws.data.json",
+    "archive_manifest": "dataset-archives.json",
+    "scope": "Speech Commands v2 canonical test",
+    "official_mlperf_submission_certified": false
+  },
+  "calibration": {
+    "status": "materialized; calibration/accuracy ID and feature-content overlap checked",
+    "sample_ids_sha256": "6716d78516ae41dacd47e4b4f6fb741643f9f6510f1633b6a4ddfa9c03c6c81b",
+    "sample_content_sha256": "18e65a79814fcc63b62ad2061a069c76c0983f612414c2e978e662573a8b519d",
+    "hash_encoding": "UTF-8 compact JSON ordered lists",
+    "npz_sha256": "b3344d31bbeeaea21bf6c124a71dd1e4d0be1178926e97391858e4650a4c547e",
+    "report": "kws.calibration.json",
+    "count": 96
+  },
+  "conversion_parity": {
+    "status": "passed-synthetic-source-framework-parity",
+    "report": "kws.parity.json",
+    "absolute_tolerance": 1e-05,
+    "relative_tolerance": 0.0001,
+    "scope": "16 deterministic probes; source-framework parity, not full-dataset tensor parity"
+  },
+  "quality_target": {
+    "metric": "top-1",
+    "minimum": 0.9
+  },
+  "quality_measured": {
+    "static_report": "kws.static-quality.json",
+    "float_report": "kws.float-quality.json",
+    "scope": "Speech Commands v2 canonical test",
+    "hardware_execution": false,
+    "official_mlperf_submission_certified": false
+  },
+  "canonical_inventory": "kws.canonical-inventory.json"
+}
